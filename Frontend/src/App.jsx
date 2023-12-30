@@ -1,7 +1,24 @@
+import { Home, NotFound } from './Pages';
+import { Route, Routes } from 'react-router-dom';
+import { PrimaryLayout } from './Layouts';
+import { Disease, History, Medicine, Patient, Receipt } from './Pages';
+
 const App = () => {
     return (
         <>
-            <h1 className='text-3xl text-center font-bold text-blue-600'>Welcome! Have a nice day Sir 😉</h1>
+            <Routes>
+                <Route path='/' element={<Home />} />
+
+                <Route path='/masterdata' element={<PrimaryLayout />}>
+                    <Route path='patient' element={<Patient />} />
+                    <Route path='medicine' element={<Medicine />} />
+                    <Route path='disease' element={<Disease />} />
+                    <Route path='receipt' element={<Receipt />} />
+                    <Route path='history' element={<History />} />
+                </Route>
+
+                <Route path='*' element={<NotFound />} />
+            </Routes>
         </>
     );
 };
