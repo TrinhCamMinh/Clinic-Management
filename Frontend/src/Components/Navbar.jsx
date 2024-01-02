@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 const Navbar = () => {
     const handleToggleTheme = () => {
         const htmlElement = document.documentElement;
@@ -17,7 +18,9 @@ const Navbar = () => {
     return (
         <div className='navbar bg-base-300'>
             <div className='flex-1'>
-                <a className='btn btn-ghost text-xl'>daisyUI</a>
+                <Link to='/' className='btn btn-ghost text-xl'>
+                    Jenkins
+                </Link>
             </div>
             <div className='flex-none'>
                 <label className='swap swap-rotate'>

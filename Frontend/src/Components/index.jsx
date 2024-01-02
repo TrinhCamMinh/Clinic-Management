@@ -1,3 +1,4 @@
 export { default as Footer } from './Footer';
-export {default as Table } from './Table'
-export {default as Navbar} from './Navbar'
+export { default as Table } from './Table';
+export { default as Navbar } from './Navbar';
+export { default as Card } from './Card';
