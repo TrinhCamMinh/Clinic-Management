@@ -9,12 +9,12 @@ const Primary = () => {
             </nav>
 
             {/* Prose is TailwindCSS's font */}
-            <main className='prose'>
+            <main className="container px-8 py-2">
                 {/* Main content will be placed here */}
                 <Outlet />
             </main>
 
-            <footer>
+            <footer className='mt-8'>
                 <Footer />
             </footer>
         </>
