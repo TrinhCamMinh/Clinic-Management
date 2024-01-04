@@ -9,6 +9,6 @@ export default {
     },
     plugins: [require('@tailwindcss/typography'), require('daisyui')],
     daisyui: {
-        themes: ['light', 'dark', 'sunset', 'cupcake'], // This is for applying DaisyUI theme to website
+        themes: ['light', 'dark', 'sunset', 'cupcake', 'retro'], // This is for applying DaisyUI theme to website
     },
 };

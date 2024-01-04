@@ -14,7 +14,7 @@ const Primary = () => {
                 <Outlet />
             </main>
 
-            <footer className='mt-8'>
+            <footer className='mt-20'>
                 <Footer />
             </footer>
         </>
