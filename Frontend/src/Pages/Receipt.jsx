@@ -6,7 +6,7 @@ const Receipt = () => {
     return (
         <div>
             <section className='grid grid-cols-4 gap-4'>
-                <label className='form-control w-full col-span-2'>
+                <label className='form-control w-full col-span-4 xl:col-span-2'>
                     <div className='label'>
                         <span className='label-text'>Tên người khám</span>
                     </div>
@@ -17,13 +17,13 @@ const Receipt = () => {
                         disabled
                     />
                 </label>
-                <label className='form-control w-full col-span-2'>
+                <label className='form-control w-full col-span-4 xl:col-span-2'>
                     <div className='label'>
                         <span className='label-text'>Khách hàng mới</span>
                     </div>
                     <input type='text' placeholder='VD: Có' className='input input-bordered w-full' disabled />
                 </label>
-                <label className='form-control w-full col-span-1'>
+                <label className='form-control w-full col-span-4 xl:col-span-1'>
                     <div className='label'>
                         <span className='label-text'>Số điện thoại người khám</span>
                     </div>
@@ -33,31 +33,31 @@ const Receipt = () => {
                         className='input input-bordered w-full'
                     />
                 </label>
-                <label className='form-control w-full col-span-1'>
+                <label className='form-control w-full col-span-4 xl:col-span-1'>
                     <div className='label'>
                         <span className='label-text'>Tuổi người khám</span>
                     </div>
                     <input type='number' placeholder='VD: 8' className='input input-bordered w-full' disabled />
                 </label>
-                <label className='form-control w-full col-span-1'>
+                <label className='form-control w-full col-span-4 xl:col-span-1'>
                     <div className='label'>
                         <span className='label-text'>Mã số khám</span>
                     </div>
                     <input type='text' placeholder='VD: 520H0659' className='input input-bordered w-full' disabled />
                 </label>
-                <label className='form-control w-full col-span-1'>
+                <label className='form-control w-full col-span-4 xl:col-span-1'>
                     <div className='label'>
                         <span className='label-text'>Mã phiếu khám</span>
                     </div>
                     <input type='text' placeholder='VD: 520H0659' className='input input-bordered w-full' disabled />
                 </label>
-                <label className='form-control w-full col-span-1'>
+                <label className='form-control w-full col-span-4 xl:col-span-1'>
                     <div className='label'>
                         <span className='label-text'>Ngày khám</span>
                     </div>
                     <input type='date' placeholder='VD: 25/11/2002' className='input input-bordered w-full' disabled />
                 </label>
-                <label className='form-control w-full col-span-1'>
+                <label className='form-control w-full col-span-4 xl:col-span-1'>
                     <div className='label'>
                         <span className='label-text'>Ngày tái khám</span>
                     </div>
@@ -67,7 +67,7 @@ const Receipt = () => {
                         className='input input-bordered w-full'
                     />
                 </label>
-                <label className='form-control w-full col-span-2'>
+                <label className='form-control w-full col-span-4 xl:col-span-2'>
                     <div className='label'>
                         <span className='label-text'>Tên triệu chứng</span>
                     </div>
@@ -95,7 +95,7 @@ const Receipt = () => {
             </section>
 
             <section>
-                <table className='table'>
+                <table className='table table-lg'>
                     {/* head */}
                     <thead>
                         <tr className='text-center'>

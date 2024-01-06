@@ -17,7 +17,7 @@ const Navbar = () => {
             </div>
 
             <div>
-                <div className='dropdown dropdown-end mr-8'>
+                <div className='dropdown dropdown-end mr-4 lg:mr-8'>
                     <div tabIndex={0} role='button' className='btn btn-ghost btn-circle avatar'>
                         <div className='w-10 rounded-full'>
                             <img
@@ -44,7 +44,8 @@ const Navbar = () => {
                         </li>
                     </ul>
                 </div>
-                <div className='dropdown dropdown-end mr-8'>
+
+                <div className='dropdown dropdown-end'>
                     <div tabIndex={0} role='button' className='btn m-1'>
                         Theme
                         <svg
@@ -59,7 +60,7 @@ const Navbar = () => {
                     </div>
                     <ul
                         tabIndex={0}
-                        className='dropdown-content z-[1] p-2 shadow-2xl bg-base-300 rounded-box w-52 mt-4'
+                        className='dropdown-content z-[20] p-2 shadow-2xl bg-base-300 rounded-box w-52 mt-4'
                         onChange={handleChangeTheme}
                     >
                         {Themes.map((item) => {

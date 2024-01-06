@@ -11,83 +11,71 @@ const Medicine = () => {
                     <input type='text' placeholder='Vui lòng nhập tên thuốc' className='input input-bordered w-full' />
                 </label>
             </div>
-            <div className='row-start-2'>
-                <label className='form-control w-full'>
-                    <div className='label'>
-                        <span className='label-text'>Loại bệnh</span>
-                    </div>
-                    <input type='tel' placeholder='Vui lòng nhập loại bệnh' className='input input-bordered w-full' />
-                </label>
-            </div>
-            <div className='row-start-2'>
-                <label className='form-control w-full'>
-                    <div className='label'>
-                        <span className='label-text'>Thành phần dược</span>
-                    </div>
-                    <input
-                        type='text'
-                        placeholder='Vui lòng nhập thành phần dược'
-                        className='input input-bordered w-full'
-                    />
-                </label>
-            </div>
-            <div className='row-start-2'>
-                <label className='form-control w-full'>
-                    <div className='label'>
-                        <span className='label-text'>Giá</span>
-                    </div>
-                    <input type='number' placeholder='Vui lòng nhập giá' className='input input-bordered w-full' />
-                </label>
-            </div>
-            <div className='row-start-3'>
-                <label className='form-control w-full'>
-                    <div className='label'>
-                        <span className='label-text'>Hàm lượng</span>
-                    </div>
-                    <input type='text' placeholder='Vui lòng nhập hàm lượng' className='input input-bordered w-full' />
-                </label>
-            </div>
-            <div className='row-start-3'>
-                <label className='form-control w-full'>
-                    <div className='label'>
-                        <span className='label-text'>Liều Thuốc</span>
-                    </div>
-                    <input type='text' placeholder='Vui lòng nhập liều thuốc' className='input input-bordered w-full' />
-                </label>
-            </div>
-            <div className='row-start-3'>
-                <label className='form-control w-full'>
-                    <div className='label'>
-                        <span className='label-text'>Số lượng Tồn kho</span>
-                    </div>
-                    <input
-                        type='number'
-                        placeholder='Vui lòng nhập số lượng tồn kho'
-                        className='input input-bordered w-full'
-                    />
-                </label>
+            <label className='form-control w-full col-span-3 xl:col-span-1'>
+                <div className='label'>
+                    <span className='label-text'>Loại bệnh</span>
+                </div>
+                <input type='tel' placeholder='Vui lòng nhập loại bệnh' className='input input-bordered w-full' />
+            </label>
+            <label className='form-control w-full col-span-3 xl:col-span-1'>
+                <div className='label'>
+                    <span className='label-text'>Thành phần dược</span>
+                </div>
+                <input
+                    type='text'
+                    placeholder='Vui lòng nhập thành phần dược'
+                    className='input input-bordered w-full'
+                />
+            </label>
+            <label className='form-control w-full col-span-3 xl:col-span-1'>
+                <div className='label'>
+                    <span className='label-text'>Giá</span>
+                </div>
+                <input type='number' placeholder='Vui lòng nhập giá' className='input input-bordered w-full' />
+            </label>
+            <label className='form-control w-full col-span-3 xl:col-span-1'>
+                <div className='label'>
+                    <span className='label-text'>Hàm lượng</span>
+                </div>
+                <input type='text' placeholder='Vui lòng nhập hàm lượng' className='input input-bordered w-full' />
+            </label>
+            <label className='form-control w-full col-span-3 xl:col-span-1'>
+                <div className='label'>
+                    <span className='label-text'>Liều Thuốc</span>
+                </div>
+                <input type='text' placeholder='Vui lòng nhập liều thuốc' className='input input-bordered w-full' />
+            </label>
+            <label className='form-control w-full col-span-3 xl:col-span-1'>
+                <div className='label'>
+                    <span className='label-text'>Số lượng Tồn kho</span>
+                </div>
+                <input
+                    type='number'
+                    placeholder='Vui lòng nhập số lượng tồn kho'
+                    className='input input-bordered w-full'
+                />
+            </label>
+
+            <div className='col-start-1 mt-4'>
+                <button className='btn btn-error col-span-1 w-full text-xs xl:text-2xl'>Làm mới dữ liệu</button>
             </div>
 
-            <div className='row-start-4 col-start-1 mt-4'>
-                <button className='btn btn-error col-span-1 w-full'>Làm mới dữ liệu</button>
-            </div>
-
-            <div className='row-start-4  col-start-2 col-span-2 mt-4'>
+            <div className='col-start-2 col-span-2 mt-4'>
                 <button className='btn btn-success w-full'>Tạo mới dữ liệu</button>
             </div>
 
-            <div className='row-start-5 col-span-3'>
+            <div className='col-span-3'>
                 <div className='divider divider-primary uppercase'>or</div>
             </div>
 
-            <div className='row-start-6 col-span-3'>
+            <div className='col-span-3'>
                 <input
                     type='text'
                     placeholder='Tìm kiếm'
                     className='input input-bordered input-md w-full max-w-xs mb-4 col-start-3'
                 />
                 <div className='overflow-x-auto'>
-                    <table className='table table-zebra'>
+                    <table className='table table-zebra table-lg xl:table-sm'>
                         {/* head */}
                         <thead>
                             <tr>

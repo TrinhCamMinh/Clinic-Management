@@ -1,8 +1,8 @@
 const History = () => {
     return (
         <>
-            <section className='grid grid-cols-4 gap-4'>
-                <label className='form-control w-full col-span-2'>
+            <section className='grid grid-cols-4 gap-4 mt-24 lg:mt-0'>
+                <label className='form-control w-full col-span-4 xl:col-span-2'>
                     <div className='label'>
                         <span className='label-text'>Số điện thoại người khám</span>
                     </div>
@@ -12,13 +12,13 @@ const History = () => {
                         className='input input-bordered w-full'
                     />
                 </label>
-                <label className='form-control w-full col-span-2'>
+                <label className='form-control w-full col-span-4 xl:col-span-2'>
                     <div className='label'>
                         <span className='label-text'>Mã sổ khám</span>
                     </div>
                     <input type='text' placeholder='VD: 520H0659' className='input input-bordered w-full' disabled />
                 </label>
-                <label className='form-control w-full col-span-1'>
+                <label className='form-control w-full col-span-4 xl:col-span-1'>
                     <div className='label'>
                         <span className='label-text'>Tên người khám</span>
                     </div>
@@ -29,13 +29,13 @@ const History = () => {
                         disabled
                     />
                 </label>
-                <label className='form-control w-full col-span-1'>
+                <label className='form-control w-full col-span-4 xl:col-span-1'>
                     <div className='label'>
                         <span className='label-text'>Tuổi người khám</span>
                     </div>
                     <input type='number' placeholder='VD: 8' className='input input-bordered w-full' disabled />
                 </label>
-                <label className='form-control w-full col-span-2'>
+                <label className='form-control w-full col-span-4 xl:col-span-2'>
                     <div className='label'>
                         <span className='label-text'>Địa chỉ người khám</span>
                     </div>
@@ -54,7 +54,7 @@ const History = () => {
 
             <section>
                 <div className='overflow-x-auto'>
-                    <table className='table table-zebra'>
+                    <table className='table table-zebra table-lg'>
                         {/* head */}
                         <thead>
                             <tr>

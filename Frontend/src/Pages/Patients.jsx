@@ -4,7 +4,7 @@ const Patients = () => {
     return (
         <>
             <div className='grid grid-cols-3 gap-4'>
-                <div>
+                <div className='col-span-3 xl:col-span-1'>
                     <label className='form-control w-full'>
                         <div className='label'>
                             <span className='label-text'>Họ và tên</span>
@@ -16,7 +16,7 @@ const Patients = () => {
                         />
                     </label>
                 </div>
-                <div>
+                <div className='col-span-3 xl:col-span-1'>
                     <label className='form-control w-full'>
                         <div className='label'>
                             <span className='label-text'>Số điện thoại</span>
@@ -28,7 +28,7 @@ const Patients = () => {
                         />
                     </label>
                 </div>
-                <div>
+                <div className='col-span-3 xl:col-span-1'>
                     <label className='form-control w-full'>
                         <div className='label'>
                             <span className='label-text'>Tuổi</span>
@@ -40,7 +40,7 @@ const Patients = () => {
                         />
                     </label>
                 </div>
-                <div className='row-start-2'>
+                <div className='col-span-3 xl:col-span-1'>
                     <label className='form-control w-full'>
                         <div className='label'>
                             <span className='label-text'>Địa chỉ</span>
@@ -52,7 +52,7 @@ const Patients = () => {
                         />
                     </label>
                 </div>
-                <div className='row-start-2'>
+                <div className='col-span-3 xl:col-span-1'>
                     <label className='form-control w-full'>
                         <div className='label'>
                             <span className='label-text'>Mã sổ khám bệnh</span>
@@ -64,7 +64,7 @@ const Patients = () => {
                         />
                     </label>
                 </div>
-                <div className='row-start-2'>
+                <div className='col-span-3 xl:col-span-1'>
                     <label className='form-control w-full'>
                         <div className='label'>
                             <span className='label-text'>Ngày sinh</span>
@@ -77,27 +77,22 @@ const Patients = () => {
                     </label>
                 </div>
 
-                <div className='row-start-3 col-start-1 mt-4'>
+                <div className='xl:col-start-1 col-span-1 mt-4'>
                     <button className='btn btn-error col-span-1 w-full'>Làm mới dữ liệu</button>
                 </div>
 
-                <div className='row-start-3  col-start-2 col-span-2 mt-4'>
+                <div className='xl:col-start-2 col-span-2 mt-4'>
                     <button className='btn btn-success w-full'>Tạo mới dữ liệu</button>
                 </div>
 
-                <div className='row-start-4 col-span-3'>
+                <div className='col-span-3'>
                     <div className='divider divider-primary uppercase'>or</div>
                 </div>
 
                 {/* Table Section  */}
-                <div className='row-start-5 col-span-3'>
-                    <input
-                        type='text'
-                        placeholder='Tìm kiếm'
-                        className='input input-bordered input-md w-full max-w-xs mb-4 col-start-3'
-                    />
+                <div className='col-span-3'>
                     <div className='overflow-x-auto'>
-                        <table className='table table-zebra'>
+                        <table className='table table-zebra table-lg'>
                             {/* head */}
                             <thead>
                                 <tr>

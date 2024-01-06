@@ -9,7 +9,7 @@ const Primary = () => {
             </nav>
 
             {/* Prose is TailwindCSS's font */}
-            <main className="container px-8 py-2">
+            <main className='container px-8 py-2'>
                 {/* Main content will be placed here */}
                 <Outlet />
             </main>

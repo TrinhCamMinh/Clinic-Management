@@ -31,7 +31,7 @@ const Disease = () => {
 
                 {/* Table Section  */}
                 <div className='overflow-x-auto'>
-                    <table className='table'>
+                    <table className='table table-lg xl:table-sm'>
                         {/* head */}
                         <thead>
                             <tr className='text-center'>
@@ -158,7 +158,7 @@ const Disease = () => {
                     <div className='divider divider-primary w-full uppercase'>or</div>
 
                     <div className='overflow-x-auto'>
-                        <table className='table'>
+                        <table className='table table-zebra table-md xl:table-sm'>
                             {/* head */}
                             <thead>
                                 <tr>
