@@ -16,7 +16,7 @@ const Login = () => {
         //* for authenticating in other page
         sessionStorage.setItem('userInfo', JSON.stringify(userInfo));
 
-        navigate('/home');
+        navigate('/');
     };
 
     return (

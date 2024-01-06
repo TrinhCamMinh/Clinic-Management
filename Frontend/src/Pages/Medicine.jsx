@@ -1,3 +1,5 @@
+import { FaEye, FaPencil, FaTrashCan } from 'react-icons/fa6';
+
 const Medicine = () => {
     return (
         <div className='grid grid-cols-3 gap-3'>
@@ -14,7 +16,7 @@ const Medicine = () => {
                     <div className='label'>
                         <span className='label-text'>Loại bệnh</span>
                     </div>
-                    <input type='tel' className='input input-bordered w-full' />
+                    <input type='tel' placeholder='Vui lòng nhập loại bệnh' className='input input-bordered w-full' />
                 </label>
             </div>
             <div className='row-start-2'>
@@ -22,7 +24,11 @@ const Medicine = () => {
                     <div className='label'>
                         <span className='label-text'>Thành phần dược</span>
                     </div>
-                    <input type='text' className='input input-bordered w-full' />
+                    <input
+                        type='text'
+                        placeholder='Vui lòng nhập thành phần dược'
+                        className='input input-bordered w-full'
+                    />
                 </label>
             </div>
             <div className='row-start-2'>
@@ -30,7 +36,7 @@ const Medicine = () => {
                     <div className='label'>
                         <span className='label-text'>Giá</span>
                     </div>
-                    <input type='number' className='input input-bordered w-full' />
+                    <input type='number' placeholder='Vui lòng nhập giá' className='input input-bordered w-full' />
                 </label>
             </div>
             <div className='row-start-3'>
@@ -38,28 +44,50 @@ const Medicine = () => {
                     <div className='label'>
                         <span className='label-text'>Hàm lượng</span>
                     </div>
-                    <input type='text' className='input input-bordered w-full' />
+                    <input type='text' placeholder='Vui lòng nhập hàm lượng' className='input input-bordered w-full' />
                 </label>
             </div>
             <div className='row-start-3'>
                 <label className='form-control w-full'>
                     <div className='label'>
-                        <span className='label-text'>Liều</span>
+                        <span className='label-text'>Liều Thuốc</span>
                     </div>
-                    <input type='text' className='input input-bordered w-full' />
+                    <input type='text' placeholder='Vui lòng nhập liều thuốc' className='input input-bordered w-full' />
                 </label>
             </div>
             <div className='row-start-3'>
                 <label className='form-control w-full'>
                     <div className='label'>
-                        <span className='label-text'>Tồn kho</span>
+                        <span className='label-text'>Số lượng Tồn kho</span>
                     </div>
-                    <input type='number' className='input input-bordered w-full' />
+                    <input
+                        type='number'
+                        placeholder='Vui lòng nhập số lượng tồn kho'
+                        className='input input-bordered w-full'
+                    />
                 </label>
             </div>
-            <div className='row-start-4 col-span-3'>
+
+            <div className='row-start-4 col-start-1 mt-4'>
+                <button className='btn btn-error col-span-1 w-full'>Làm mới dữ liệu</button>
+            </div>
+
+            <div className='row-start-4  col-start-2 col-span-2 mt-4'>
+                <button className='btn btn-success w-full'>Tạo mới dữ liệu</button>
+            </div>
+
+            <div className='row-start-5 col-span-3'>
+                <div className='divider divider-primary uppercase'>or</div>
+            </div>
+
+            <div className='row-start-6 col-span-3'>
+                <input
+                    type='text'
+                    placeholder='Tìm kiếm'
+                    className='input input-bordered input-md w-full max-w-xs mb-4 col-start-3'
+                />
                 <div className='overflow-x-auto'>
-                    <table className='table'>
+                    <table className='table table-zebra'>
                         {/* head */}
                         <thead>
                             <tr>
@@ -76,7 +104,7 @@ const Medicine = () => {
                         </thead>
                         <tbody>
                             {/* row 1 */}
-                            <tr>
+                            <tr className='hover'>
                                 <th>
                                     <label>
                                         <input type='checkbox' className='checkbox' />
@@ -106,12 +134,26 @@ const Medicine = () => {
                                 <td>
                                     <div className='badge badge-neutral'>neutral</div>
                                 </td>
-                                <th>
-                                    <button className='btn btn-ghost btn-xs'>details</button>
-                                </th>
+                                <td>
+                                    <button
+                                        className='btn btn-ghost tooltip tooltip-success'
+                                        data-tip='Xem chi tiết dữ liệu'
+                                    >
+                                        <FaEye className='h-5 w-5 text-green-600' />
+                                    </button>
+                                    <button
+                                        className='btn btn-ghost tooltip tooltip-warning'
+                                        data-tip='Cập nhật dữ liệu'
+                                    >
+                                        <FaPencil className='h-5 w-5 text-yellow-600' />
+                                    </button>
+                                    <button className='btn btn-ghost tooltip tooltip-error' data-tip='Xóa dữ liệu'>
+                                        <FaTrashCan className='h-5 w-5 text-red-600' />
+                                    </button>
+                                </td>
                             </tr>
                             {/* row 2 */}
-                            <tr>
+                            <tr className='hover'>
                                 <th>
                                     <label>
                                         <input type='checkbox' className='checkbox' />
@@ -142,11 +184,25 @@ const Medicine = () => {
                                     <div className='badge badge-primary'>primary</div>
                                 </td>
                                 <th>
-                                    <button className='btn btn-ghost btn-xs'>details</button>
+                                    <button
+                                        className='btn btn-ghost tooltip tooltip-success'
+                                        data-tip='Xem chi tiết dữ liệu'
+                                    >
+                                        <FaEye className='h-5 w-5 text-green-600' />
+                                    </button>
+                                    <button
+                                        className='btn btn-ghost tooltip tooltip-warning'
+                                        data-tip='Cập nhật dữ liệu'
+                                    >
+                                        <FaPencil className='h-5 w-5 text-yellow-600' />
+                                    </button>
+                                    <button className='btn btn-ghost tooltip tooltip-error' data-tip='Xóa dữ liệu'>
+                                        <FaTrashCan className='h-5 w-5 text-red-600' />
+                                    </button>
                                 </th>
                             </tr>
                             {/* row 3 */}
-                            <tr>
+                            <tr className='hover'>
                                 <th>
                                     <label>
                                         <input type='checkbox' className='checkbox' />
@@ -177,11 +233,25 @@ const Medicine = () => {
                                     <div className='badge badge-secondary'>secondary</div>
                                 </td>
                                 <th>
-                                    <button className='btn btn-ghost btn-xs'>details</button>
+                                    <button
+                                        className='btn btn-ghost tooltip tooltip-success'
+                                        data-tip='Xem chi tiết dữ liệu'
+                                    >
+                                        <FaEye className='h-5 w-5 text-green-600' />
+                                    </button>
+                                    <button
+                                        className='btn btn-ghost tooltip tooltip-warning'
+                                        data-tip='Cập nhật dữ liệu'
+                                    >
+                                        <FaPencil className='h-5 w-5 text-yellow-600' />
+                                    </button>
+                                    <button className='btn btn-ghost tooltip tooltip-error' data-tip='Xóa dữ liệu'>
+                                        <FaTrashCan className='h-5 w-5 text-red-600' />
+                                    </button>
                                 </th>
                             </tr>
                             {/* row 4 */}
-                            <tr>
+                            <tr className='hover'>
                                 <th>
                                     <label>
                                         <input type='checkbox' className='checkbox' />
@@ -212,11 +282,32 @@ const Medicine = () => {
                                     <div className='badge badge-accent'>accent</div>
                                 </td>
                                 <th>
-                                    <button className='btn btn-ghost btn-xs'>details</button>
+                                    <button
+                                        className='btn btn-ghost tooltip tooltip-success'
+                                        data-tip='Xem chi tiết dữ liệu'
+                                    >
+                                        <FaEye className='h-5 w-5 text-green-600' />
+                                    </button>
+                                    <button
+                                        className='btn btn-ghost tooltip tooltip-warning'
+                                        data-tip='Cập nhật dữ liệu'
+                                    >
+                                        <FaPencil className='h-5 w-5 text-yellow-600' />
+                                    </button>
+                                    <button className='btn btn-ghost tooltip tooltip-error' data-tip='Xóa dữ liệu'>
+                                        <FaTrashCan className='h-5 w-5 text-red-600' />
+                                    </button>
                                 </th>
                             </tr>
                         </tbody>
                         <tfoot>
+                            <tr>
+                                <th></th>
+                                <th>Name</th>
+                                <th>Job</th>
+                                <th>Favorite Color</th>
+                                <th></th>
+                            </tr>
                             <tr>
                                 <th colSpan={5}>
                                     <div className='float-right'>

@@ -16,8 +16,8 @@ const Footer = () => {
         const button = document.querySelector(`[data-path='${currentPath}']`);
         const currentActiveButton = document.querySelector('button.active');
 
-        if(currentActiveButton) {
-            currentActiveButton.classList.remove('active')
+        if (currentActiveButton) {
+            currentActiveButton.classList.remove('active');
         }
         button.classList.add('active');
     }, [location]);
@@ -26,7 +26,7 @@ const Footer = () => {
         <div className='btm-nav'>
             <button className='text-primary' data-path='/home'>
                 <Link to='/'>
-                    <div className='tooltip' data-tip='Trang Chủ'>
+                    <div className='tooltip tooltip-primary' data-tip='Trang Chủ'>
                         <MdHome className='h-5 w-5' />
                     </div>
                 </Link>
@@ -34,7 +34,7 @@ const Footer = () => {
 
             <button className='text-primary' data-path='/masterdata/patient'>
                 <Link to='/masterdata/patient'>
-                    <div className='tooltip' data-tip='Masterdata Bệnh nhân'>
+                    <div className='tooltip tooltip-primary' data-tip='Masterdata Bệnh nhân'>
                         <IoIosPerson className='h-5 w-5' />
                     </div>
                 </Link>
@@ -42,7 +42,7 @@ const Footer = () => {
 
             <button className='text-primary' data-path='/masterdata/medicine'>
                 <Link to='/masterdata/medicine'>
-                    <div className='tooltip' data-tip='Masterdata Thuốc'>
+                    <div className='tooltip tooltip-primary' data-tip='Masterdata Thuốc'>
                         <CiPill className='h-5 w-5' />
                     </div>
                 </Link>
@@ -50,7 +50,7 @@ const Footer = () => {
 
             <button className='text-primary' data-path='/masterdata/disease'>
                 <Link to='/masterdata/disease'>
-                    <div className='tooltip' data-tip='Masterdata Triệu Chứng'>
+                    <div className='tooltip tooltip-primary' data-tip='Masterdata Triệu Chứng'>
                         <FaVirus className='h-5 w-5' />
                     </div>
                 </Link>
@@ -58,7 +58,7 @@ const Footer = () => {
 
             <button className='text-primary' data-path='/masterdata/receipt'>
                 <Link to='/masterdata/receipt'>
-                    <div className='tooltip' data-tip='Phiếu Khám Bệnh'>
+                    <div className='tooltip tooltip-primary' data-tip='Phiếu Khám Bệnh'>
                         <IoReceipt className='h-5 w-5' />
                     </div>
                 </Link>
@@ -66,7 +66,7 @@ const Footer = () => {
 
             <button className='text-primary' data-path='/masterdata/history'>
                 <Link to='/masterdata/history'>
-                    <div className='tooltip' data-tip='Sổ Khám Bệnh'>
+                    <div className='tooltip tooltip-primary' data-tip='Sổ Khám Bệnh'>
                         <MdHistoryEdu className='h-5 w-5' />
                     </div>
                 </Link>

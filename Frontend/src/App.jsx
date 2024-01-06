@@ -1,17 +1,47 @@
 import { Home, NotFound, Disease, History, Medicine, Patient, Receipt, Login } from './Pages';
 import { Route, Routes, Navigate } from 'react-router-dom';
 import { PrimaryLayout } from './Layouts';
+import { useAuth } from './hooks';
+import Swal from 'sweetalert2';
+
+const RequireAuth = ({ children, redirectTo }) => {
+    let isAuthenticated = useAuth();
+
+    if (!isAuthenticated) {
+        Swal.fire({
+            toast: true,
+            position: 'top-right',
+            icon: 'error',
+            title: 'Không thể đăng nhập',
+            text: 'Vui lòng đăng nhập lại!',
+            timerProgressBar: true,
+            timer: 2000,
+        });
+    }
+
+    return isAuthenticated ? children : <Navigate to={redirectTo} />;
+};
 
 const App = () => {
-    const user = JSON.parse(sessionStorage.getItem('userInfo'));
-
     return (
         <Routes>
-            <Route path='/' element={user ? <Navigate to={'home'} /> : <Login />} />
+            <Route
+                path='/'
+                element={
+                    <RequireAuth redirectTo='/login'>
+                        <Home />
+                    </RequireAuth>
+                }
+            />
 
-            <Route path='/home' element={<Home />} />
-
-            <Route path='/masterdata' element={<PrimaryLayout />}>
+            <Route
+                path='/masterdata'
+                element={
+                    <RequireAuth redirectTo='/login'>
+                        <PrimaryLayout />
+                    </RequireAuth>
+                }
+            >
                 <Route path='patient' element={<Patient />} />
                 <Route path='medicine' element={<Medicine />} />
                 <Route path='disease' element={<Disease />} />
