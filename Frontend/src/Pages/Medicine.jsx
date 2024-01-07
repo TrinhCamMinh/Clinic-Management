@@ -57,7 +57,7 @@ const Medicine = () => {
             </label>
 
             <div className='col-start-1 mt-4'>
-                <button className='btn btn-error col-span-1 w-full text-xs xl:text-2xl'>Làm mới dữ liệu</button>
+                <button className='btn btn-error col-span-1 w-full text-xs xl:text-base'>Làm mới dữ liệu</button>
             </div>
 
             <div className='col-start-2 col-span-2 mt-4'>

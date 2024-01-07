@@ -1,7 +1,7 @@
 const History = () => {
     return (
-        <>
-            <section className='grid grid-cols-4 gap-4 mt-24 lg:mt-0'>
+        <div className='grid grid-cols-4 gap-4 mt-24 lg:mt-0'>
+            <section className='col-span-4 grid grid-cols-4 gap-4'>
                 <label className='form-control w-full col-span-4 xl:col-span-2'>
                     <div className='label'>
                         <span className='label-text'>Số điện thoại người khám</span>
@@ -48,11 +48,11 @@ const History = () => {
                 </label>
             </section>
 
-            <section className='mt-4'>
+            <section className='mt-4 col-span-4'>
                 <div className='divider divider-primary uppercase'>or</div>
             </section>
 
-            <section>
+            <section className='col-span-4'>
                 <div className='overflow-x-auto'>
                     <table className='table table-zebra table-lg'>
                         {/* head */}
@@ -108,7 +108,7 @@ const History = () => {
                     </table>
                 </div>
             </section>
-        </>
+        </div>
     );
 };
 

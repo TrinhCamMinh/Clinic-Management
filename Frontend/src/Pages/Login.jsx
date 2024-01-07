@@ -28,7 +28,7 @@ const Login = () => {
                             Sign in to Clinic 4.0
                         </h2>
                         <p className='mt-2 text-4xl lg:text-base text-gray-600'>
-                            Dont have an account?
+                            Dont have an account?{' '}
                             <a
                                 href='#'
                                 title=''
