@@ -11,7 +11,7 @@ const Home = () => {
 
             <main className='flex flex-col xl:gap-8 container'>
                 <header className='flex items-center justify-center gap-2'>
-                    <h2 className='w-fit font-extrabold text-xl xl:text-4xl text-[#F9004D] italic'>
+                    <h2 className='w-fit font-extrabold text-4xl text-[#F9004D] italic'>
                         Chào mừng Anh Minh đã quay trở lại
                     </h2>
 

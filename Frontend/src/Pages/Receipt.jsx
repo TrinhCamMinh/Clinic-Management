@@ -1,6 +1,5 @@
 import { FaPlus } from 'react-icons/fa';
-import { GrPowerReset } from 'react-icons/gr';
-import { FaEye, FaPencil, FaTrashCan } from 'react-icons/fa6';
+import { FaTrashCan } from 'react-icons/fa6';
 
 const Receipt = () => {
     return (
@@ -100,8 +99,7 @@ const Receipt = () => {
                     <thead>
                         <tr className='text-center'>
                             <th colSpan={5} className='uppercase text-xl italic'>
-                                ĐƠN THUỐC DÙNG - MÃ ĐƠN THUỐC
-                                <span className='text-red-400 ml-2'>520H0659</span>
+                                ĐƠN THUỐC DÙNG - MÃ ĐƠN THUỐC <span className='text-red-400 ml-2'>520H0659</span>
                             </th>
                         </tr>
                         <tr>

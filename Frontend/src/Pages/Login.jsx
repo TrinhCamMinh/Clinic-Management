@@ -20,14 +20,14 @@ const Login = () => {
     };
 
     return (
-        <section className='bg-white'>
-            <div className='grid grid-cols-1 lg:grid-cols-2'>
+        <section className='bg-white h-screen'>
+            <div className='h-full grid grid-cols-1 lg:grid-cols-2'>
                 <div className='flex items-center justify-center bg-white px-4 py-10 sm:px-6 sm:py-16 lg:px-8 lg:py-24'>
                     <div className='xl:mx-auto xl:w-full xl:max-w-sm 2xl:max-w-md'>
-                        <h2 className='text-3xl font-bold leading-tight text-black sm:text-4xl'>
+                        <h2 className='text-8xl lg:text-4xl font-bold leading-tight text-black'>
                             Sign in to Clinic 4.0
                         </h2>
-                        <p className='mt-2 text-base text-gray-600'>
+                        <p className='mt-2 text-4xl lg:text-base text-gray-600'>
                             Dont have an account?
                             <a
                                 href='#'
@@ -41,22 +41,33 @@ const Login = () => {
                         <form className='mt-8'>
                             <div className='space-y-5'>
                                 <div>
-                                    <label className='text-base font-medium text-gray-900'>Username</label>
+                                    <label
+                                        htmlFor='username'
+                                        className='text-4xl lg:text-base font-medium text-gray-900'
+                                    >
+                                        Username
+                                    </label>
                                     <div className='mt-2.5'>
                                         <input
                                             ref={userName}
                                             type='text'
-                                            name=''
-                                            id=''
+                                            name='username'
+                                            id='username'
                                             placeholder='Enter user name to get started'
                                             className='block w-full rounded-md border border-gray-200 bg-gray-50 p-4 text-black placeholder-gray-500 caret-blue-600 transition-all duration-200 focus:border-blue-600 focus:bg-white focus:outline-none'
+                                            autoComplete='username'
                                         />
                                     </div>
                                 </div>
 
                                 <div>
                                     <div className='flex items-center justify-between'>
-                                        <label className='text-base font-medium text-gray-900'>Password</label>
+                                        <label
+                                            htmlFor='password'
+                                            className='text-4xl lg:text-base font-medium text-gray-900'
+                                        >
+                                            Password
+                                        </label>
 
                                         <a
                                             href='#'
@@ -70,10 +81,11 @@ const Login = () => {
                                         <input
                                             ref={userPassword}
                                             type='password'
-                                            name=''
-                                            id=''
+                                            name='password'
+                                            id='password'
                                             placeholder='Enter your password'
                                             className='block w-full rounded-md border border-gray-200 bg-gray-50 p-4 text-black placeholder-gray-500 caret-blue-600 transition-all duration-200 focus:border-blue-600 focus:bg-white focus:outline-none'
+                                            autoComplete='current-password'
                                         />
                                     </div>
                                 </div>

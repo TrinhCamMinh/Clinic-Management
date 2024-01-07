@@ -1,24 +1,17 @@
+import PropTypes from 'prop-types';
+
 import { Home, NotFound, Disease, History, Medicine, Patient, Receipt, Login } from './Pages';
 import { Route, Routes, Navigate } from 'react-router-dom';
 import { PrimaryLayout } from './Layouts';
+import { Alert } from './utils/Alert';
 import { useAuth } from './hooks';
-import Swal from 'sweetalert2';
 
 const RequireAuth = ({ children, redirectTo }) => {
-    let isAuthenticated = useAuth();
+    const { isAuthenticated, errorStatus, message } = useAuth();
 
-    if (!isAuthenticated) {
-        Swal.fire({
-            toast: true,
-            position: 'top-right',
-            icon: 'error',
-            title: 'Không thể đăng nhập',
-            text: 'Vui lòng đăng nhập lại!',
-            timerProgressBar: true,
-            timer: 2000,
-        });
+    if (errorStatus) {
+        Alert({ toast: true, icon: 'error', title: 'Không thể đăng nhập', text: message });
     }
-
     return isAuthenticated ? children : <Navigate to={redirectTo} />;
 };
 
@@ -56,4 +49,8 @@ const App = () => {
     );
 };
 
+RequireAuth.propTypes = {
+    redirectTo: PropTypes.string.isRequired,
+    children: PropTypes.node.isRequired,
+};
 export default App;

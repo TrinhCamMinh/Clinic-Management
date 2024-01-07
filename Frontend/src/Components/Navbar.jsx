@@ -1,11 +1,19 @@
 import { Link } from 'react-router-dom';
 import { Themes } from '../Mocks/data';
+import { useNavigate } from 'react-router-dom';
 
 const Navbar = () => {
-    const handleChangeTheme = (e) => {
-        const selectedTheme = e.target.value;
+    const navigate = useNavigate();
+
+    const handleChangeTheme = (event) => {
+        const selectedTheme = event.target.value;
         const htmlElement = document.documentElement;
         htmlElement.dataset.theme = selectedTheme;
+    };
+
+    const handleLogout = () => {
+        sessionStorage.removeItem('userInfo');
+        navigate('/login');
     };
 
     return (
@@ -39,7 +47,7 @@ const Navbar = () => {
                         <li>
                             <a>Settings</a>
                         </li>
-                        <li>
+                        <li onClick={handleLogout}>
                             <a>Logout</a>
                         </li>
                     </ul>

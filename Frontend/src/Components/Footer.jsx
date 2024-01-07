@@ -1,11 +1,9 @@
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { MdHome } from 'react-icons/md';
 import { IoIosPerson } from 'react-icons/io';
 import { CiPill } from 'react-icons/ci';
 import { FaVirus } from 'react-icons/fa6';
 import { IoReceipt } from 'react-icons/io5';
-import { MdHistoryEdu } from 'react-icons/md';
-import { useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
 
 const Footer = () => {
@@ -14,6 +12,12 @@ const Footer = () => {
     useEffect(() => {
         const currentPath = location.pathname;
         const button = document.querySelector(`[data-path='${currentPath}']`);
+
+        //* Path that doest not exist in Footer Navigation List
+        if (!button) {
+            return;
+        }
+
         const currentActiveButton = document.querySelector('button.active');
 
         if (currentActiveButton) {
@@ -60,14 +64,6 @@ const Footer = () => {
                 <Link to='/masterdata/receipt'>
                     <div className='tooltip tooltip-primary' data-tip='Phiếu Khám Bệnh'>
                         <IoReceipt className='h-5 w-5' />
-                    </div>
-                </Link>
-            </button>
-
-            <button className='text-primary' data-path='/masterdata/history'>
-                <Link to='/masterdata/history'>
-                    <div className='tooltip tooltip-primary' data-tip='Sổ Khám Bệnh'>
-                        <MdHistoryEdu className='h-5 w-5' />
                     </div>
                 </Link>
             </button>
