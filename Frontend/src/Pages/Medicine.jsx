@@ -1,316 +1,238 @@
 import { FaEye, FaPencil, FaTrashCan } from 'react-icons/fa6';
+import { GrPowerReset } from 'react-icons/gr';
+import { FaSave } from 'react-icons/fa';
+import { useState } from 'react';
+import { useTheme } from '../hooks';
+import { AgGridReact } from 'ag-grid-react'; //* React Grid Logic
 
 const Medicine = () => {
+    const themeValue = useTheme();
+
+    const checkboxSelection = function (params) {
+        //* we put checkbox on the name if we are not doing grouping
+        return params.api.getRowGroupColumns().length === 0;
+    };
+
+    const headerCheckboxSelection = function (params) {
+        //* we put checkbox on the name if we are not doing grouping
+        return params.api.getRowGroupColumns().length === 0;
+    };
+
+    //* Row Data: The data to be displayed.
+    const [rowData, setRowData] = useState([
+        {
+            'Tên dược liệu': 'Omnigender',
+            'Loại bệnh': 'Return to Sender',
+            'Thành phần dược': 'Cape Canaveral',
+            'Hàm lượng': 4,
+            'Liều lượng': 10,
+            'Số lượng tồn kho': 56,
+            'Giá dược liệu/viên': 68,
+        },
+        {
+            'Tên dược liệu': 'Omnigender',
+            'Loại bệnh': 'Return to Sender',
+            'Thành phần dược': 'Cape Canaveral',
+            'Hàm lượng': 4,
+            'Liều lượng': 10,
+            'Số lượng tồn kho': 56,
+            'Giá dược liệu/viên': 68,
+        },
+        {
+            'Tên dược liệu': 'Omnigender',
+            'Loại bệnh': 'Return to Sender',
+            'Thành phần dược': 'Cape Canaveral',
+            'Hàm lượng': 4,
+            'Liều lượng': 10,
+            'Số lượng tồn kho': 56,
+            'Giá dược liệu/viên': 68,
+        },
+        {
+            'Tên dược liệu': 'Omnigender',
+            'Loại bệnh': 'Return to Sender',
+            'Thành phần dược': 'Cape Canaveral',
+            'Hàm lượng': 4,
+            'Liều lượng': 10,
+            'Số lượng tồn kho': 56,
+            'Giá dược liệu/viên': 68,
+        },
+        {
+            'Tên dược liệu': 'Omnigender',
+            'Loại bệnh': 'Return to Sender',
+            'Thành phần dược': 'Cape Canaveral',
+            'Hàm lượng': 4,
+            'Liều lượng': 10,
+            'Số lượng tồn kho': 56,
+            'Giá dược liệu/viên': 68,
+        },
+    ]);
+
+    //* Column Definitions: Defines & controls grid columns.
+    const [colDefs, setColDefs] = useState([
+        {
+            field: 'Tên dược liệu',
+            wrapText: true,
+            autoHeight: true,
+            pinned: 'left',
+            filter: true,
+            checkboxSelection: checkboxSelection,
+            headerCheckboxSelection: headerCheckboxSelection,
+        },
+        { field: 'Loại bệnh', wrapText: true, filter: true },
+        { field: 'Thành phần dược', wrapText: true, filter: true },
+        { field: 'Hàm lượng', wrapText: true, filter: true },
+        { field: 'Liều lượng', wrapText: true, filter: true },
+        { field: 'Số lượng tồn kho', wrapText: true, filter: true },
+        { field: 'Giá dược liệu/viên', wrapText: true, filter: true },
+    ]);
+
+    //* Make the AGGrid content automatically resize to fit the grid container size
+    const autoSizeStrategy = {
+        type: 'fitGridWidth',
+        defaultMinWidth: 100,
+    };
+
     return (
-        <div className='grid grid-cols-3 gap-3'>
-            <div className='col-span-3'>
-                <label className='form-control w-full'>
-                    <div className='label'>
-                        <span className='label-text'>Tên thuốc</span>
-                    </div>
-                    <input type='text' placeholder='Vui lòng nhập tên thuốc' className='input input-bordered w-full' />
-                </label>
-            </div>
-            <label className='form-control w-full col-span-3 xl:col-span-1'>
-                <div className='label'>
-                    <span className='label-text'>Loại bệnh</span>
-                </div>
-                <input type='tel' placeholder='Vui lòng nhập loại bệnh' className='input input-bordered w-full' />
-            </label>
-            <label className='form-control w-full col-span-3 xl:col-span-1'>
-                <div className='label'>
-                    <span className='label-text'>Thành phần dược</span>
-                </div>
-                <input
-                    type='text'
-                    placeholder='Vui lòng nhập thành phần dược'
-                    className='input input-bordered w-full'
-                />
-            </label>
-            <label className='form-control w-full col-span-3 xl:col-span-1'>
-                <div className='label'>
-                    <span className='label-text'>Giá</span>
-                </div>
-                <input type='number' placeholder='Vui lòng nhập giá' className='input input-bordered w-full' />
-            </label>
-            <label className='form-control w-full col-span-3 xl:col-span-1'>
-                <div className='label'>
-                    <span className='label-text'>Hàm lượng</span>
-                </div>
-                <input type='text' placeholder='Vui lòng nhập hàm lượng' className='input input-bordered w-full' />
-            </label>
-            <label className='form-control w-full col-span-3 xl:col-span-1'>
-                <div className='label'>
-                    <span className='label-text'>Liều Thuốc</span>
-                </div>
-                <input type='text' placeholder='Vui lòng nhập liều thuốc' className='input input-bordered w-full' />
-            </label>
-            <label className='form-control w-full col-span-3 xl:col-span-1'>
-                <div className='label'>
-                    <span className='label-text'>Số lượng Tồn kho</span>
-                </div>
-                <input
-                    type='number'
-                    placeholder='Vui lòng nhập số lượng tồn kho'
-                    className='input input-bordered w-full'
-                />
-            </label>
+        <div className='grid grid-cols-3 gap-4 md:gap-0'>
+            <section className='col-span-3 mt-4'>
+                <button
+                    className='btn btn-success w-full'
+                    onClick={() => document.getElementById('masterdata_medicine_dialog').showModal()}
+                >
+                    Tạo mới dữ liệu
+                </button>
+            </section>
 
-            <div className='col-start-1 mt-4'>
-                <button className='btn btn-error col-span-1 w-full text-xs xl:text-base'>Làm mới dữ liệu</button>
-            </div>
-
-            <div className='col-start-2 col-span-2 mt-4'>
-                <button className='btn btn-success w-full'>Tạo mới dữ liệu</button>
-            </div>
-
-            <div className='col-span-3'>
+            <section className='col-span-3'>
                 <div className='divider divider-primary uppercase'>or</div>
-            </div>
+            </section>
 
-            <div className='col-span-3'>
-                <input
-                    type='text'
-                    placeholder='Tìm kiếm'
-                    className='input input-bordered input-md w-full max-w-xs mb-4 col-start-3'
-                />
-                <div className='overflow-x-auto'>
-                    <table className='table table-zebra table-lg xl:table-sm'>
-                        {/* head */}
-                        <thead>
-                            <tr>
-                                <th>
-                                    <label>
-                                        <input type='checkbox' className='checkbox' />
-                                    </label>
-                                </th>
-                                <th>Name</th>
-                                <th>Job</th>
-                                <th>Favorite Color</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {/* row 1 */}
-                            <tr className='hover'>
-                                <th>
-                                    <label>
-                                        <input type='checkbox' className='checkbox' />
-                                    </label>
-                                </th>
-                                <td>
-                                    <div className='flex items-center gap-3'>
-                                        <div className='avatar'>
-                                            <div className='mask mask-squircle w-12 h-12'>
-                                                <img
-                                                    src='https://i.pravatar.cc/300?img=3'
-                                                    alt='Avatar Tailwind CSS Component'
-                                                />
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <div className='font-bold'>Hart Hagerty</div>
-                                            <div className='text-sm opacity-50'>United States</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>
-                                    Zemlak, Daniel and Leannon
-                                    <br />
-                                    <span className='badge badge-ghost badge-sm'>Desktop Support Technician</span>
-                                </td>
-                                <td>
-                                    <div className='badge badge-neutral'>neutral</div>
-                                </td>
-                                <td>
-                                    <button
-                                        className='btn btn-ghost tooltip tooltip-success'
-                                        data-tip='Xem chi tiết dữ liệu'
-                                    >
-                                        <FaEye className='h-5 w-5 text-green-600' />
-                                    </button>
-                                    <button
-                                        className='btn btn-ghost tooltip tooltip-warning'
-                                        data-tip='Cập nhật dữ liệu'
-                                    >
-                                        <FaPencil className='h-5 w-5 text-yellow-600' />
-                                    </button>
-                                    <button className='btn btn-ghost tooltip tooltip-error' data-tip='Xóa dữ liệu'>
-                                        <FaTrashCan className='h-5 w-5 text-red-600' />
-                                    </button>
-                                </td>
-                            </tr>
-                            {/* row 2 */}
-                            <tr className='hover'>
-                                <th>
-                                    <label>
-                                        <input type='checkbox' className='checkbox' />
-                                    </label>
-                                </th>
-                                <td>
-                                    <div className='flex items-center gap-3'>
-                                        <div className='avatar'>
-                                            <div className='mask mask-squircle w-12 h-12'>
-                                                <img
-                                                    src='https://i.pravatar.cc/300?img=4'
-                                                    alt='Avatar Tailwind CSS Component'
-                                                />
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <div className='font-bold'>Brice Swyre</div>
-                                            <div className='text-sm opacity-50'>China</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>
-                                    Carroll Group
-                                    <br />
-                                    <span className='badge badge-ghost badge-sm'>Tax Accountant</span>
-                                </td>
-                                <td>
-                                    <div className='badge badge-primary'>primary</div>
-                                </td>
-                                <th>
-                                    <button
-                                        className='btn btn-ghost tooltip tooltip-success'
-                                        data-tip='Xem chi tiết dữ liệu'
-                                    >
-                                        <FaEye className='h-5 w-5 text-green-600' />
-                                    </button>
-                                    <button
-                                        className='btn btn-ghost tooltip tooltip-warning'
-                                        data-tip='Cập nhật dữ liệu'
-                                    >
-                                        <FaPencil className='h-5 w-5 text-yellow-600' />
-                                    </button>
-                                    <button className='btn btn-ghost tooltip tooltip-error' data-tip='Xóa dữ liệu'>
-                                        <FaTrashCan className='h-5 w-5 text-red-600' />
-                                    </button>
-                                </th>
-                            </tr>
-                            {/* row 3 */}
-                            <tr className='hover'>
-                                <th>
-                                    <label>
-                                        <input type='checkbox' className='checkbox' />
-                                    </label>
-                                </th>
-                                <td>
-                                    <div className='flex items-center gap-3'>
-                                        <div className='avatar'>
-                                            <div className='mask mask-squircle w-12 h-12'>
-                                                <img
-                                                    src='https://i.pravatar.cc/300?img=5'
-                                                    alt='Avatar Tailwind CSS Component'
-                                                />
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <div className='font-bold'>Marjy Ferencz</div>
-                                            <div className='text-sm opacity-50'>Russia</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>
-                                    Rowe-Schoen
-                                    <br />
-                                    <span className='badge badge-ghost badge-sm'>Office Assistant I</span>
-                                </td>
-                                <td>
-                                    <div className='badge badge-secondary'>secondary</div>
-                                </td>
-                                <th>
-                                    <button
-                                        className='btn btn-ghost tooltip tooltip-success'
-                                        data-tip='Xem chi tiết dữ liệu'
-                                    >
-                                        <FaEye className='h-5 w-5 text-green-600' />
-                                    </button>
-                                    <button
-                                        className='btn btn-ghost tooltip tooltip-warning'
-                                        data-tip='Cập nhật dữ liệu'
-                                    >
-                                        <FaPencil className='h-5 w-5 text-yellow-600' />
-                                    </button>
-                                    <button className='btn btn-ghost tooltip tooltip-error' data-tip='Xóa dữ liệu'>
-                                        <FaTrashCan className='h-5 w-5 text-red-600' />
-                                    </button>
-                                </th>
-                            </tr>
-                            {/* row 4 */}
-                            <tr className='hover'>
-                                <th>
-                                    <label>
-                                        <input type='checkbox' className='checkbox' />
-                                    </label>
-                                </th>
-                                <td>
-                                    <div className='flex items-center gap-3'>
-                                        <div className='avatar'>
-                                            <div className='mask mask-squircle w-12 h-12'>
-                                                <img
-                                                    src='https://i.pravatar.cc/300?img=6'
-                                                    alt='Avatar Tailwind CSS Component'
-                                                />
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <div className='font-bold'>Yancy Tear</div>
-                                            <div className='text-sm opacity-50'>Brazil</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>
-                                    Wyman-Ledner
-                                    <br />
-                                    <span className='badge badge-ghost badge-sm'>Community Outreach Specialist</span>
-                                </td>
-                                <td>
-                                    <div className='badge badge-accent'>accent</div>
-                                </td>
-                                <th>
-                                    <button
-                                        className='btn btn-ghost tooltip tooltip-success'
-                                        data-tip='Xem chi tiết dữ liệu'
-                                    >
-                                        <FaEye className='h-5 w-5 text-green-600' />
-                                    </button>
-                                    <button
-                                        className='btn btn-ghost tooltip tooltip-warning'
-                                        data-tip='Cập nhật dữ liệu'
-                                    >
-                                        <FaPencil className='h-5 w-5 text-yellow-600' />
-                                    </button>
-                                    <button className='btn btn-ghost tooltip tooltip-error' data-tip='Xóa dữ liệu'>
-                                        <FaTrashCan className='h-5 w-5 text-red-600' />
-                                    </button>
-                                </th>
-                            </tr>
-                        </tbody>
-                        <tfoot>
-                            <tr>
-                                <th></th>
-                                <th>Name</th>
-                                <th>Job</th>
-                                <th>Favorite Color</th>
-                                <th></th>
-                            </tr>
-                            <tr>
-                                <th colSpan={5}>
-                                    <div className='float-right'>
-                                        <div className='join'>
-                                            <button className='join-item btn btn-sm'>«</button>
-                                            <button className='join-item btn btn-sm'>Page 22</button>
-                                            <button className='join-item btn btn-sm'>»</button>
-                                        </div>
-                                    </div>
-                                </th>
-                            </tr>
-                        </tfoot>
-                    </table>
+            {/* Table Section  */}
+            <section className='col-span-3'>
+                {/* Container with theme & dimensions */}
+                <div
+                    className={`col-span-3 ${themeValue === 'light' ? 'ag-theme-quartz' : 'ag-theme-quartz-dark'}`}
+                    style={{ width: '100%', height: 450 }}
+                >
+                    <h3 className='font-extrabold text-3xl text-primary text-center uppercase mb-4'>
+                        danh sách dược liệu
+                    </h3>
+
+                    {/* The AG Grid component */}
+                    <AgGridReact
+                        rowData={rowData}
+                        columnDefs={colDefs}
+                        autoSizeStrategy={autoSizeStrategy}
+                        rowSelection={'multiple'}
+                        rowGroupPanelShow={'always'}
+                        pagination={true}
+                        paginationPageSize={20}
+                        paginationPageSizeSelector={[20, 50, 100]}
+                        suppressScrollOnNewData={true} //* tells the grid to NOT scroll to the top when the page changes.
+                    />
                 </div>
-            </div>
+            </section>
+
+            {/* Dialog Section */}
+            <dialog id='masterdata_medicine_dialog' className='modal'>
+                <div className='modal-box w-11/12 max-w-5xl'>
+                    <form method='dialog'>
+                        {/* if there is a button in form, it will close the modal */}
+                        <button className='btn btn-sm btn-circle btn-ghost absolute right-2 top-2'>✕</button>
+                    </form>
+
+                    <h3 className='font-bold text-2xl text-center mb-4 uppercase text-primary'>
+                        form thêm mới dược liệu
+                    </h3>
+
+                    {/* MasterData Input */}
+                    <div className='grid grid-cols-2 gap-3'>
+                        <div className='col-span-2'>
+                            <label className='form-control w-full'>
+                                <div className='label'>
+                                    <span className='label-text'>Tên thuốc</span>
+                                </div>
+                                <input
+                                    type='text'
+                                    placeholder='Vui lòng nhập tên thuốc'
+                                    className='input input-bordered w-full'
+                                />
+                            </label>
+                        </div>
+                        <label className='form-control w-full col-span-2 xl:col-span-1'>
+                            <div className='label'>
+                                <span className='label-text'>Loại bệnh</span>
+                            </div>
+                            <input
+                                type='tel'
+                                placeholder='Vui lòng nhập loại bệnh'
+                                className='input input-bordered w-full'
+                            />
+                        </label>
+                        <label className='form-control w-full col-span-2 xl:col-span-1'>
+                            <div className='label'>
+                                <span className='label-text'>Thành phần dược</span>
+                            </div>
+                            <input
+                                type='text'
+                                placeholder='Vui lòng nhập thành phần dược'
+                                className='input input-bordered w-full'
+                            />
+                        </label>
+                        <label className='form-control w-full col-span-2 xl:col-span-1'>
+                            <div className='label'>
+                                <span className='label-text'>Giá</span>
+                            </div>
+                            <input
+                                type='number'
+                                placeholder='Vui lòng nhập giá'
+                                className='input input-bordered w-full'
+                            />
+                        </label>
+                        <label className='form-control w-full col-span-2 xl:col-span-1'>
+                            <div className='label'>
+                                <span className='label-text'>Hàm lượng</span>
+                            </div>
+                            <input
+                                type='text'
+                                placeholder='Vui lòng nhập hàm lượng'
+                                className='input input-bordered w-full'
+                            />
+                        </label>
+                        <label className='form-control w-full col-span-2 xl:col-span-1'>
+                            <div className='label'>
+                                <span className='label-text'>Liều Thuốc</span>
+                            </div>
+                            <input
+                                type='text'
+                                placeholder='Vui lòng nhập liều thuốc'
+                                className='input input-bordered w-full'
+                            />
+                        </label>
+                        <label className='form-control w-full col-span-2 xl:col-span-1'>
+                            <div className='label'>
+                                <span className='label-text'>Số lượng Tồn kho</span>
+                            </div>
+                            <input
+                                type='number'
+                                placeholder='Vui lòng nhập số lượng tồn kho'
+                                className='input input-bordered w-full'
+                            />
+                        </label>
+                    </div>
+
+                    <div className='grid grid-cols-6 mt-8 gap-4 md:gap-8'>
+                        <button className='btn btn-error col-span-6 md:col-span-2 order-2 md:order-1 uppercase'>
+                            Làm mới dữ liệu
+                            <GrPowerReset className='h-5 w-5' />
+                        </button>
+                        <button className='btn btn-success col-span-6 md:col-span-4 order-1 md:order-2 uppercase'>
+                            Lưu dữ liệu
+                            <FaSave className='h-5 w-5' />
+                        </button>
+                    </div>
+                </div>
+            </dialog>
         </div>
     );
 };

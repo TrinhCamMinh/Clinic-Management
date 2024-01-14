@@ -99,7 +99,9 @@ const Receipt = () => {
                     <thead>
                         <tr className='text-center'>
                             <th colSpan={5} className='uppercase text-xl italic'>
-                                ĐƠN THUỐC DÙNG - MÃ ĐƠN THUỐC <span className='text-red-400 ml-2'>520H0659</span>
+                                <h3 className='font-extrabold text-3xl text-primary text-center uppercase'>
+                                    ĐƠN THUỐC DÙNG - MÃ ĐƠN THUỐC <span className='text-red-400 ml-2'>520H0659</span>
+                                </h3>
                             </th>
                         </tr>
                         <tr>

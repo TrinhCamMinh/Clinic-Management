@@ -6,10 +6,10 @@ const NotFound = () => {
             <div className='max-w-screen-xl mx-auto px-4 flex items-center justify-start h-screen md:px-8'>
                 <div className='max-w-lg mx-auto text-center'>
                     <div className='pb-6'>
-                        <img src='https://floatui.com/logo.svg' width={150} className='mx-auto' />
+                        <img src='https://floatui.com/logo.svg' width={150} className='mx-auto' alt='NotFound Logo' />
                     </div>
-                    <h3 className='text-gray-800 text-4xl font-semibold sm:text-5xl'>Page not found</h3>
-                    <p className='text-gray-600 mt-3'>
+                    <h3 className='text-gray-800 dark:text-white text-4xl font-semibold sm:text-5xl'>Page not found</h3>
+                    <p className='text-gray-600 dark:text-white mt-3'>
                         Sorry, the page you are looking for could not be found or has been removed.
                     </p>
                     <div className='flex flex-wrap items-center justify-center gap-3 mt-4'>
@@ -21,7 +21,7 @@ const NotFound = () => {
                         </Link>
                         <Link
                             to='#'
-                            className='block py-2 px-4 text-gray-700 hover:bg-gray-50 font-medium duration-150 active:bg-gray-100 border rounded-lg'
+                            className='block py-2 px-4 text-gray-700 dark:text-white hover:bg-gray-50 dark:hover:text-black font-medium duration-150 active:bg-gray-100 border rounded-lg'
                         >
                             Contact support
                         </Link>

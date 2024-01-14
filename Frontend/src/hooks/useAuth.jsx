@@ -1,5 +1,5 @@
 const useAuth = () => {
-    const user = JSON.parse(sessionStorage.getItem('userInfo'));
+    const user = JSON.parse(localStorage.getItem('userInfo'));
 
     //* Do not have user info mean they have not login yet so we do not alert any error
     if (!user) return { isAuthenticated: false, errorStatus: false, message: null };

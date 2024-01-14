@@ -1,4 +1,6 @@
 import PropTypes from 'prop-types';
+import 'ag-grid-community/styles/ag-grid.css'; //* Core AGGrid CSS
+import 'ag-grid-community/styles/ag-theme-quartz.css'; //* AGGrid Theme
 
 import { Home, NotFound, Disease, History, Medicine, Patient, Receipt, Login } from './Pages';
 import { Route, Routes, Navigate } from 'react-router-dom';

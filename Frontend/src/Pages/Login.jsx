@@ -1,5 +1,5 @@
 import { useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 const Login = () => {
     const userName = useRef(null);
@@ -14,9 +14,9 @@ const Login = () => {
 
         //* Save user info session storage
         //* for authenticating in other page
-        sessionStorage.setItem('userInfo', JSON.stringify(userInfo));
+        localStorage.setItem('userInfo', JSON.stringify(userInfo));
 
-        navigate('/');
+        navigate('/masterdata/receipt');
     };
 
     return (
@@ -29,13 +29,12 @@ const Login = () => {
                         </h2>
                         <p className='mt-2 text-4xl lg:text-base text-gray-600'>
                             Dont have an account?{' '}
-                            <a
-                                href='#'
-                                title=''
+                            <Link
+                                to='developing'
                                 className='ml-1 font-medium text-blue-600 transition-all duration-200 hover:text-blue-700 hover:underline focus:text-blue-700'
                             >
                                 Create a free account
-                            </a>
+                            </Link>
                         </p>
 
                         <form className='mt-8'>
@@ -69,13 +68,12 @@ const Login = () => {
                                             Password
                                         </label>
 
-                                        <a
-                                            href='#'
-                                            title=''
+                                        <Link
+                                            to='developing'
                                             className='text-sm font-medium text-blue-600 hover:text-blue-700 hover:underline focus:text-blue-700'
                                         >
                                             Forgot password?
-                                        </a>
+                                        </Link>
                                     </div>
                                     <div className='mt-2.5'>
                                         <input

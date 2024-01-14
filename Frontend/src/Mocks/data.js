@@ -29,28 +29,24 @@ const HomeData = [
 //! Remember to config theme in TailwindCSS config file when add new theme
 const Themes = [
     {
+        label: 'Light',
+        value: 'light',
+        theme: 'light',
+    },
+    {
         label: 'Sunset',
         value: 'sunset',
+        theme: 'dark',
     },
     {
         label: 'Cupcake',
         value: 'cupcake',
-    },
-    {
-        label: 'Retro',
-        value: 'retro',
-    },
-    {
-        label: 'Valentine',
-        value: 'valentine',
+        theme: 'light',
     },
     {
         label: 'Dracula',
         value: 'dracula',
-    },
-    {
-        label: 'Coffee',
-        value: 'coffee',
+        theme: 'dark',
     },
 ];
 
