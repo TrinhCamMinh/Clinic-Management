@@ -7,9 +7,10 @@ const Home = () => {
 
     return (
         <div className='flex flex-col gap-4 h-screen'>
-            <nav>
+            {/* HARDCODE */}
+            {/* <nav>
                 <Navbar />
-            </nav>
+            </nav> */}
 
             <main className='flex flex-col xl:gap-8 container'>
                 <header className='flex items-center justify-center gap-2'>

@@ -1,12 +1,46 @@
 import { FaPlus, FaSave } from 'react-icons/fa';
 import { GrPowerReset } from 'react-icons/gr';
 import { FaEye, FaPencil, FaTrashCan } from 'react-icons/fa6';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useTheme } from '../hooks';
 import { AgGridReact } from 'ag-grid-react';
+import { getCurrentDate } from '../utils/General';
+
+//* Cell Rendering:Actions column
+const Actions = () => {
+    return (
+        <div className='flex items-center justify-between w-full h-full'>
+            <button>
+                <FaEye className='w-5 h-5 text-green-400' />
+            </button>
+            <button>
+                <FaPencil className='w-5 h-5 text-yellow-400' />
+            </button>
+            <button>
+                <FaTrashCan className='w-5 h-5 text-red-400' />
+            </button>
+        </div>
+    );
+};
 
 const Disease = () => {
     const themeValue = useTheme();
+    const [prescriptionRow, setPrescriptionRow] = useState([0]);
+    const [prescriptionDataArray, setPrescriptionDataArray] = useState([]);
+
+    //* Data of Prescription Form
+    const prescriptionData = {
+        name: useRef(null),
+        concentration: useRef(null),
+        usage: useRef(null),
+    };
+
+    //* Big Data Object (Entire Form)
+    const data = {
+        name: useRef(null),
+        description: useRef(null),
+        prescription: [],
+    };
 
     const checkboxSelection = function (params) {
         //* we put checkbox on the name if we are not doing grouping
@@ -50,6 +84,10 @@ const Disease = () => {
         },
         { field: 'Loại bệnh', wrapText: true, filter: true },
         { field: 'Ngày tạo', wrapText: true, filter: true },
+        {
+            field: '',
+            cellRenderer: Actions,
+        },
     ]);
 
     //* Make the AGGrid content automatically resize to fit the grid container size
@@ -57,6 +95,68 @@ const Disease = () => {
         type: 'fitGridWidth',
         defaultMinWidth: 100,
     };
+
+    const AppendPrescriptionRow = () => {
+        setPrescriptionDataArray((prevData) => [
+            ...prevData,
+            {
+                name: prescriptionData.name.current.value,
+                concentration: prescriptionData.concentration.current.value,
+                usage: prescriptionData.usage.current.value,
+            },
+        ]);
+        setPrescriptionRow((prevData) => {
+            return [...prevData, prevData.at(-1) + 1];
+        });
+    };
+
+    const submitCreatedData = () => {
+        //* Use spread operator since when user done append the last item
+        //* They won't click append row function so the latest row data is still not
+        //* store in the useState but useRef is holding the lates data value
+        data.prescription = [
+            ...prescriptionDataArray,
+            {
+                name: prescriptionData.name.current.value,
+                concentration: prescriptionData.concentration.current.value,
+                usage: prescriptionData.usage.current.value,
+            },
+        ];
+
+        setRowData((prevData) => [
+            ...prevData,
+            {
+                'Mã đơn thuốc': data.description.current.value,
+                'Loại bệnh': data.name.current.value,
+                'Ngày tạo': getCurrentDate(),
+                'Đơn thuốc': data.prescription, //* we can store the data that do not rendered
+            },
+        ]);
+    };
+
+    const refreshData = () => {
+        data.description.current.value = '';
+        data.name.current.value = '';
+        data.prescription = [];
+
+        prescriptionData.name.current.value = '';
+        prescriptionData.concentration.current.value = '';
+        prescriptionData.usage.current.value = '';
+
+        setPrescriptionRow([0]);
+    };
+
+    //* Save the data to session storage when user append a new prescription
+    //* So that we can use this data in the Receipt Page
+    //! Note that: This is only temporary solution (later will use Server)
+    useEffect(() => {
+        const savedDiseaseData = JSON.stringify(rowData);
+        sessionStorage.setItem('diseaseData', savedDiseaseData);
+
+        const dialog = document.querySelector('#masterdata_disease_dialog');
+        dialog.close();
+        refreshData();
+    }, [rowData]);
 
     return (
         <div className='grid grid-cols-1 gap-4 md:gap-0'>
@@ -123,6 +223,7 @@ const Disease = () => {
                                     type='text'
                                     placeholder='Vui lòng nhập tên triệu chứng'
                                     className='input input-bordered w-full'
+                                    ref={data.name}
                                 />
                             </label>
                             <label className='form-control w-full'>
@@ -133,6 +234,7 @@ const Disease = () => {
                                     type='text'
                                     placeholder='Vui lòng nhập mô tả triệu chứng'
                                     className='input input-bordered w-full'
+                                    ref={data.description}
                                 />
                             </label>
                         </section>
@@ -159,115 +261,54 @@ const Disease = () => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {/* row 1 */}
-                                    <tr>
-                                        <th>1</th>
-                                        <td>
-                                            <input
-                                                type='text'
-                                                placeholder='Type here'
-                                                className='input input-bordered input-sm w-full max-w-xs'
-                                            />
-                                        </td>
-                                        <td>
-                                            <input
-                                                type='text'
-                                                placeholder='Type here'
-                                                className='input input-bordered input-sm w-full max-w-xs'
-                                            />
-                                        </td>
-                                        <td>
-                                            <input
-                                                type='text'
-                                                placeholder='Type here'
-                                                className='input input-bordered input-sm w-full max-w-xs'
-                                            />
-                                        </td>
-                                        <td>
-                                            <button
-                                                className='btn btn-ghost tooltip tooltip-error'
-                                                data-tip='Xóa dữ liệu dòng'
-                                            >
-                                                <FaTrashCan className='h-5 w-5 text-red-600' />
-                                            </button>
-                                        </td>
-                                    </tr>
-                                    {/* row 2 */}
-                                    <tr>
-                                        <th>2</th>
-                                        <td>
-                                            <input
-                                                type='text'
-                                                placeholder='Type here'
-                                                className='input input-bordered input-sm w-full max-w-xs'
-                                            />
-                                        </td>
-                                        <td>
-                                            <input
-                                                type='text'
-                                                placeholder='Type here'
-                                                className='input input-bordered input-sm w-full max-w-xs'
-                                            />
-                                        </td>
-                                        <td>
-                                            <input
-                                                type='text'
-                                                placeholder='Type here'
-                                                className='input input-bordered input-sm w-full max-w-xs'
-                                            />
-                                        </td>
-                                        <td>
-                                            <button
-                                                className='btn btn-ghost tooltip tooltip-error'
-                                                data-tip='Xóa dữ liệu dòng'
-                                            >
-                                                <FaTrashCan className='h-5 w-5 text-red-600' />
-                                            </button>
-                                        </td>
-                                    </tr>
-                                    {/* row 3 */}
-                                    <tr>
-                                        <th>3</th>
-                                        <td>
-                                            <input
-                                                type='text'
-                                                placeholder='Type here'
-                                                className='input input-bordered input-sm w-full max-w-xs'
-                                            />
-                                        </td>
-                                        <td>
-                                            <input
-                                                type='text'
-                                                placeholder='Type here'
-                                                className='input input-bordered input-sm w-full max-w-xs'
-                                            />
-                                        </td>
-                                        <td>
-                                            <input
-                                                type='text'
-                                                placeholder='Type here'
-                                                className='input input-bordered input-sm w-full max-w-xs'
-                                            />
-                                        </td>
-                                        <td>
-                                            <button
-                                                className='btn btn-ghost tooltip tooltip-error'
-                                                data-tip='Xóa dữ liệu dòng'
-                                            >
-                                                <FaTrashCan className='h-5 w-5 text-red-600' />
-                                            </button>
-                                        </td>
-                                    </tr>
+                                    {prescriptionRow.map((item, index) => {
+                                        return (
+                                            <tr key={item}>
+                                                <th>{item + 1}</th>
+                                                <td>
+                                                    <input
+                                                        type='text'
+                                                        placeholder='Type here'
+                                                        className='input input-bordered input-sm w-full max-w-xs'
+                                                        ref={prescriptionData.name}
+                                                    />
+                                                </td>
+                                                <td>
+                                                    <input
+                                                        type='text'
+                                                        placeholder='Type here'
+                                                        className='input input-bordered input-sm w-full max-w-xs'
+                                                        ref={prescriptionData.concentration}
+                                                    />
+                                                </td>
+                                                <td>
+                                                    <input
+                                                        type='text'
+                                                        placeholder='Type here'
+                                                        className='input input-bordered input-sm w-full max-w-xs'
+                                                        ref={prescriptionData.usage}
+                                                    />
+                                                </td>
+                                                <td>
+                                                    <button
+                                                        className='btn btn-ghost tooltip tooltip-error'
+                                                        data-tip='Xóa dữ liệu dòng'
+                                                    >
+                                                        <FaTrashCan className='h-5 w-5 text-red-600' />
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        );
+                                    })}
                                 </tbody>
                                 <tfoot>
                                     <tr>
                                         <th colSpan={5} className='text-center'>
-                                            <button className='btn btn-outline btn-error btn-sm uppercase mr-4'>
-                                                Làm mới dữ liệu
-                                                <GrPowerReset className='h5 w-5' />
-                                            </button>
-                                            <button className='btn btn-outline btn-success btn-sm btn-wide uppercase'>
-                                                Thêm mới dữ liệu
+                                            <button
+                                                className='btn btn-outline btn-success btn-sm btn-wide uppercase'
+                                                onClick={AppendPrescriptionRow}
+                                            >
+                                                Thêm dòng
                                                 <FaPlus className='h5 w-5' />
                                             </button>
                                         </th>
@@ -278,11 +319,17 @@ const Disease = () => {
                     </div>
 
                     <div className='grid grid-cols-6 mt-8 gap-4 md:gap-8'>
-                        <button className='btn btn-error col-span-6 md:col-span-2 order-2 md:order-1 uppercase'>
+                        <button
+                            className='btn btn-error col-span-6 md:col-span-2 order-2 md:order-1 uppercase'
+                            onClick={refreshData}
+                        >
                             Làm mới dữ liệu
                             <GrPowerReset className='h-5 w-5' />
                         </button>
-                        <button className='btn btn-success col-span-6 md:col-span-4 order-1 md:order-2 uppercase'>
+                        <button
+                            className='btn btn-success col-span-6 md:col-span-4 order-1 md:order-2 uppercase'
+                            onClick={submitCreatedData}
+                        >
                             Lưu dữ liệu
                             <FaSave className='h-5 w-5' />
                         </button>

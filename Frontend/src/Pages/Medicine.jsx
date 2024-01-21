@@ -1,12 +1,38 @@
 import { FaEye, FaPencil, FaTrashCan } from 'react-icons/fa6';
 import { GrPowerReset } from 'react-icons/gr';
 import { FaSave } from 'react-icons/fa';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useTheme } from '../hooks';
 import { AgGridReact } from 'ag-grid-react'; //* React Grid Logic
 
+//* Cell Rendering:Actions column
+const Actions = () => {
+    return (
+        <div className='flex items-center justify-between w-full h-full'>
+            <button>
+                <FaEye className='w-5 h-5 text-green-400' />
+            </button>
+            <button>
+                <FaPencil className='w-5 h-5 text-yellow-400' />
+            </button>
+            <button>
+                <FaTrashCan className='w-5 h-5 text-red-400' />
+            </button>
+        </div>
+    );
+};
+
 const Medicine = () => {
     const themeValue = useTheme();
+    const data = {
+        name: useRef(null),
+        illnessType: useRef(null), //* loại bệnh
+        ingredient: useRef(null), //* thành phần dược
+        cost: useRef(null),
+        concentration: useRef(null), //* hàm lượng
+        usage: useRef(null), //* liều thuốc
+        existNum: useRef(null), //* số lượng tồn kho
+    };
 
     const checkboxSelection = function (params) {
         //* we put checkbox on the name if we are not doing grouping
@@ -24,8 +50,8 @@ const Medicine = () => {
             'Tên dược liệu': 'Omnigender',
             'Loại bệnh': 'Return to Sender',
             'Thành phần dược': 'Cape Canaveral',
-            'Hàm lượng': 4,
-            'Liều lượng': 10,
+            'Hàm lượng': '4/ngay',
+            'Liều lượng': '10/ngay',
             'Số lượng tồn kho': 56,
             'Giá dược liệu/viên': 68,
         },
@@ -33,8 +59,8 @@ const Medicine = () => {
             'Tên dược liệu': 'Omnigender',
             'Loại bệnh': 'Return to Sender',
             'Thành phần dược': 'Cape Canaveral',
-            'Hàm lượng': 4,
-            'Liều lượng': 10,
+            'Hàm lượng': '4/ngay',
+            'Liều lượng': '10/ngay',
             'Số lượng tồn kho': 56,
             'Giá dược liệu/viên': 68,
         },
@@ -42,8 +68,8 @@ const Medicine = () => {
             'Tên dược liệu': 'Omnigender',
             'Loại bệnh': 'Return to Sender',
             'Thành phần dược': 'Cape Canaveral',
-            'Hàm lượng': 4,
-            'Liều lượng': 10,
+            'Hàm lượng': '4/ngay',
+            'Liều lượng': '10/ngay',
             'Số lượng tồn kho': 56,
             'Giá dược liệu/viên': 68,
         },
@@ -51,8 +77,8 @@ const Medicine = () => {
             'Tên dược liệu': 'Omnigender',
             'Loại bệnh': 'Return to Sender',
             'Thành phần dược': 'Cape Canaveral',
-            'Hàm lượng': 4,
-            'Liều lượng': 10,
+            'Hàm lượng': '4/ngay',
+            'Liều lượng': '10/ngay',
             'Số lượng tồn kho': 56,
             'Giá dược liệu/viên': 68,
         },
@@ -60,8 +86,8 @@ const Medicine = () => {
             'Tên dược liệu': 'Omnigender',
             'Loại bệnh': 'Return to Sender',
             'Thành phần dược': 'Cape Canaveral',
-            'Hàm lượng': 4,
-            'Liều lượng': 10,
+            'Hàm lượng': '4/ngay',
+            'Liều lượng': '10/ngay',
             'Số lượng tồn kho': 56,
             'Giá dược liệu/viên': 68,
         },
@@ -84,6 +110,10 @@ const Medicine = () => {
         { field: 'Liều lượng', wrapText: true, filter: true },
         { field: 'Số lượng tồn kho', wrapText: true, filter: true },
         { field: 'Giá dược liệu/viên', wrapText: true, filter: true },
+        {
+            field: '',
+            cellRenderer: Actions,
+        },
     ]);
 
     //* Make the AGGrid content automatically resize to fit the grid container size
@@ -91,6 +121,46 @@ const Medicine = () => {
         type: 'fitGridWidth',
         defaultMinWidth: 100,
     };
+
+    const refreshData = () => {
+        data.name.current.value = null;
+        data.illnessType.current.value = null;
+        data.ingredient.current.value = null;
+        data.concentration.current.value = null;
+        data.usage.current.value = null;
+        data.existNum.current.value = null;
+        data.cost.current.value = null;
+    };
+
+    const submitCreatedData = () => {
+        setRowData((prevRowData) => {
+            return [
+                ...prevRowData,
+                {
+                    'Tên dược liệu': data.name.current.value,
+                    'Loại bệnh': data.illnessType.current.value,
+                    'Thành phần dược': data.ingredient.current.value,
+                    'Hàm lượng': data.concentration.current.value,
+                    'Liều lượng': data.usage.current.value,
+                    'Số lượng tồn kho': Number(data.existNum.current.value),
+                    'Giá dược liệu/viên': Number(data.cost.current.value),
+                },
+            ];
+        });
+    };
+
+    useEffect(() => {
+        //* Close modal after save data successfully
+        //* And clear the data
+        const dialog = document.querySelector('#masterdata_medicine_dialog');
+        dialog.close();
+        refreshData();
+
+        //* If we leave empty dependency useEffect will only run once in the initial render
+        //* By passing the second argument an empty array,
+        //* React will compare after each render the array and will see nothing was changed,
+        //* thus calling the callback only after the first render.
+    }, [rowData]);
 
     return (
         <div className='grid grid-cols-3 gap-4 md:gap-0'>
@@ -156,6 +226,7 @@ const Medicine = () => {
                                     type='text'
                                     placeholder='Vui lòng nhập tên thuốc'
                                     className='input input-bordered w-full'
+                                    ref={data.name}
                                 />
                             </label>
                         </div>
@@ -167,6 +238,7 @@ const Medicine = () => {
                                 type='tel'
                                 placeholder='Vui lòng nhập loại bệnh'
                                 className='input input-bordered w-full'
+                                ref={data.illnessType}
                             />
                         </label>
                         <label className='form-control w-full col-span-2 xl:col-span-1'>
@@ -177,6 +249,7 @@ const Medicine = () => {
                                 type='text'
                                 placeholder='Vui lòng nhập thành phần dược'
                                 className='input input-bordered w-full'
+                                ref={data.ingredient}
                             />
                         </label>
                         <label className='form-control w-full col-span-2 xl:col-span-1'>
@@ -187,6 +260,7 @@ const Medicine = () => {
                                 type='number'
                                 placeholder='Vui lòng nhập giá'
                                 className='input input-bordered w-full'
+                                ref={data.cost}
                             />
                         </label>
                         <label className='form-control w-full col-span-2 xl:col-span-1'>
@@ -197,6 +271,7 @@ const Medicine = () => {
                                 type='text'
                                 placeholder='Vui lòng nhập hàm lượng'
                                 className='input input-bordered w-full'
+                                ref={data.concentration}
                             />
                         </label>
                         <label className='form-control w-full col-span-2 xl:col-span-1'>
@@ -207,6 +282,7 @@ const Medicine = () => {
                                 type='text'
                                 placeholder='Vui lòng nhập liều thuốc'
                                 className='input input-bordered w-full'
+                                ref={data.usage}
                             />
                         </label>
                         <label className='form-control w-full col-span-2 xl:col-span-1'>
@@ -217,16 +293,23 @@ const Medicine = () => {
                                 type='number'
                                 placeholder='Vui lòng nhập số lượng tồn kho'
                                 className='input input-bordered w-full'
+                                ref={data.existNum}
                             />
                         </label>
                     </div>
 
                     <div className='grid grid-cols-6 mt-8 gap-4 md:gap-8'>
-                        <button className='btn btn-error col-span-6 md:col-span-2 order-2 md:order-1 uppercase'>
+                        <button
+                            className='btn btn-error col-span-6 md:col-span-2 order-2 md:order-1 uppercase'
+                            onClick={refreshData}
+                        >
                             Làm mới dữ liệu
                             <GrPowerReset className='h-5 w-5' />
                         </button>
-                        <button className='btn btn-success col-span-6 md:col-span-4 order-1 md:order-2 uppercase'>
+                        <button
+                            className='btn btn-success col-span-6 md:col-span-4 order-1 md:order-2 uppercase'
+                            onClick={submitCreatedData}
+                        >
                             Lưu dữ liệu
                             <FaSave className='h-5 w-5' />
                         </button>
