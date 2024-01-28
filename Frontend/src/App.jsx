@@ -12,7 +12,7 @@ const RequireAuth = ({ children, redirectTo }) => {
     const { isAuthenticated, errorStatus, message } = useAuth();
 
     if (errorStatus) {
-        Alert({ toast: true, icon: 'error', title: 'Không thể đăng nhập', text: message });
+        Alert({ toast: true, icon: 'error', title: 'Không thể xác thực người dùng', text: message });
     }
     return isAuthenticated ? children : <Navigate to={redirectTo} />;
 };

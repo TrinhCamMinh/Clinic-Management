@@ -4,7 +4,7 @@ import { FaEye, FaPencil, FaTrashCan } from 'react-icons/fa6';
 import { useState, useEffect, useRef } from 'react';
 import { useTheme } from '../hooks';
 import { AgGridReact } from 'ag-grid-react';
-import { getCurrentDate } from '../utils/General';
+import { getCurrentDate, generateRandomID } from '../utils/General';
 
 //* Cell Rendering:Actions column
 const Actions = () => {
@@ -25,10 +25,11 @@ const Actions = () => {
 
 const Disease = () => {
     const themeValue = useTheme();
+    const generateID = generateRandomID().toUpperCase();
     const [prescriptionRow, setPrescriptionRow] = useState([0]);
     const [prescriptionDataArray, setPrescriptionDataArray] = useState([]);
 
-    //* Data of Prescription Form
+    //* Data of Prescription Form in a Single Row
     const prescriptionData = {
         name: useRef(null),
         concentration: useRef(null),
@@ -146,10 +147,34 @@ const Disease = () => {
         setPrescriptionRow([0]);
     };
 
+    const getPriceOfSingleMedicine = (medicineName) => {
+        const medicineData = JSON.parse(sessionStorage.getItem('medicineData'));
+        const result = medicineData.find((item) => {
+            return item['Tên dược liệu'] === medicineName;
+        });
+
+        if (!result) return;
+
+        return result['Giá dược liệu/viên'];
+    };
+
+    const mappingPriceForReceipt = () => {
+        rowData.forEach((item) => {
+            if (!item['Đơn thuốc']) return;
+
+            item['Đơn thuốc'].forEach((singleDT) => {
+                singleDT.price = getPriceOfSingleMedicine(singleDT.name) ?? 0;
+            });
+        });
+        console.log(rowData);
+    };
+
     //* Save the data to session storage when user append a new prescription
     //* So that we can use this data in the Receipt Page
     //! Note that: This is only temporary solution (later will use Server)
     useEffect(() => {
+        mappingPriceForReceipt();
+
         const savedDiseaseData = JSON.stringify(rowData);
         sessionStorage.setItem('diseaseData', savedDiseaseData);
 
@@ -208,8 +233,7 @@ const Disease = () => {
                     </form>
 
                     <h3 className='font-bold text-2xl text-center mb-4 uppercase text-primary'>
-                        form thêm mới triệu chứng bệnh - mã đơn thuốc{' '}
-                        <span className='text-red-400 ml-2'>520H0659</span>
+                        form thêm mới đơn thuốc - <span className='text-red-400 ml-2 normal-case'>{generateID}</span>
                     </h3>
 
                     {/* MasterData Input */}
@@ -249,8 +273,7 @@ const Disease = () => {
                                 <thead>
                                     <tr className='text-center'>
                                         <th colSpan={5} className='uppercase text-xl italic'>
-                                            ĐƠN THUỐC DÙNG - MÃ ĐƠN THUỐC{' '}
-                                            <span className='text-red-400 ml-2'>520H0659</span>
+                                            ĐƠN THUỐC DÙNG
                                         </th>
                                     </tr>
                                     <tr>

@@ -156,6 +156,12 @@ const Medicine = () => {
         dialog.close();
         refreshData();
 
+        //* Save the data to session storage
+        //* So we can import the price automatically in Disease Page
+        //! Note that: This is only temporary solution (later use Server)
+        const savedMedicineData = JSON.stringify(rowData);
+        sessionStorage.setItem('medicineData', savedMedicineData);
+
         //* If we leave empty dependency useEffect will only run once in the initial render
         //* By passing the second argument an empty array,
         //* React will compare after each render the array and will see nothing was changed,

@@ -1,7 +1,7 @@
 import { FaPlus, FaInfoCircle } from 'react-icons/fa';
 import { FaTrashCan } from 'react-icons/fa6';
-import { getCurrentDate } from '../utils/General';
-import { useRef, useState } from 'react';
+import { getCurrentDate, formatCurrency } from '../utils/General';
+import { useRef, useState, useEffect } from 'react';
 import { useDebounce } from '../hooks/index';
 
 const Receipt = () => {
@@ -10,6 +10,7 @@ const Receipt = () => {
 
     const [queryUserInfo, setQueryUserInfo] = useState('');
     const [userData, setUserData] = useState('');
+    const [totalPrice, setTotalPrice] = useState(0);
 
     const data = {
         phoneNumber: useRef(null),
@@ -52,8 +53,23 @@ const Receipt = () => {
         }
     };
 
+    const sumTotalPrice = () => {
+        const sumPrice = prescriptionData.reduce((accumulator, currentProduct) => {
+            // Add the price of the current product to the accumulator
+            return accumulator + currentProduct.price;
+        }, 0);
+
+        setTotalPrice(sumPrice);
+    };
+
     useDebounce(receivePrescriptionData, [queryByIllnessName], 1000);
     useDebounce(receiveUserData, [queryUserInfo], 1000);
+
+    useEffect(() => {
+        if (prescriptionData.length === 0) return;
+
+        sumTotalPrice();
+    }, [prescriptionData]);
 
     return (
         <div>
@@ -175,12 +191,12 @@ const Receipt = () => {
             </section>
 
             <section className='w-full'>
-                <div className='overflow-x-auto'>
+                <div className='overflow-x-auto xl:overflow-hidden'>
                     <table className='table table-lg'>
                         {/* head */}
                         <thead>
                             <tr className='text-center'>
-                                <th colSpan={5} className='uppercase text-xl italic'>
+                                <th colSpan={6} className='uppercase text-xl italic'>
                                     <h3 className='font-extrabold text-3xl text-primary text-center uppercase'>
                                         ĐƠN THUỐC DÙNG - MÃ ĐƠN THUỐC{' '}
                                         <span className='text-red-400 ml-2'>520H0659</span>
@@ -192,6 +208,7 @@ const Receipt = () => {
                                 <th>Tên thuốc</th>
                                 <th>Hàm lượng</th>
                                 <th>Liều dùng</th>
+                                <th>Giá</th>
                                 <th></th>
                             </tr>
                         </thead>
@@ -203,12 +220,20 @@ const Receipt = () => {
                                         <td>{item.name}</td>
                                         <td>{item.concentration}</td>
                                         <td>{item.usage}</td>
+                                        <td>{item.price ?? 0}</td>
                                         <td></td>
                                     </tr>
                                 );
                             })}
                             <tr>
                                 <th></th>
+                                <td>
+                                    <input
+                                        type='text'
+                                        placeholder='Type here'
+                                        className='input input-bordered input-sm w-full max-w-xs'
+                                    />
+                                </td>
                                 <td>
                                     <input
                                         type='text'
@@ -243,7 +268,7 @@ const Receipt = () => {
                                     <p className='text-xl'>
                                         Tổng:{' '}
                                         <span className='text-green-600 font-extrabold italic underline underline-offset-4 decoration-2 decoration-sky-500'>
-                                            5.000.000 VNĐ
+                                            {formatCurrency(totalPrice)} VNĐ
                                         </span>
                                     </p>
                                 </th>

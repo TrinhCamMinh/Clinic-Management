@@ -6,12 +6,23 @@ import { CiPill } from 'react-icons/ci';
 import { FaVirus } from 'react-icons/fa6';
 import { IoReceipt } from 'react-icons/io5';
 
+import { signOut } from 'firebase/auth';
+import { auth } from '../Configs/firebase';
+
 const Sidebar = () => {
     const navigate = useNavigate();
 
-    const handleLogout = () => {
-        sessionStorage.removeItem('userInfo');
-        navigate('/login');
+    const handleLogout = async () => {
+        try {
+            await signOut(auth);
+            localStorage.removeItem('userData');
+
+            navigate('/login');
+        } catch (error) {
+            const errorCode = error.code;
+            const errorMessage = error.message;
+            Alert({ toast: true, icon: 'error', title: errorCode, text: errorMessage });
+        }
     };
 
     return (
@@ -31,7 +42,8 @@ const Sidebar = () => {
                             </span>
                         </li>
                     </Link>
-                    <Link to={'/dashboard'}>
+
+                    <button className='w-full opacity-50' disabled={true}>
                         <li className='flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group'>
                             <MdSpaceDashboard className='w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white' />
                             <span className='ms-3'>Dashboard</span>
@@ -39,7 +51,8 @@ const Sidebar = () => {
                                 Đang phát triển
                             </span>
                         </li>
-                    </Link>
+                    </button>
+
                     <Link to={'/masterdata/patient'}>
                         <li className='flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group'>
                             <IoIosPerson className='w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white' />
@@ -75,11 +88,13 @@ const Sidebar = () => {
                             <span className='ms-3'>Help</span>
                         </Link>
                     </li>
-                    <li onClick={handleLogout}>
-                        <Link className='flex items-center p-2 text-gray-900 transition duration-75 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white group'>
-                            <FaSignOutAlt className='w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white' />
-                            <span className='ms-3'>Sign Out</span>
-                        </Link>
+                    <li>
+                        <button className='w-full' onClick={handleLogout}>
+                            <Link className='flex items-center p-2 text-gray-900 transition duration-75 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white group'>
+                                <FaSignOutAlt className='w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white' />
+                                <span className='ms-3'>Sign Out</span>
+                            </Link>
+                        </button>
                     </li>
                 </ul>
             </div>

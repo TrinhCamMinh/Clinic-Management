@@ -1,22 +1,50 @@
 import { useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { signInWithEmailAndPassword, updateProfile } from 'firebase/auth';
+import { auth } from '../Configs/firebase';
+import { Alert } from '../utils/Alert';
 
 const Login = () => {
-    const userName = useRef(null);
+    const userEmail = useRef(null);
     const userPassword = useRef(null);
     const navigate = useNavigate();
 
-    const handleLogin = () => {
-        const userInfo = {
-            userName: userName.current.value,
-            userPassword: userPassword.current.value,
-        };
+    const handleLogin = async () => {
+        try {
+            const userInfo = {
+                userEmail: userEmail.current.value,
+                userPassword: userPassword.current.value,
+            };
 
-        //* Save user info session storage
-        //* for authenticating in other page
-        localStorage.setItem('userInfo', JSON.stringify(userInfo));
+            const userCredential = await signInWithEmailAndPassword(auth, userInfo.userEmail, userInfo.userPassword);
 
-        navigate('/masterdata/receipt');
+            //* Update user displayname when login
+            //! This solution is NOT OK since we call FireBase Update after per login
+            handleUpdateUserProfile();
+            const { displayName, email, isAnonymous, metadata, phoneNumber } = userCredential.user;
+
+            //* Save the user data info to local storage
+            const savedUserData = JSON.stringify({ displayName, email, isAnonymous, metadata, phoneNumber });
+            localStorage.setItem('userData', savedUserData);
+
+            //* Navigate user to receipt page after login successfully
+            navigate('/masterdata/receipt');
+        } catch (error) {
+            const errorCode = error.code;
+            const errorMessage = error.message;
+            Alert({ toast: true, icon: 'error', title: errorCode, text: errorMessage });
+        }
+    };
+
+    const handleUpdateUserProfile = async () => {
+        try {
+            const displayName = userEmail.current.value.split('@')[0];
+            await updateProfile(auth.currentUser, {
+                displayName,
+            });
+        } catch (error) {
+            Alert({ toast: true, icon: 'error', title: errorCode, text: errorMessage });
+        }
     };
 
     return (
@@ -41,20 +69,19 @@ const Login = () => {
                             <div className='space-y-5'>
                                 <div>
                                     <label
-                                        htmlFor='username'
+                                        htmlFor='userEmail'
                                         className='text-4xl lg:text-base font-medium text-gray-900'
                                     >
-                                        Username
+                                        Email
                                     </label>
                                     <div className='mt-2.5'>
                                         <input
-                                            ref={userName}
-                                            type='text'
-                                            name='username'
-                                            id='username'
+                                            ref={userEmail}
+                                            type='email'
+                                            name='userEmail'
+                                            id='userEmail'
                                             placeholder='Enter user name to get started'
                                             className='block w-full rounded-md border border-gray-200 bg-gray-50 p-4 text-black placeholder-gray-500 caret-blue-600 transition-all duration-200 focus:border-blue-600 focus:bg-white focus:outline-none'
-                                            autoComplete='username'
                                         />
                                     </div>
                                 </div>

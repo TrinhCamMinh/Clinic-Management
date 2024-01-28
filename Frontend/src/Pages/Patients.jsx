@@ -5,6 +5,7 @@ import { FaEye, FaPencil, FaTrashCan } from 'react-icons/fa6';
 import { AgGridReact } from 'ag-grid-react'; //* React Grid Logic
 import { useState, useRef, useEffect } from 'react';
 import { useTheme } from '../hooks';
+import { generateRandomID } from '../utils/General';
 
 //* Cell Rendering:Actions column
 const Actions = () => {
@@ -25,6 +26,7 @@ const Actions = () => {
 
 const Patients = () => {
     const themeValue = useTheme();
+    const generateID = generateRandomID().toUpperCase();
     const data = {
         name: useRef(null),
         phoneNumber: useRef(null),
@@ -125,7 +127,7 @@ const Patients = () => {
                     SĐT: data.phoneNumber.current.value,
                     Tuổi: Number(data.age.current.value),
                     'Địa chỉ': data.address.current.value,
-                    'Mã sổ khám bệnh': '520H0659', //!HARDCODE
+                    'Mã sổ khám bệnh': generateID, //!HARDCODE
                     'Ngày sinh': data.dateOfBirth.current.value,
                 },
             ];
@@ -277,7 +279,7 @@ const Patients = () => {
                                     </div>
                                 </div>
                                 <input
-                                    value={'520H0659'}
+                                    value={generateID}
                                     type='text'
                                     placeholder='Vui lòng nhập mã sổ khám bệnh 2'
                                     className='input input-bordered w-full'

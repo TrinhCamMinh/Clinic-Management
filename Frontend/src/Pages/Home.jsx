@@ -1,24 +1,30 @@
-import { Navbar, Card } from '../Components';
+import { Card } from '../Components';
 import { HomeData } from '../Mocks/data';
 import { Link } from 'react-router-dom';
+import { TypeAnimation } from 'react-type-animation';
 
 const Home = () => {
-    const { userName } = JSON.parse(localStorage.getItem('userInfo'));
+    const userData = JSON.parse(localStorage.getItem('userData'));
 
     return (
         <div className='flex flex-col gap-4 h-screen'>
-            {/* HARDCODE */}
-            {/* <nav>
-                <Navbar />
-            </nav> */}
-
             <main className='flex flex-col xl:gap-8 container'>
-                <header className='flex items-center justify-center gap-2'>
-                    <h2 className='w-fit font-extrabold text-4xl text-[#F9004D] italic'>
-                        Chào mừng anh {userName} đã quay trở lại
+                <header className='flex items-center justify-center gap-2 mt-4'>
+                    <h2 className='w-fit font-extrabold text-2xl xl:text-4xl text-[#F9004D] italic'>
+                        <TypeAnimation
+                            sequence={[
+                                // Same substring at the start will only be typed out once, initially
+                                `Xin chào ${userData.displayName}`,
+                                2000, // wait 1s before replacing "Mice" with "Hamsters"
+                                `Chúc ${userData.displayName} làm việc thật hiệu quả nhé`,
+                                2000,
+                            ]}
+                            wrapper='span'
+                            speed={50}
+                            repeat={Infinity}
+                        />
                     </h2>
-
-                    <div className='text-4xl ml-4'>🥳</div>
+                    <div className='text-4xl ml-2 hidden lg:block'>😘</div>
                 </header>
 
                 <div className='grid grid-cols-4 gap-8 mt-8 xl:mt-0'>
