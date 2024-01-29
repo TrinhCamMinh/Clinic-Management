@@ -1,6 +1,6 @@
 import { useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { signInWithEmailAndPassword, updateProfile } from 'firebase/auth';
+import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../Configs/firebase';
 import { Alert } from '../utils/Alert';
 
@@ -17,10 +17,6 @@ const Login = () => {
             };
 
             const userCredential = await signInWithEmailAndPassword(auth, userInfo.userEmail, userInfo.userPassword);
-
-            //* Update user displayname when login
-            //! This solution is NOT OK since we call FireBase Update after per login
-            handleUpdateUserProfile();
             const { displayName, email, isAnonymous, metadata, phoneNumber } = userCredential.user;
 
             //* Save the user data info to local storage
@@ -32,17 +28,6 @@ const Login = () => {
         } catch (error) {
             const errorCode = error.code;
             const errorMessage = error.message;
-            Alert({ toast: true, icon: 'error', title: errorCode, text: errorMessage });
-        }
-    };
-
-    const handleUpdateUserProfile = async () => {
-        try {
-            const displayName = userEmail.current.value.split('@')[0];
-            await updateProfile(auth.currentUser, {
-                displayName,
-            });
-        } catch (error) {
             Alert({ toast: true, icon: 'error', title: errorCode, text: errorMessage });
         }
     };

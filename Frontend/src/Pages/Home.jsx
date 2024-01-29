@@ -1,10 +1,18 @@
 import { Card } from '../Components';
 import { HomeData } from '../Mocks/data';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { TypeAnimation } from 'react-type-animation';
+import { useAuth } from '../hooks';
+import { useEffect } from 'react';
 
 const Home = () => {
-    const userData = JSON.parse(localStorage.getItem('userData'));
+    const navigate = useNavigate();
+    const { isAuthenticated } = useAuth();
+
+    //* Check authentication
+    useEffect(() => {
+        if (!isAuthenticated) return navigate('/login');
+    }, []);
 
     return (
         <div className='flex flex-col gap-4 h-screen'>
@@ -14,9 +22,9 @@ const Home = () => {
                         <TypeAnimation
                             sequence={[
                                 // Same substring at the start will only be typed out once, initially
-                                `Xin chào ${userData.displayName}`,
+                                `Xin chào Admin`,
                                 2000, // wait 1s before replacing "Mice" with "Hamsters"
-                                `Chúc ${userData.displayName} làm việc thật hiệu quả nhé`,
+                                `Chúc Admin làm việc thật hiệu quả nhé`,
                                 2000,
                             ]}
                             wrapper='span'
@@ -39,7 +47,6 @@ const Home = () => {
                     })}
                 </div>
             </main>
-
             <footer className='mt-auto footer footer-center p-4 bg-base-300 text-base-content'>
                 <aside>
                     <p className='font-bold'>Copyright © 2024 - All right reserved by MINHCT / KHOALD</p>

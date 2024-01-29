@@ -20,14 +20,7 @@ const RequireAuth = ({ children, redirectTo }) => {
 const App = () => {
     return (
         <Routes>
-            <Route
-                path='/'
-                element={
-                    <RequireAuth redirectTo='/login'>
-                        <Home />
-                    </RequireAuth>
-                }
-            />
+            <Route path='/' element={<Home />} />
 
             <Route
                 path='/masterdata'

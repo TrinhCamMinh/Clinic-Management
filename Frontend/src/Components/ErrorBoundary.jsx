@@ -8,8 +8,8 @@ const ErrorBoundary = () => {
                     <div className='pb-6'>
                         <img src='https://floatui.com/logo.svg' width={150} className='mx-auto' alt='Error Logo' />
                     </div>
-                    <h3 className='text-red-400 text-4xl font-semibold sm:text-5xl'>Something Wrong</h3>
-                    <p className='text-red-500 mt-3'>Sorry, the server has been crashed. Please comeback later</p>
+                    <h3 className='text-red-400 text-4xl font-bold sm:text-5xl'>Something Wrong 😥</h3>
+                    <p className='text-red-400 mt-3'>Sorry, the server has been crashed. Please comeback later</p>
                     <div className='flex flex-wrap items-center justify-center gap-3 mt-4'>
                         <a
                             href='/'
