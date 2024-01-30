@@ -180,7 +180,7 @@ const Medicine = () => {
             </section>
 
             <section className='col-span-3'>
-                <div className='divider divider-primary uppercase'>or</div>
+                <div className='divider divider-primary uppercase'></div>
             </section>
 
             {/* Table Section  */}

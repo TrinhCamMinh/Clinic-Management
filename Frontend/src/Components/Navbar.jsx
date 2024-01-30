@@ -56,7 +56,7 @@ const Navbar = () => {
                     </svg>
                 </button>
                 <Link to='/' className='btn btn-ghost text-xl'>
-                    Jenkins
+                    Sổ Khám Điện Tử - Clinic Management
                 </Link>
             </div>
 

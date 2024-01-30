@@ -36,7 +36,7 @@ const Sidebar = () => {
                     <Link to={'/'}>
                         <li className='flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group'>
                             <FaHome className='w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white' />
-                            <span className='ms-3'>Home</span>
+                            <span className='ms-3'>Trang Chủ</span>
                             <span className='ms-3 bg-pink-100 text-pink-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded dark:bg-pink-900 dark:text-pink-300'>
                                 Mới
                             </span>
@@ -56,25 +56,25 @@ const Sidebar = () => {
                     <Link to={'/masterdata/patient'}>
                         <li className='flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group'>
                             <IoIosPerson className='w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white' />
-                            <span className='ms-3'>MasterData Patient</span>
+                            <span className='ms-3'>MasterData Bệnh Nhân</span>
                         </li>
                     </Link>
                     <Link to={'/masterdata/medicine'}>
                         <li className='flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group'>
                             <CiPill className='w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white' />
-                            <span className='ms-3'>MasterData Medicine</span>
+                            <span className='ms-3'>MasterData Dược Liệu</span>
                         </li>
                     </Link>
                     <Link to={'/masterdata/disease'}>
                         <li className='flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group'>
                             <FaVirus className='w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white' />
-                            <span className='ms-3'>MasterData Disease</span>
+                            <span className='ms-3'>MasterData Triệu Chứng Bệnh</span>
                         </li>
                     </Link>
                     <Link to={'/masterdata/receipt'}>
                         <li className='flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group'>
                             <IoReceipt className='w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white' />
-                            <span className='ms-3'>MasterData Receipt</span>
+                            <span className='ms-3'>Phiếu Khám Bệnh</span>
                         </li>
                     </Link>
                 </ul>
@@ -85,14 +85,14 @@ const Sidebar = () => {
                     <li>
                         <Link className='flex items-center p-2 text-gray-900 transition duration-75 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white group'>
                             <IoMdHelpCircleOutline className='w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white' />
-                            <span className='ms-3'>Help</span>
+                            <span className='ms-3'>Trợ Giúp</span>
                         </Link>
                     </li>
                     <li>
                         <button className='w-full' onClick={handleLogout}>
                             <Link className='flex items-center p-2 text-gray-900 transition duration-75 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white group'>
                                 <FaSignOutAlt className='w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white' />
-                                <span className='ms-3'>Sign Out</span>
+                                <span className='ms-3'>Đăng Xuất</span>
                             </Link>
                         </button>
                     </li>

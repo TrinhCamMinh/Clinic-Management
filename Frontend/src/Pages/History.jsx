@@ -49,7 +49,7 @@ const History = () => {
             </section>
 
             <section className='mt-4 col-span-4'>
-                <div className='divider divider-primary uppercase'>or</div>
+                <div className='divider divider-primary uppercase'></div>
             </section>
 
             <section className='col-span-4'>

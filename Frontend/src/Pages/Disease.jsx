@@ -291,7 +291,7 @@ const Disease = () => {
                                                 <td>
                                                     <input
                                                         type='text'
-                                                        placeholder='Type here'
+                                                        placeholder='Vui lòng nhập tên thốc'
                                                         className='input input-bordered input-sm w-full max-w-xs'
                                                         ref={prescriptionData.name}
                                                     />
@@ -299,7 +299,7 @@ const Disease = () => {
                                                 <td>
                                                     <input
                                                         type='text'
-                                                        placeholder='Type here'
+                                                        placeholder='Vui lòng nhập hàm lượng sử dụng'
                                                         className='input input-bordered input-sm w-full max-w-xs'
                                                         ref={prescriptionData.concentration}
                                                     />
@@ -307,7 +307,7 @@ const Disease = () => {
                                                 <td>
                                                     <input
                                                         type='text'
-                                                        placeholder='Type here'
+                                                        placeholder='Vui lòng nhập liều lượng sử dụng'
                                                         className='input input-bordered input-sm w-full max-w-xs'
                                                         ref={prescriptionData.usage}
                                                     />
