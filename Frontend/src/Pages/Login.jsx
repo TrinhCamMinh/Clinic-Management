@@ -3,8 +3,10 @@ import { useNavigate, Link } from 'react-router-dom';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../Configs/firebase';
 import { Alert } from '../utils/Alert';
+import { useAuth } from '../hooks';
 
 const Login = () => {
+    const { dispatch } = useAuth();
     const userEmail = useRef(null);
     const userPassword = useRef(null);
     const navigate = useNavigate();
@@ -20,8 +22,11 @@ const Login = () => {
             const { displayName, email, isAnonymous, metadata, phoneNumber } = userCredential.user;
 
             //* Save the user data info to local storage
-            const savedUserData = JSON.stringify({ displayName, email, isAnonymous, metadata, phoneNumber });
-            localStorage.setItem('userData', savedUserData);
+            const savedUserData = { displayName, email, isAnonymous, metadata, phoneNumber };
+            // localStorage.setItem('userData', savedUserData); //! Consider remove
+
+            // update the auth context
+            dispatch({ type: 'LOGIN', payload: savedUserData });
 
             //* Navigate user to receipt page after login successfully
             navigate('/masterdata/receipt');

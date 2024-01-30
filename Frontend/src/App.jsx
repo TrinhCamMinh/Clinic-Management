@@ -8,6 +8,7 @@ import { PrimaryLayout } from './Layouts';
 import { Alert } from './utils/Alert';
 import { useAuth } from './hooks';
 
+//! This component is currently maintained
 const RequireAuth = ({ children, redirectTo }) => {
     const { isAuthenticated, errorStatus, message } = useAuth();
 

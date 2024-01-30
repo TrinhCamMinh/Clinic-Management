@@ -8,14 +8,17 @@ import { IoReceipt } from 'react-icons/io5';
 
 import { signOut } from 'firebase/auth';
 import { auth } from '../Configs/firebase';
+import { useAuth } from '../hooks';
 
 const Sidebar = () => {
+    const { dispatch } = useAuth();
     const navigate = useNavigate();
 
     const handleLogout = async () => {
         try {
             await signOut(auth);
-            localStorage.removeItem('userData');
+            dispatch({ type: 'LOGOUT' });
+            // localStorage.removeItem('userData'); //!Consider remove
 
             navigate('/login');
         } catch (error) {

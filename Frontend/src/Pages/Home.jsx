@@ -7,11 +7,11 @@ import { useEffect } from 'react';
 
 const Home = () => {
     const navigate = useNavigate();
-    const { isAuthenticated } = useAuth();
+    const { user } = useAuth();
 
     //* Check authentication
     useEffect(() => {
-        if (!isAuthenticated) return navigate('/login');
+        if (!user) return navigate('/login');
     }, []);
 
     return (
