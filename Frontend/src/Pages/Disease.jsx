@@ -149,6 +149,8 @@ const Disease = () => {
 
     const getPriceOfSingleMedicine = (medicineName) => {
         const medicineData = JSON.parse(sessionStorage.getItem('medicineData'));
+        if (!medicineData) return;
+
         const result = medicineData.find((item) => {
             return item['Tên dược liệu'] === medicineName;
         });

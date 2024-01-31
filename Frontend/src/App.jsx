@@ -3,19 +3,51 @@ import 'ag-grid-community/styles/ag-grid.css'; //* Core AGGrid CSS
 import 'ag-grid-community/styles/ag-theme-quartz.css'; //* AGGrid Theme
 
 import { Home, NotFound, Disease, History, Medicine, Patient, Receipt, Login } from './Pages';
-import { Route, Routes, Navigate } from 'react-router-dom';
+import { Route, Routes, Navigate, useNavigate } from 'react-router-dom';
 import { PrimaryLayout } from './Layouts';
 import { Alert } from './utils/Alert';
+import { useEffect } from 'react';
 import { useAuth } from './hooks';
 
-//! This component is currently maintained
 const RequireAuth = ({ children, redirectTo }) => {
-    const { isAuthenticated, errorStatus, message } = useAuth();
+    const navigate = useNavigate();
+    const { dispatch } = useAuth();
 
-    if (errorStatus) {
-        Alert({ toast: true, icon: 'error', title: 'Không thể xác thực người dùng', text: message });
+    useEffect(() => {
+        //* This will prevent user from manipulating with any browser storage
+        const handleLocalStorageChange = () => {
+            Alert({
+                toast: true,
+                icon: 'error',
+                title: 'Phát hiện hành vi thao tác vi phạm đến xác thực người dùng',
+                text: 'Vui lòng đăng nhập lại vào hệ thống',
+            });
+
+            dispatch({ type: 'LOGOUT' });
+            return navigate('/login');
+        };
+
+        //* This event fire when browser storage detect change value
+        window.addEventListener('storage', handleLocalStorageChange);
+
+        //* Cleanup function
+        return () => {
+            // Remove event listener
+            window.removeEventListener('storage', handleLocalStorageChange);
+        };
+    }, []);
+
+    const user = JSON.parse(localStorage.getItem('userData'));
+
+    if (!user) {
+        Alert({
+            toast: true,
+            icon: 'error',
+            title: 'Không thể xác thực người dùng',
+            text: 'Vui lòng đăng nhập vào hệ thống',
+        });
     }
-    return isAuthenticated ? children : <Navigate to={redirectTo} replace={true} />;
+    return user ? children : <Navigate to={redirectTo} replace={true} />;
 };
 
 const App = () => {

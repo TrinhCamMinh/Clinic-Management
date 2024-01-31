@@ -18,8 +18,7 @@ const Sidebar = () => {
         try {
             await signOut(auth);
             dispatch({ type: 'LOGOUT' });
-            // localStorage.removeItem('userData'); //!Consider remove
-
+            localStorage.removeItem('userData');
             navigate('/login');
         } catch (error) {
             const errorCode = error.code;

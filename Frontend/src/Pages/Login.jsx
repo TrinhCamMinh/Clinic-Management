@@ -23,9 +23,9 @@ const Login = () => {
 
             //* Save the user data info to local storage
             const savedUserData = { displayName, email, isAnonymous, metadata, phoneNumber };
-            // localStorage.setItem('userData', savedUserData); //! Consider remove
+            localStorage.setItem('userData', JSON.stringify(savedUserData)); //! Consider remove
 
-            // update the auth context
+            //* update the auth context
             dispatch({ type: 'LOGIN', payload: savedUserData });
 
             //* Navigate user to receipt page after login successfully

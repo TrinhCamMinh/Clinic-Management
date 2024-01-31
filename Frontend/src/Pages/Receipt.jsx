@@ -3,6 +3,7 @@ import { FaTrashCan } from 'react-icons/fa6';
 import { getCurrentDate, formatCurrency } from '../utils/General';
 import { useRef, useState, useEffect } from 'react';
 import { useDebounce } from '../hooks/index';
+import { AgGridReact } from 'ag-grid-react'; //* React Grid Logic
 
 const Receipt = () => {
     const [queryByIllnessName, setQueryByIllnessName] = useState(null);
@@ -28,8 +29,6 @@ const Receipt = () => {
             return item['Loại bệnh'] === queryByIllnessName;
         });
 
-        //* [TESTING] console.log(result);
-
         if (result) {
             setPrescriptionData(result['Đơn thuốc']);
         } else {
@@ -43,8 +42,6 @@ const Receipt = () => {
         const result = userData.find((item) => {
             return item['SĐT'] === queryUserInfo;
         });
-
-        //* [TESTING] console.log(result);
 
         if (result) {
             setUserData(result);
@@ -64,6 +61,18 @@ const Receipt = () => {
 
     useDebounce(receivePrescriptionData, [queryByIllnessName], 1000);
     useDebounce(receiveUserData, [queryUserInfo], 1000);
+
+    //* Column Definitions: Defines & controls grid columns.
+    const [colDefs, setColDefs] = useState([
+        {
+            field: 'name',
+            wrapText: true,
+            autoHeight: true,
+        },
+        { field: 'concentration', wrapText: true },
+        { field: 'usage', wrapText: true },
+        { field: 'price', wrapText: true },
+    ]);
 
     useEffect(() => {
         if (prescriptionData.length === 0) return;
@@ -192,8 +201,7 @@ const Receipt = () => {
 
             <section className='w-full'>
                 <div className='overflow-x-auto xl:overflow-hidden'>
-                    <table className='table table-lg'>
-                        {/* head */}
+                    {/* <table className='table table-lg'>
                         <thead>
                             <tr className='text-center'>
                                 <th colSpan={6} className='uppercase text-xl italic'>
@@ -287,7 +295,19 @@ const Receipt = () => {
                                 </th>
                             </tr>
                         </tfoot>
-                    </table>
+                    </table> */}
+
+                    {prescriptionData && (
+                        <div className={`col-span-3`} style={{ width: '100%', height: 450 }}>
+                            <AgGridReact
+                                rowData={prescriptionData}
+                                columnDefs={colDefs}
+                                rowSelection={'multiple'}
+                                rowGroupPanelShow={'always'}
+                                suppressScrollOnNewData={true} //* tells the grid to NOT scroll to the top when the page changes.
+                            />
+                        </div>
+                    )}
                 </div>
             </section>
         </div>

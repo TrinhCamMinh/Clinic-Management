@@ -1,5 +1,5 @@
 import { GrPowerReset } from 'react-icons/gr';
-import { FaSave, FaInfoCircle } from 'react-icons/fa';
+import { FaSave, FaInfoCircle, FaHistory } from 'react-icons/fa';
 import { FaEye, FaPencil, FaTrashCan } from 'react-icons/fa6';
 
 import { AgGridReact } from 'ag-grid-react'; //* React Grid Logic
@@ -16,6 +16,9 @@ const Actions = () => {
             </button>
             <button>
                 <FaPencil className='w-5 h-5 text-yellow-400' />
+            </button>
+            <button onClick={() => document.getElementById('history_modal').showModal()}>
+                <FaHistory className='w-5 h-5 text-blue-400' />
             </button>
             <button>
                 <FaTrashCan className='w-5 h-5 text-red-400' />
@@ -139,7 +142,6 @@ const Patients = () => {
         data.phoneNumber.current.value = null;
         data.age.current.value = null;
         data.address.current.value = null;
-        // data.code.current.value = null;
         data.dateOfBirth.current.value = null;
     };
 
@@ -317,6 +319,19 @@ const Patients = () => {
                             Lưu dữ liệu
                             <FaSave className='h-5 w-5' />
                         </button>
+                    </div>
+                </div>
+            </dialog>
+
+            <dialog id='history_modal' className='modal'>
+                <div className='modal-box'>
+                    <h3 className='font-bold text-lg'>Hello!</h3>
+                    <p className='py-4'>Press ESC key or click the button below to close</p>
+                    <div className='modal-action'>
+                        <form method='dialog'>
+                            {/* if there is a button in form, it will close the modal */}
+                            <button className='btn'>Close</button>
+                        </form>
                     </div>
                 </div>
             </dialog>
