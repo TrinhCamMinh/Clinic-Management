@@ -7,7 +7,7 @@ import { AgGridReact } from 'ag-grid-react'; //* React Grid Logic
 
 const Receipt = () => {
     const [queryByIllnessName, setQueryByIllnessName] = useState(null);
-    const [prescriptionData, setPrescriptionData] = useState([]);
+    const [prescriptionData, setPrescriptionData] = useState(null);
 
     const [queryUserInfo, setQueryUserInfo] = useState('');
     const [userData, setUserData] = useState('');
@@ -25,6 +25,8 @@ const Receipt = () => {
     const receivePrescriptionData = () => {
         const diseaseData = JSON.parse(sessionStorage.getItem('diseaseData'));
 
+        if(!diseaseData) return 
+
         const result = diseaseData.find((item) => {
             return item['Loại bệnh'] === queryByIllnessName;
         });
@@ -32,7 +34,7 @@ const Receipt = () => {
         if (result) {
             setPrescriptionData(result['Đơn thuốc']);
         } else {
-            setPrescriptionData([]);
+            setPrescriptionData(null);
         }
     };
 
@@ -74,8 +76,14 @@ const Receipt = () => {
         { field: 'price', wrapText: true },
     ]);
 
+    //* Make the AGGrid content automatically resize to fit the grid container size
+    const autoSizeStrategy = {
+        type: 'fitGridWidth',
+        defaultMinWidth: 100,
+    };
+
     useEffect(() => {
-        if (prescriptionData.length === 0) return;
+        if (!prescriptionData || prescriptionData.length === 0) return;
 
         sumTotalPrice();
     }, [prescriptionData]);
@@ -195,9 +203,14 @@ const Receipt = () => {
                 </label>
             </section>
 
-            <section className='mt-4'>
-                <div className='divider divider-primary'>OR</div>
-            </section>
+            {/* Only render the divider when prescriptionData have data */}
+            {
+                prescriptionData && (
+                    <section className='mt-4'>
+                        <div className='divider divider-primary'></div>
+                    </section>
+                )
+            }
 
             <section className='w-full'>
                 <div className='overflow-x-auto xl:overflow-hidden'>
@@ -299,13 +312,23 @@ const Receipt = () => {
 
                     {prescriptionData && (
                         <div className={`col-span-3`} style={{ width: '100%', height: 450 }}>
-                            <AgGridReact
-                                rowData={prescriptionData}
-                                columnDefs={colDefs}
+                            <header>
+                                <h2 className='capitalize text-4xl font-bold text-primary text-center'>danh sách đơn thuốc</h2>
+                            </header>
+                            <div className="ag-theme-quartz-dark mt-8" style={{ height: 500 }}>
+                            {/* The AG Grid component */}
+                            <AgGridReact 
+                                rowData={prescriptionData} 
+                                columnDefs={colDefs}  
                                 rowSelection={'multiple'}
                                 rowGroupPanelShow={'always'}
-                                suppressScrollOnNewData={true} //* tells the grid to NOT scroll to the top when the page changes.
+                                autoSizeStrategy={autoSizeStrategy}
+                                pagination={true}
+                                paginationPageSize={20}
+                                paginationPageSizeSelector={[20, 50, 100]}
+                                suppressScrollOnNewData={true} //* tells the grid to NOT scroll to the top when the page changes
                             />
+                            </div>
                         </div>
                     )}
                 </div>

@@ -121,6 +121,19 @@ const Patients = () => {
         defaultMinWidth: 100,
     };
 
+    //* Mock history data
+    const [history, setHistory] = useState([
+        { 'Ngày Khám': "25/11/2002", "Triệu Chứng": "Corona Virus", "Phiếu Khám": "2023110001_0001", "Thành Tiền": "25.000 VNĐ" },
+        { 'Ngày Khám': "6/9/2024", "Triệu Chứng": "Viêm Xoan", "Phiếu Khám": "2023110001_0002", "Thành Tiền": "22.000 VNĐ" },
+        { 'Ngày Khám': "18/11/2020", "Triệu Chứng": "Cảm", "Phiếu Khám": "2023110001_0003", "Thành Tiền": "69.000 VNĐ" },
+    ]);
+    const [historyColDefs, setHistoryColDefs] = useState([
+        { field: "Ngày Khám" },
+        { field: "Triệu Chứng" },
+        { field: "Phiếu Khám" },
+        { field: "Thành Tiền" }
+      ]);
+
     const submitCreatedData = () => {
         setRowData((prevRowData) => {
             return [
@@ -324,19 +337,29 @@ const Patients = () => {
             </dialog>
 
             <dialog id='history_modal' className='modal'>
-                <div className='modal-box'>
-                    <h3 className='font-bold text-lg'>Hello!</h3>
-                    <p className='py-4'>Press ESC key or click the button below to close</p>
-                    <div className='modal-action'>
-                        <form method='dialog'>
-                            {/* if there is a button in form, it will close the modal */}
-                            <button className='btn'>Close</button>
-                        </form>
+                <div className='modal-box w-11/12 max-w-5xl'>
+                    <h3 className='font-bold text-2xl text-center'>Lịch sử khám - <span className='text-primary'>Nguyễn Văn A</span></h3>
+                    
+                    <div className="ag-theme-quartz mt-8" style={{ height: 500 }}>
+                    {/* The AG Grid component */}
+                    <AgGridReact 
+                        rowData={history} 
+                        columnDefs={historyColDefs}  
+                        autoSizeStrategy={autoSizeStrategy}
+                        rowSelection={'multiple'}
+                        rowGroupPanelShow={'always'}
+                        pagination={true}
+                        paginationPageSize={20}
+                        paginationPageSizeSelector={[20, 50, 100]}
+                        suppressScrollOnNewData={true} //* tells the grid to NOT scroll to the top when the page changes
+                    />
                     </div>
                 </div>
             </dialog>
         </div>
     );
 };
+
+
 
 export default Patients;
