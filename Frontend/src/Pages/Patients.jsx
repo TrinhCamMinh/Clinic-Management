@@ -11,7 +11,7 @@ import { generateRandomID } from '../utils/General';
 const Actions = () => {
     return (
         <div className='flex items-center justify-between w-full h-full'>
-            <button>
+            <button onClick={() => document.getElementById('detail_modal').showModal()}>
                 <FaEye className='w-5 h-5 text-green-400' />
             </button>
             <button>
@@ -123,16 +123,31 @@ const Patients = () => {
 
     //* Mock history data
     const [history, setHistory] = useState([
-        { 'Ngày Khám': "25/11/2002", "Triệu Chứng": "Corona Virus", "Phiếu Khám": "2023110001_0001", "Thành Tiền": "25.000 VNĐ" },
-        { 'Ngày Khám': "6/9/2024", "Triệu Chứng": "Viêm Xoan", "Phiếu Khám": "2023110001_0002", "Thành Tiền": "22.000 VNĐ" },
-        { 'Ngày Khám': "18/11/2020", "Triệu Chứng": "Cảm", "Phiếu Khám": "2023110001_0003", "Thành Tiền": "69.000 VNĐ" },
+        {
+            'Ngày Khám': '25/11/2002',
+            'Triệu Chứng': 'Corona Virus',
+            'Phiếu Khám': '2023110001_0001',
+            'Thành Tiền': '25.000 VNĐ',
+        },
+        {
+            'Ngày Khám': '6/9/2024',
+            'Triệu Chứng': 'Viêm Xoan',
+            'Phiếu Khám': '2023110001_0002',
+            'Thành Tiền': '22.000 VNĐ',
+        },
+        {
+            'Ngày Khám': '18/11/2020',
+            'Triệu Chứng': 'Cảm',
+            'Phiếu Khám': '2023110001_0003',
+            'Thành Tiền': '69.000 VNĐ',
+        },
     ]);
     const [historyColDefs, setHistoryColDefs] = useState([
-        { field: "Ngày Khám" },
-        { field: "Triệu Chứng" },
-        { field: "Phiếu Khám" },
-        { field: "Thành Tiền" }
-      ]);
+        { field: 'Ngày Khám' },
+        { field: 'Triệu Chứng' },
+        { field: 'Phiếu Khám' },
+        { field: 'Thành Tiền' },
+    ]);
 
     const submitCreatedData = () => {
         setRowData((prevRowData) => {
@@ -143,7 +158,7 @@ const Patients = () => {
                     SĐT: data.phoneNumber.current.value,
                     Tuổi: Number(data.age.current.value),
                     'Địa chỉ': data.address.current.value,
-                    'Mã sổ khám bệnh': generateID, //!HARDCODE
+                    'Mã sổ khám bệnh': generateID,
                     'Ngày sinh': data.dateOfBirth.current.value,
                 },
             ];
@@ -338,28 +353,132 @@ const Patients = () => {
 
             <dialog id='history_modal' className='modal'>
                 <div className='modal-box w-11/12 max-w-5xl'>
-                    <h3 className='font-bold text-2xl text-center'>Lịch sử khám - <span className='text-primary'>Nguyễn Văn A</span></h3>
-                    
-                    <div className="ag-theme-quartz mt-8" style={{ height: 500 }}>
-                    {/* The AG Grid component */}
-                    <AgGridReact 
-                        rowData={history} 
-                        columnDefs={historyColDefs}  
-                        autoSizeStrategy={autoSizeStrategy}
-                        rowSelection={'multiple'}
-                        rowGroupPanelShow={'always'}
-                        pagination={true}
-                        paginationPageSize={20}
-                        paginationPageSizeSelector={[20, 50, 100]}
-                        suppressScrollOnNewData={true} //* tells the grid to NOT scroll to the top when the page changes
-                    />
+                    <h3 className='font-bold text-2xl text-center'>
+                        Lịch sử khám - <span className='text-primary capitalize'>Nguyễn Văn A</span>
+                    </h3>
+
+                    <div className='ag-theme-quartz mt-8' style={{ height: 500 }}>
+                        {/* The AG Grid component */}
+                        <AgGridReact
+                            rowData={history}
+                            columnDefs={historyColDefs}
+                            autoSizeStrategy={autoSizeStrategy}
+                            rowSelection={'multiple'}
+                            rowGroupPanelShow={'always'}
+                            pagination={true}
+                            paginationPageSize={20}
+                            paginationPageSizeSelector={[20, 50, 100]}
+                            suppressScrollOnNewData={true} //* tells the grid to NOT scroll to the top when the page changes
+                        />
                     </div>
+
+                    <form method='dialog'>
+                        {/* if there is a button in form, it will close the modal */}
+                        <button className='btn btn-sm btn-circle btn-ghost absolute right-2 top-2'>✕</button>
+                    </form>
+                </div>
+            </dialog>
+
+            <dialog id='detail_modal' className='modal'>
+                <div className='modal-box w-11/12 max-w-5xl'>
+                    <header>
+                        <h3 className='font-bold text-2xl text-center'>
+                            Thông tin chi tiết - <span className='text-primary capitalize'>nguyễn văn a</span>
+                        </h3>
+
+                        <div className='avatar w-full mt-8'>
+                            <div className='w-24 rounded my-0 mx-auto'>
+                                <img src='https://daisyui.com/images/stock/photo-1534528741775-53994a69daeb.jpg' />
+                            </div>
+                        </div>
+                    </header>
+
+                    <form method='dialog'>
+                        {/* if there is a button in form, it will close the modal */}
+                        <button className='btn btn-sm btn-circle btn-ghost absolute right-2 top-2'>✕</button>
+                    </form>
+
+                    <div className='grid grid-col-1 md:grid-cols-2 gap-4'>
+                        <label className='form-control w-full'>
+                            <div className='label'>
+                                <span className='label-text'>ID</span>
+                            </div>
+                            <input disabled type='text' placeholder='520H659' className='input input-bordered w-full' />
+                        </label>
+                        <label className='form-control w-full'>
+                            <div className='label'>
+                                <span className='label-text'>Mã Sổ Khám Bệnh</span>
+                            </div>
+                            <input disabled type='text' placeholder='520H659' className='input input-bordered w-full' />
+                        </label>
+                        <label className='form-control w-full '>
+                            <div className='label'>
+                                <span className='label-text'>Họ và Tên</span>
+                            </div>
+                            <input
+                                disabled
+                                type='text'
+                                placeholder='Nguyễn Văn A'
+                                className='input input-bordered w-full'
+                            />
+                        </label>
+                        <label className='form-control w-full '>
+                            <div className='label'>
+                                <span className='label-text'>Email</span>
+                            </div>
+                            <input
+                                disabled
+                                type='text'
+                                placeholder='abc@gmail.com'
+                                className='input input-bordered w-full'
+                            />
+                        </label>
+                        <label className='form-control w-full '>
+                            <div className='label'>
+                                <span className='label-text'>Tuổi</span>
+                            </div>
+                            <input disabled type='text' placeholder='24' className='input input-bordered w-full' />
+                        </label>
+                        <label className='form-control w-full '>
+                            <div className='label'>
+                                <span className='label-text'>Địa chỉ</span>
+                            </div>
+                            <input
+                                disabled
+                                type='text'
+                                placeholder='123 Trần Hưng Đạo, Quận 6, Phường 1'
+                                className='input input-bordered w-full'
+                            />
+                        </label>
+                        <label className='form-control w-full '>
+                            <div className='label'>
+                                <span className='label-text'>Ngày Tạo</span>
+                            </div>
+                            <input
+                                disabled
+                                type='text'
+                                placeholder='1/2/2024'
+                                className='input input-bordered w-full'
+                            />
+                        </label>
+                        <label className='form-control w-full '>
+                            <div className='label'>
+                                <span className='label-text'>Ngày cập nhật mới nhất</span>
+                            </div>
+                            <input
+                                disabled
+                                type='text'
+                                placeholder='1/2/2024'
+                                className='input input-bordered w-full'
+                            />
+                        </label>
+                    </div>
+
+                    <button className='btn btn-success btn-xs sm:btn-sm md:btn-md mt-8 w-full'>Cập nhật</button>
                 </div>
             </dialog>
         </div>
     );
 };
-
-
 
 export default Patients;
