@@ -1,4 +1,6 @@
 import { createContext, useReducer, useEffect } from 'react';
+import {auth} from '../Configs/firebase'
+
 export const AuthContext = createContext();
 
 export const authReducer = (state, action) => {
@@ -18,10 +20,13 @@ export const AuthProvider = ({ children }) => {
     });
 
     useEffect(() => {
-        const user = JSON.parse(localStorage.getItem('userData'));
-        if (user) {
-            dispatch({ type: 'LOGIN', payload: user });
-        }
+        auth.onAuthStateChanged(user => {
+            if(user) {
+                console.log(user);
+                dispatch({ type: 'LOGIN', payload: user });
+            }
+        })
+        
     }, []);
 
     return <AuthContext.Provider value={{ ...state, dispatch }}>{children}</AuthContext.Provider>;

@@ -19,14 +19,8 @@ const Login = () => {
             };
 
             const userCredential = await signInWithEmailAndPassword(auth, userInfo.userEmail, userInfo.userPassword);
-            const { displayName, email, isAnonymous, metadata, phoneNumber } = userCredential.user;
-
-            //* Save the user data info to local storage
-            const savedUserData = { displayName, email, isAnonymous, metadata, phoneNumber };
-            localStorage.setItem('userData', JSON.stringify(savedUserData)); //! Consider remove
-
             //* update the auth context
-            dispatch({ type: 'LOGIN', payload: savedUserData });
+            dispatch({ type: 'LOGIN', payload: userCredential });
 
             //* Navigate user to receipt page after login successfully
             navigate('/masterdata/receipt');

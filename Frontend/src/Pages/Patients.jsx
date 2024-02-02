@@ -30,6 +30,8 @@ const Actions = () => {
 const Patients = () => {
     const themeValue = useTheme();
     const generateID = generateRandomID().toUpperCase();
+    const [patient, setPatient] = useState('')
+
     const data = {
         name: useRef(null),
         phoneNumber: useRef(null),
@@ -38,6 +40,11 @@ const Patients = () => {
         code: useRef(null),
         dateOfBirth: useRef(null),
     };
+
+    const handleRowClicked = (event) => {
+        const {data} = event
+        setPatient(data)
+    }
 
     const checkboxSelection = function (params) {
         //* we put checkbox on the name if we are not doing grouping
@@ -228,6 +235,7 @@ const Patients = () => {
                     reactiveCustomComponents
                     tooltipShowDelay={0}
                     tooltipHideDelay={2000}
+                    onRowClicked={handleRowClicked}
                 />
             </div>
 
@@ -354,10 +362,10 @@ const Patients = () => {
             <dialog id='history_modal' className='modal'>
                 <div className='modal-box w-11/12 max-w-5xl'>
                     <h3 className='font-bold text-2xl text-center'>
-                        Lịch sử khám - <span className='text-primary capitalize'>Nguyễn Văn A</span>
+                        Lịch sử khám - <span className='text-primary capitalize'>{patient['Họ và Tên']}</span>
                     </h3>
 
-                    <div className='ag-theme-quartz mt-8' style={{ height: 500 }}>
+                    <div className={`mt-8 ${themeValue === 'light' ? 'ag-theme-quartz' : 'ag-theme-quartz-dark'}`} style={{ height: 500 }}>
                         {/* The AG Grid component */}
                         <AgGridReact
                             rowData={history}
@@ -383,7 +391,7 @@ const Patients = () => {
                 <div className='modal-box w-11/12 max-w-5xl'>
                     <header>
                         <h3 className='font-bold text-2xl text-center'>
-                            Thông tin chi tiết - <span className='text-primary capitalize'>nguyễn văn a</span>
+                            Thông tin chi tiết - <span className='text-primary capitalize'>{patient['Họ và Tên']}</span>
                         </h3>
 
                         <div className='avatar w-full mt-8'>
@@ -409,7 +417,7 @@ const Patients = () => {
                             <div className='label'>
                                 <span className='label-text'>Mã Sổ Khám Bệnh</span>
                             </div>
-                            <input disabled type='text' placeholder='520H659' className='input input-bordered w-full' />
+                            <input value={patient['Mã sổ khám bệnh']} disabled type='text' className='input input-bordered w-full' />
                         </label>
                         <label className='form-control w-full '>
                             <div className='label'>
@@ -418,7 +426,7 @@ const Patients = () => {
                             <input
                                 disabled
                                 type='text'
-                                placeholder='Nguyễn Văn A'
+                                value={patient['Họ và Tên']}
                                 className='input input-bordered w-full'
                             />
                         </label>
@@ -437,7 +445,7 @@ const Patients = () => {
                             <div className='label'>
                                 <span className='label-text'>Tuổi</span>
                             </div>
-                            <input disabled type='text' placeholder='24' className='input input-bordered w-full' />
+                            <input disabled type='text' value={patient['Tuổi']} className='input input-bordered w-full' />
                         </label>
                         <label className='form-control w-full '>
                             <div className='label'>
@@ -446,7 +454,7 @@ const Patients = () => {
                             <input
                                 disabled
                                 type='text'
-                                placeholder='123 Trần Hưng Đạo, Quận 6, Phường 1'
+                                value={patient['Địa chỉ']}
                                 className='input input-bordered w-full'
                             />
                         </label>
