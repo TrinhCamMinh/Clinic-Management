@@ -47,7 +47,7 @@ const Medicine = () => {
     //* Row Data: The data to be displayed.
     const [rowData, setRowData] = useState([
         {
-            'Tên dược liệu': 'Omnigender',
+            'Tên dược liệu': 'Cảm',
             'Loại bệnh': 'Return to Sender',
             'Thành phần dược': 'Cape Canaveral',
             'Hàm lượng': '4/ngay',
@@ -56,7 +56,7 @@ const Medicine = () => {
             'Giá dược liệu/viên': 68,
         },
         {
-            'Tên dược liệu': 'Omnigender',
+            'Tên dược liệu': 'Ho',
             'Loại bệnh': 'Return to Sender',
             'Thành phần dược': 'Cape Canaveral',
             'Hàm lượng': '4/ngay',

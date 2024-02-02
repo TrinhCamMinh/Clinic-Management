@@ -67,13 +67,38 @@ const Receipt = () => {
     //* Column Definitions: Defines & controls grid columns.
     const [colDefs, setColDefs] = useState([
         {
+            headerName: 'Tên dược liệu',
             field: 'name',
             wrapText: true,
             autoHeight: true,
+            valueGetter: (params) => {
+                return params.data.name;
+            }
         },
-        { field: 'concentration', wrapText: true },
-        { field: 'usage', wrapText: true },
-        { field: 'price', wrapText: true },
+        {
+            headerName: 'Liều Lượng', 
+            field: 'concentration',
+            wrapText: true, 
+            valueGetter: (params) => {
+                return params.data.concentration;
+            } 
+        },
+        { 
+            headerName: 'Liều Dùng', 
+            field: 'usage', 
+            wrapText: true, 
+            valueGetter: (params) => {
+                return params.data.usage;
+            } 
+        },
+        {
+            headerName: 'Giá', 
+            field: 'price', 
+            wrapText: true,  
+            valueGetter: (params) => {
+                return params.data.price;
+            }
+        },
     ]);
 
     //* Make the AGGrid content automatically resize to fit the grid container size
@@ -286,12 +311,7 @@ const Receipt = () => {
                         <tfoot>
                             <tr>
                                 <th colSpan={5} className='text-right'>
-                                    <p className='text-xl'>
-                                        Tổng:{' '}
-                                        <span className='text-green-600 font-extrabold italic underline underline-offset-4 decoration-2 decoration-sky-500'>
-                                            {formatCurrency(totalPrice)} VNĐ
-                                        </span>
-                                    </p>
+                                    
                                 </th>
                             </tr>
                             <tr>
@@ -315,7 +335,7 @@ const Receipt = () => {
                             <header>
                                 <h2 className='capitalize text-4xl font-bold text-primary text-center'>danh sách đơn thuốc</h2>
                             </header>
-                            <div className="ag-theme-quartz-dark mt-8" style={{ height: 500 }}>
+                            <div className="ag-theme-quartz mt-8" style={{ height: 500 }}>
                             {/* The AG Grid component */}
                             <AgGridReact 
                                 rowData={prescriptionData} 
@@ -332,6 +352,17 @@ const Receipt = () => {
                         </div>
                     )}
                 </div>
+
+                {
+                    prescriptionData && (
+                        <p className='text-xl float-right my-4'>
+                            Tổng:{' '}
+                            <span className='text-green-600 font-extrabold italic underline underline-offset-4 decoration-2 decoration-sky-500'>
+                                {formatCurrency(totalPrice)} VNĐ
+                            </span>
+                        </p>
+                    )
+                }
             </section>
         </div>
     );
