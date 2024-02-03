@@ -6,13 +6,14 @@ import { useAuth } from '../hooks';
 import { useEffect } from 'react';
 
 const Home = () => {
-    const navigate = useNavigate();
-    const { user } = useAuth();
+    // const navigate = useNavigate();
+    // const { user } = useAuth();
 
-    //* Check authentication
-    useEffect(() => {
-        if (!user) return navigate('/login');
-    }, []);
+    // //* Check authentication
+    // useEffect(() => {
+    //     console.log('home', user);
+    //     if (!user) return navigate('/login');
+    // }, []);
 
     return (
         <div className='flex flex-col gap-4 h-screen'>

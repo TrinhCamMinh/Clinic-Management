@@ -14,10 +14,6 @@ const Primary = () => {
                 {/* Main content will be placed here */}
                 <Outlet />
             </main>
-
-            {/* <footer className='mt-20'>
-                <Footer />
-            </footer> */}
         </>
     );
 };

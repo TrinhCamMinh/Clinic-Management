@@ -85,7 +85,10 @@ const Sidebar = () => {
 
                     <ul className='pt-4 mt-4 space-y-2 font-medium border-t border-gray-200 dark:border-gray-700'>
                         <li>
-                            <button className='w-full' onClick={()=>document.getElementById('help_modal').showModal()}>
+                            <button
+                                className='w-full'
+                                onClick={() => document.getElementById('help_modal').showModal()}
+                            >
                                 <Link className='flex items-center p-2 text-gray-900 transition duration-75 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white group'>
                                     <IoMdHelpCircleOutline className='w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white' />
                                     <span className='ms-3'>Trợ Giúp</span>
@@ -104,37 +107,37 @@ const Sidebar = () => {
                 </div>
             </aside>
 
-            <dialog id="help_modal" className="modal">
-                <div className="modal-box w-4/12 max-w-5xl">
-                    <h3 className="font-bold text-2xl text-primary text-center uppercase">thông tin hỗ trợ</h3>
-                    
-                    <ul className='mt-8 grid grid-cols-3 font-bold'>
+            <dialog id='help_modal' className='modal'>
+                <div className='modal-box w-4/12 max-w-5xl'>
+                    <h3 className='font-bold text-2xl text-primary text-center uppercase'>thông tin hỗ trợ</h3>
+
+                    <ul className='mt-8 grid grid-cols-3 italic'>
                         <li className='capitalize col-span-1'>
                             <p>kỹ thuật</p>
-                            <div className="divider divider-neutral"></div> 
+                            <div className='divider divider-neutral'></div>
                             <p>nghiệp vụ</p>
-                            <div className="divider divider-neutral"></div> 
+                            <div className='divider divider-neutral'></div>
                             <p>góp ý và báo lỗi</p>
                         </li>
-                        <li className='col-span-2'>
+                        <li className='font-bold col-span-2'>
                             <div className='flex flex-row items-center gap-4'>
-                                <MdEmail  className='w-5 h-5' /> trinhcamminh25112002@gmail.com
+                                <MdEmail className='w-5 h-5' /> trinhcamminh25112002@gmail.com
                             </div>
-                            <div className="divider divider-neutral"></div> 
+                            <div className='divider divider-neutral'></div>
                             <div className='flex flex-row items-center gap-4'>
-                                <MdEmail  className='w-5 h-5' /> ledangkhoa199@gmail.com
+                                <MdEmail className='w-5 h-5' /> ledangkhoa199@gmail.com
                             </div>
-                            <div className="divider divider-neutral"></div> 
+                            <div className='divider divider-neutral'></div>
                             <div className='flex flex-row items-center gap-4'>
-                                <MdEmail  className='w-5 h-5' /> trinhcamminh25112002@gmail.com
+                                <MdEmail className='w-5 h-5' /> trinhcamminh25112002@gmail.com
                             </div>
                         </li>
                     </ul>
 
-                    <div className="modal-action">
-                        <form method="dialog">
+                    <div className='modal-action'>
+                        <form method='dialog'>
                             {/* if there is a button in form, it will close the modal */}
-                            <button className="btn">Đóng</button>
+                            <button className='btn'>Đóng</button>
                         </form>
                     </div>
                 </div>

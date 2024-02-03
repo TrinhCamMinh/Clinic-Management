@@ -10,10 +10,10 @@ import { AuthProvider } from './Contexts/AuthContext.jsx';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
     <ErrorBoundary fallback={<FallBackUI />}>
-        <AuthProvider>
-            <BrowserRouter>
+        <BrowserRouter>
+            <AuthProvider>
                 <App />
-            </BrowserRouter>
-        </AuthProvider>
+            </AuthProvider>
+        </BrowserRouter>
     </ErrorBoundary>
 );
