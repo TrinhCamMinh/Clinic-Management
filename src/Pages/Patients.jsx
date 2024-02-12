@@ -6,8 +6,10 @@ import { AgGridReact } from 'ag-grid-react'; //* React Grid Logic
 import { useState, useRef, useEffect } from 'react';
 import { useTheme } from '../hooks';
 import { generateRandomID } from '../utils/General';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs, addDoc } from 'firebase/firestore';
 import { db } from '../Configs/firebase';
+import { Alert } from '../utils/Alert';
+import { getCurrentDate } from '../utils/General';
 
 //* Cell Rendering:Actions column
 const Actions = () => {
@@ -30,6 +32,7 @@ const Actions = () => {
 };
 
 const Patients = () => {
+    const currentDate = getCurrentDate(); //* get current Date for inserting new patients
     const themeValue = useTheme();
     const generateID = generateRandomID().toUpperCase();
     const [patient, setPatient] = useState('');
@@ -41,11 +44,11 @@ const Patients = () => {
         address: useRef(null),
         code: useRef(null),
         dateOfBirth: useRef(null),
+        email: useRef(null),
     };
 
     const handleRowClicked = (event) => {
         const { data } = event;
-        console.log(data);
         setPatient(data);
     };
 
@@ -65,7 +68,8 @@ const Patients = () => {
     //* Column Definitions: Defines & controls grid columns.
     const [colDefs, setColDefs] = useState([
         {
-            field: 'Họ và Tên',
+            headerName: 'Họ và Tên',
+            field: 'name',
             wrapText: true,
             autoHeight: true,
             pinned: 'left',
@@ -73,10 +77,10 @@ const Patients = () => {
             checkboxSelection: checkboxSelection,
             headerCheckboxSelection: headerCheckboxSelection,
         },
-        { field: 'SĐT', wrapText: true, filter: true },
-        { field: 'Tuổi', wrapText: true, filter: true },
-        { field: 'Địa chỉ', wrapText: true, filter: true },
-        { field: 'Mã sổ khám bệnh', wrapText: true, filter: true },
+        { headerName: 'SĐT', field: 'phoneNumber', wrapText: false },
+        { headerName: 'Tuổi', field: 'age', filter: true },
+        { headerName: 'Địa chỉ', field: 'address', wrapText: true, filter: true },
+        { headerName: 'Mã sổ khám bệnh', field: 'medicalCode', wrapText: true, filter: true },
         {
             field: '',
             cellRenderer: Actions,
@@ -110,6 +114,7 @@ const Patients = () => {
             'Thành Tiền': '69.000 VNĐ',
         },
     ]);
+
     const [historyColDefs, setHistoryColDefs] = useState([
         { field: 'Ngày Khám' },
         { field: 'Triệu Chứng' },
@@ -117,20 +122,61 @@ const Patients = () => {
         { field: 'Thành Tiền' },
     ]);
 
-    const submitCreatedData = () => {
-        setRowData((prevRowData) => {
-            return [
-                ...prevRowData,
+    //* Get Patient List from Firebase Server (FireStore - Patients Collection)
+    const getPatientList = async () => {
+        const querySnapshot = await getDocs(collection(db, 'Patients'));
+        querySnapshot.forEach((doc) => {
+            const patient = doc.data();
+            setRowData((prevData) => [
+                ...prevData,
                 {
-                    'Họ và Tên': data.name.current.value,
-                    SĐT: data.phoneNumber.current.value,
-                    Tuổi: Number(data.age.current.value),
-                    'Địa chỉ': data.address.current.value,
-                    'Mã sổ khám bệnh': generateID,
-                    'Ngày sinh': data.dateOfBirth.current.value,
+                    name: patient.name,
+                    phoneNumber: `0${patient.phoneNumber}`,
+                    age: patient.age,
+                    address: patient.address,
+                    medicalCode: patient.medicalCode,
+                    email: patient.email,
+                    createdDate: patient.createdDate,
+                    updatedDate: patient.updatedDate,
                 },
-            ];
+            ]);
         });
+    };
+
+    //* Create Patient Data to Firebase Server (FireStore - Patients Collection)
+    const submitCreatedData = async () => {
+        try {
+            const docRef = await addDoc(collection(db, 'Patients'), {
+                name: data.name.current.value,
+                email: data.email.current.value ?? null,
+                phoneNumber: data.phoneNumber.current.value,
+                age: Number(data.age.current.value),
+                address: data.address.current.value,
+                medicalCode: generateID,
+                createdDate: currentDate,
+                updatedDate: currentDate,
+            });
+
+            console.log('Document written with ID: ', docRef.id);
+            Alert({ toast: true, icon: 'success', text: 'Thêm mới dữ liệu thành công' });
+
+            //* Update Patient List after creating data successfully
+            setRowData((prevRowData) => {
+                return [
+                    ...prevRowData,
+                    {
+                        name: data.name.current.value,
+                        phoneNumber: data.phoneNumber.current.value,
+                        age: Number(data.age.current.value),
+                        address: data.address.current.value,
+                        medicalCode: generateID,
+                    },
+                ];
+            });
+        } catch (e) {
+            console.error('Error adding document: ', e);
+            Alert({ toast: true, icon: 'error', title: 'Đã xảy ra lỗi khi thêm mới dữ liệu', text: e.message });
+        }
     };
 
     const refreshData = () => {
@@ -138,7 +184,6 @@ const Patients = () => {
         data.phoneNumber.current.value = null;
         data.age.current.value = null;
         data.address.current.value = null;
-        data.dateOfBirth.current.value = null;
     };
 
     useEffect(() => {
@@ -159,27 +204,8 @@ const Patients = () => {
         //* thus calling the callback only after the first render.
     }, [rowData]);
 
-    //!HARDCODE
+    //* Get Patient List when component first mounted
     useEffect(() => {
-        const getPatientList = async () => {
-            const querySnapshot = await getDocs(collection(db, 'Patients'));
-            querySnapshot.forEach((doc) => {
-                const patient = doc.data();
-                setRowData((prevData) => [
-                    ...prevData,
-                    {
-                        'Họ và Tên': patient.name,
-                        SĐT: `0${patient.phoneNumber}`,
-                        Tuổi: patient.age,
-                        'Địa chỉ': patient.address,
-                        'Mã sổ khám bệnh': patient.medicalCode,
-                        Email: patient.email,
-                        'Ngày tạo': patient.createdDate,
-                        'Ngày cập nhật': patient.updatedDate,
-                    },
-                ]);
-            });
-        };
         getPatientList();
     }, []);
 
@@ -313,13 +339,13 @@ const Patients = () => {
                         <div className='col-span-2 xl:col-span-1'>
                             <label className='form-control w-full'>
                                 <div className='label'>
-                                    <span className='label-text'>Ngày sinh</span>
+                                    <span className='label-text'>Email</span>
                                 </div>
                                 <input
-                                    type='date'
-                                    placeholder='Vui lòng nhập ngày sinh'
+                                    type='email'
+                                    placeholder='Vui lòng nhập email bệnh nhân'
                                     className='input input-bordered w-full'
-                                    ref={data.dateOfBirth}
+                                    ref={data.email}
                                 />
                             </label>
                         </div>
@@ -347,7 +373,7 @@ const Patients = () => {
             <dialog id='history_modal' className='modal'>
                 <div className='modal-box w-11/12 max-w-5xl'>
                     <h3 className='font-bold text-2xl text-center'>
-                        Lịch sử khám - <span className='text-primary capitalize'>{patient['Họ và Tên']}</span>
+                        Lịch sử khám - <span className='text-primary capitalize'>{patient.name}</span>
                     </h3>
 
                     <div
@@ -379,12 +405,15 @@ const Patients = () => {
                 <div className='modal-box w-11/12 max-w-5xl'>
                     <header>
                         <h3 className='font-bold text-2xl text-center'>
-                            Thông tin chi tiết - <span className='text-primary capitalize'>{patient['Họ và Tên']}</span>
+                            Thông tin chi tiết - <span className='text-primary capitalize'>{patient.name}</span>
                         </h3>
 
                         <div className='avatar w-full mt-8'>
                             <div className='w-24 rounded my-0 mx-auto'>
-                                <img src='https://daisyui.com/images/stock/photo-1534528741775-53994a69daeb.jpg' />
+                                <img
+                                    src='https://daisyui.com/images/stock/photo-1534528741775-53994a69daeb.jpg'
+                                    alt={`${patient.name}-avatar`}
+                                />
                             </div>
                         </div>
                     </header>
@@ -406,7 +435,7 @@ const Patients = () => {
                                 <span className='label-text'>Mã Sổ Khám Bệnh</span>
                             </div>
                             <input
-                                value={patient['Mã sổ khám bệnh']}
+                                value={patient.medicalCode}
                                 disabled
                                 type='text'
                                 className='input input-bordered w-full'
@@ -416,34 +445,19 @@ const Patients = () => {
                             <div className='label'>
                                 <span className='label-text'>Họ và Tên</span>
                             </div>
-                            <input
-                                disabled
-                                type='text'
-                                value={patient['Họ và Tên']}
-                                className='input input-bordered w-full'
-                            />
+                            <input disabled type='text' value={patient.name} className='input input-bordered w-full' />
                         </label>
                         <label className='form-control w-full '>
                             <div className='label'>
                                 <span className='label-text'>Email</span>
                             </div>
-                            <input
-                                disabled
-                                type='text'
-                                placeholder='abc@gmail.com'
-                                className='input input-bordered w-full'
-                            />
+                            <input disabled type='text' value={patient.email} className='input input-bordered w-full' />
                         </label>
                         <label className='form-control w-full '>
                             <div className='label'>
                                 <span className='label-text'>Tuổi</span>
                             </div>
-                            <input
-                                disabled
-                                type='text'
-                                value={patient['Tuổi']}
-                                className='input input-bordered w-full'
-                            />
+                            <input disabled type='text' value={patient.age} className='input input-bordered w-full' />
                         </label>
                         <label className='form-control w-full '>
                             <div className='label'>
@@ -452,7 +466,7 @@ const Patients = () => {
                             <input
                                 disabled
                                 type='text'
-                                value={patient['Địa chỉ']}
+                                value={patient.address}
                                 className='input input-bordered w-full'
                             />
                         </label>
@@ -463,7 +477,7 @@ const Patients = () => {
                             <input
                                 disabled
                                 type='text'
-                                placeholder='1/2/2024'
+                                value={patient.createdDate}
                                 className='input input-bordered w-full'
                             />
                         </label>
@@ -474,12 +488,11 @@ const Patients = () => {
                             <input
                                 disabled
                                 type='text'
-                                placeholder='1/2/2024'
+                                value={patient.updatedDate}
                                 className='input input-bordered w-full'
                             />
                         </label>
                     </div>
-
                     <button className='btn btn-success btn-xs sm:btn-sm md:btn-md mt-8 w-full'>Cập nhật</button>
                 </div>
             </dialog>
