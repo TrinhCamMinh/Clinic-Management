@@ -10,6 +10,7 @@ const measurementId = import.meta.env.VITE_FIREBASE_MEASUREMENT_ID;
 import { initializeApp } from 'firebase/app';
 import { getAnalytics } from 'firebase/analytics';
 import { getAuth } from 'firebase/auth';
+import { getFirestore } from 'firebase/firestore';
 // Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -25,9 +26,13 @@ const firebaseConfig = {
     measurementId,
 };
 
-// Initialize Firebase
+//* Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
-// Initialize Firebase Authentication and get a reference to the service
+//* Initialize Firebase Authentication and get a reference to the service
 export const auth = getAuth(app);
+
+//* Initialize Cloud Firestore and get a reference to the service
+export const db = getFirestore(app);
+
 export const analytics = getAnalytics(app);

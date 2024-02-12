@@ -6,6 +6,8 @@ import { AgGridReact } from 'ag-grid-react'; //* React Grid Logic
 import { useState, useRef, useEffect } from 'react';
 import { useTheme } from '../hooks';
 import { generateRandomID } from '../utils/General';
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from '../Configs/firebase';
 
 //* Cell Rendering:Actions column
 const Actions = () => {
@@ -43,6 +45,7 @@ const Patients = () => {
 
     const handleRowClicked = (event) => {
         const { data } = event;
+        console.log(data);
         setPatient(data);
     };
 
@@ -57,48 +60,7 @@ const Patients = () => {
     };
 
     //* Row Data: The data to be displayed.
-    const [rowData, setRowData] = useState([
-        {
-            'Họ và Tên': 'Katherine Rogahn II',
-            SĐT: '986-276-7182',
-            Tuổi: 23,
-            'Địa chỉ': 'Port Lianastead',
-            'Mã sổ khám bệnh': '362434918667748',
-            'Ngày sinh': '2002-11-25',
-        },
-        {
-            'Họ và Tên': 'Kim Kassulke',
-            SĐT: '293.211.2563',
-            Tuổi: 5,
-            'Địa chỉ': 'Lake Alexandrea',
-            'Mã sổ khám bệnh': '507976908900890',
-            'Ngày sinh': '2002-11-25',
-        },
-        {
-            'Họ và Tên': 'Katherine Rogahn II',
-            SĐT: '986-276-7182',
-            Tuổi: 23,
-            'Địa chỉ': 'Port Lianastead',
-            'Mã sổ khám bệnh': '362434918667748',
-            'Ngày sinh': '2002-11-25',
-        },
-        {
-            'Họ và Tên': 'Eugene Dickens',
-            SĐT: '1-958-684-2909',
-            Tuổi: 6,
-            'Địa chỉ': 'Heaneychester',
-            'Mã sổ khám bệnh': '918641795798676',
-            'Ngày sinh': '2002-11-25',
-        },
-        {
-            'Họ và Tên': 'Delores Parisian-Halvorson',
-            SĐT: '451-712-6690',
-            Tuổi: 18,
-            'Địa chỉ': 'West Darrellshire',
-            'Mã sổ khám bệnh': '204728462340777',
-            'Ngày sinh': '2002-11-25',
-        },
-    ]);
+    const [rowData, setRowData] = useState([]);
 
     //* Column Definitions: Defines & controls grid columns.
     const [colDefs, setColDefs] = useState([
@@ -115,7 +77,6 @@ const Patients = () => {
         { field: 'Tuổi', wrapText: true, filter: true },
         { field: 'Địa chỉ', wrapText: true, filter: true },
         { field: 'Mã sổ khám bệnh', wrapText: true, filter: true },
-        { field: 'Ngày sinh', wrapText: true, filter: true },
         {
             field: '',
             cellRenderer: Actions,
@@ -197,6 +158,30 @@ const Patients = () => {
         //* React will compare after each render the array and will see nothing was changed,
         //* thus calling the callback only after the first render.
     }, [rowData]);
+
+    //!HARDCODE
+    useEffect(() => {
+        const getPatientList = async () => {
+            const querySnapshot = await getDocs(collection(db, 'Patients'));
+            querySnapshot.forEach((doc) => {
+                const patient = doc.data();
+                setRowData((prevData) => [
+                    ...prevData,
+                    {
+                        'Họ và Tên': patient.name,
+                        SĐT: `0${patient.phoneNumber}`,
+                        Tuổi: patient.age,
+                        'Địa chỉ': patient.address,
+                        'Mã sổ khám bệnh': patient.medicalCode,
+                        Email: patient.email,
+                        'Ngày tạo': patient.createdDate,
+                        'Ngày cập nhật': patient.updatedDate,
+                    },
+                ]);
+            });
+        };
+        getPatientList();
+    }, []);
 
     return (
         <div className='grid grid-cols-3 gap-4 md:gap-0'>
