@@ -1,20 +1,9 @@
 import { Card } from '../Components';
 import { HomeData } from '../Mocks/data';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { TypeAnimation } from 'react-type-animation';
-import { useAuth } from '../hooks';
-import { useEffect } from 'react';
 
 const Home = () => {
-    // const navigate = useNavigate();
-    // const { user } = useAuth();
-
-    // //* Check authentication
-    // useEffect(() => {
-    //     console.log('home', user);
-    //     if (!user) return navigate('/login');
-    // }, []);
-
     return (
         <div className='flex flex-col gap-4 h-screen'>
             <main className='flex flex-col xl:gap-8 container'>

@@ -25,14 +25,14 @@ export const AuthProvider = ({ children }) => {
 
     useEffect(() => {
         auth.onAuthStateChanged((user) => {
+            //* Login Case
             if (user) {
                 console.info(user);
                 dispatch({ type: 'LOGIN', payload: user });
                 return;
             }
 
-            console.info('user has logout');
-
+            //* Logout Case
             //* Prevent user from accessing protected page except login page
             if (currentPath !== '/login') {
                 return navigate('/login');

@@ -29,6 +29,13 @@ const Navbar = () => {
         window.dispatchEvent(themeChangeEvent);
     };
 
+    const handleToggleSidebar = () => {
+        const sideBar = document.getElementById('separator-sidebar');
+        sideBar.classList.toggle('translate-x-0');
+
+        console.log('button clicked', sideBar);
+    };
+
     return (
         <div className='navbar bg-base-300'>
             <div className='flex-1'>
@@ -39,6 +46,7 @@ const Navbar = () => {
                     aria-controls='separator-sidebar'
                     type='button'
                     className='inline-flex items-center p-2 mt-2 ms-3 text-sm text-gray-500 rounded-lg sm:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600'
+                    onClick={handleToggleSidebar}
                 >
                     <span className='sr-only'>Open sidebar</span>
                     <svg
@@ -56,7 +64,7 @@ const Navbar = () => {
                     </svg>
                 </button>
                 <Link to='/' className='btn btn-ghost text-xl'>
-                    Sổ Khám Điện Tử - Clinic Management
+                    Sổ Khám Điện Tử <span className='invisible md:visible'>- Clinic Management</span>
                 </Link>
             </div>
 

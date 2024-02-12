@@ -30,7 +30,7 @@ const Actions = () => {
 const Patients = () => {
     const themeValue = useTheme();
     const generateID = generateRandomID().toUpperCase();
-    const [patient, setPatient] = useState('')
+    const [patient, setPatient] = useState('');
 
     const data = {
         name: useRef(null),
@@ -42,9 +42,9 @@ const Patients = () => {
     };
 
     const handleRowClicked = (event) => {
-        const {data} = event
-        setPatient(data)
-    }
+        const { data } = event;
+        setPatient(data);
+    };
 
     const checkboxSelection = function (params) {
         //* we put checkbox on the name if we are not doing grouping
@@ -365,7 +365,10 @@ const Patients = () => {
                         Lịch sử khám - <span className='text-primary capitalize'>{patient['Họ và Tên']}</span>
                     </h3>
 
-                    <div className={`mt-8 ${themeValue === 'light' ? 'ag-theme-quartz' : 'ag-theme-quartz-dark'}`} style={{ height: 500 }}>
+                    <div
+                        className={`mt-8 ${themeValue === 'light' ? 'ag-theme-quartz' : 'ag-theme-quartz-dark'}`}
+                        style={{ height: 500 }}
+                    >
                         {/* The AG Grid component */}
                         <AgGridReact
                             rowData={history}
@@ -417,7 +420,12 @@ const Patients = () => {
                             <div className='label'>
                                 <span className='label-text'>Mã Sổ Khám Bệnh</span>
                             </div>
-                            <input value={patient['Mã sổ khám bệnh']} disabled type='text' className='input input-bordered w-full' />
+                            <input
+                                value={patient['Mã sổ khám bệnh']}
+                                disabled
+                                type='text'
+                                className='input input-bordered w-full'
+                            />
                         </label>
                         <label className='form-control w-full '>
                             <div className='label'>
@@ -445,7 +453,12 @@ const Patients = () => {
                             <div className='label'>
                                 <span className='label-text'>Tuổi</span>
                             </div>
-                            <input disabled type='text' value={patient['Tuổi']} className='input input-bordered w-full' />
+                            <input
+                                disabled
+                                type='text'
+                                value={patient['Tuổi']}
+                                className='input input-bordered w-full'
+                            />
                         </label>
                         <label className='form-control w-full '>
                             <div className='label'>
