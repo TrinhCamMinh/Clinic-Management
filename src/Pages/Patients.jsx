@@ -42,8 +42,6 @@ const Patients = () => {
         phoneNumber: useRef(null),
         age: useRef(null),
         address: useRef(null),
-        code: useRef(null),
-        dateOfBirth: useRef(null),
         email: useRef(null),
     };
 
@@ -149,7 +147,7 @@ const Patients = () => {
             const docRef = await addDoc(collection(db, 'Patients'), {
                 name: data.name.current.value,
                 email: data.email.current.value ?? null,
-                phoneNumber: data.phoneNumber.current.value,
+                phoneNumber: Number(data.phoneNumber.current.value),
                 age: Number(data.age.current.value),
                 address: data.address.current.value,
                 medicalCode: generateID,
@@ -174,8 +172,7 @@ const Patients = () => {
                 ];
             });
         } catch (e) {
-            console.error('Error adding document: ', e);
-            Alert({ toast: true, icon: 'error', title: 'Đã xảy ra lỗi khi thêm mới dữ liệu', text: e.message });
+            Alert({ icon: 'error', title: 'Oops...', text: e.message });
         }
     };
 
@@ -193,7 +190,7 @@ const Patients = () => {
         dialog.close();
         refreshData();
 
-        //* Save the data to SS so we can load the data into Receipt Input Page
+        //* Save the data to SS so we can load the data into Medical Certificate Input Page
         //! Note that: this is only temporary solution (later will use Server)
         const savePatientData = JSON.stringify(rowData);
         sessionStorage.setItem('patientsData', savePatientData);

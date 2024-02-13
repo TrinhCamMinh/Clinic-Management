@@ -1,9 +1,13 @@
 import { FaEye, FaPencil, FaTrashCan } from 'react-icons/fa6';
 import { GrPowerReset } from 'react-icons/gr';
 import { FaSave } from 'react-icons/fa';
+
 import { useState, useEffect, useRef } from 'react';
 import { useTheme } from '../hooks';
 import { AgGridReact } from 'ag-grid-react'; //* React Grid Logic
+import { db } from '../Configs/firebase';
+import { collection, getDocs, addDoc } from 'firebase/firestore';
+import { Alert } from '../utils/Alert';
 
 //* Cell Rendering:Actions column
 const Actions = () => {
@@ -25,13 +29,13 @@ const Actions = () => {
 const Medicine = () => {
     const themeValue = useTheme();
     const data = {
-        name: useRef(null),
-        illnessType: useRef(null), //* loại bệnh
+        name: useRef(null), //* tên thuốc
+        symptom: useRef(null), //* triệu chứng bệnh
         ingredient: useRef(null), //* thành phần dược
-        cost: useRef(null),
+        cost: useRef(null), //* giá
         concentration: useRef(null), //* hàm lượng
         usage: useRef(null), //* liều thuốc
-        existNum: useRef(null), //* số lượng tồn kho
+        existNumber: useRef(null), //* số lượng tồn kho
     };
 
     const checkboxSelection = function (params) {
@@ -44,59 +48,14 @@ const Medicine = () => {
         return params.api.getRowGroupColumns().length === 0;
     };
 
-    //* Row Data: The data to be displayed.
-    const [rowData, setRowData] = useState([
-        {
-            'Tên dược liệu': 'Cảm',
-            'Loại bệnh': 'Return to Sender',
-            'Thành phần dược': 'Cape Canaveral',
-            'Hàm lượng': '4/ngay',
-            'Liều lượng': '10/ngay',
-            'Số lượng tồn kho': 56,
-            'Giá dược liệu/viên': 68,
-        },
-        {
-            'Tên dược liệu': 'Ho',
-            'Loại bệnh': 'Return to Sender',
-            'Thành phần dược': 'Cape Canaveral',
-            'Hàm lượng': '4/ngay',
-            'Liều lượng': '10/ngay',
-            'Số lượng tồn kho': 56,
-            'Giá dược liệu/viên': 68,
-        },
-        {
-            'Tên dược liệu': 'Omnigender',
-            'Loại bệnh': 'Return to Sender',
-            'Thành phần dược': 'Cape Canaveral',
-            'Hàm lượng': '4/ngay',
-            'Liều lượng': '10/ngay',
-            'Số lượng tồn kho': 56,
-            'Giá dược liệu/viên': 68,
-        },
-        {
-            'Tên dược liệu': 'Omnigender',
-            'Loại bệnh': 'Return to Sender',
-            'Thành phần dược': 'Cape Canaveral',
-            'Hàm lượng': '4/ngay',
-            'Liều lượng': '10/ngay',
-            'Số lượng tồn kho': 56,
-            'Giá dược liệu/viên': 68,
-        },
-        {
-            'Tên dược liệu': 'Omnigender',
-            'Loại bệnh': 'Return to Sender',
-            'Thành phần dược': 'Cape Canaveral',
-            'Hàm lượng': '4/ngay',
-            'Liều lượng': '10/ngay',
-            'Số lượng tồn kho': 56,
-            'Giá dược liệu/viên': 68,
-        },
-    ]);
+    //* Row Data: The data to be displayed in Table.
+    const [rowData, setRowData] = useState([]);
 
     //* Column Definitions: Defines & controls grid columns.
     const [colDefs, setColDefs] = useState([
         {
-            field: 'Tên dược liệu',
+            headerName: 'Tên dược liệu',
+            field: 'name',
             wrapText: true,
             autoHeight: true,
             pinned: 'left',
@@ -104,12 +63,12 @@ const Medicine = () => {
             checkboxSelection: checkboxSelection,
             headerCheckboxSelection: headerCheckboxSelection,
         },
-        { field: 'Loại bệnh', wrapText: true, filter: true },
-        { field: 'Thành phần dược', wrapText: true, filter: true },
-        { field: 'Hàm lượng', wrapText: true, filter: true },
-        { field: 'Liều lượng', wrapText: true, filter: true },
-        { field: 'Số lượng tồn kho', wrapText: true, filter: true },
-        { field: 'Giá dược liệu/viên', wrapText: true, filter: true },
+        { headerName: 'Triệu chứng bệnh', field: 'symptom', wrapText: true, filter: true },
+        { headerName: 'Thành phần dược', field: 'ingredient', wrapText: true, filter: true },
+        { headerName: 'Hàm lượng', field: 'concentration', wrapText: true, filter: true },
+        { headerName: 'Liều lượng', field: 'usage', wrapText: true, filter: true },
+        { headerName: 'Số lượng tồn kho', field: 'existNumber', filter: true },
+        { headerName: 'Giá dược liệu/viên', field: 'cost', filter: true },
         {
             field: '',
             cellRenderer: Actions,
@@ -124,29 +83,65 @@ const Medicine = () => {
 
     const refreshData = () => {
         data.name.current.value = null;
-        data.illnessType.current.value = null;
+        data.symptom.current.value = null;
         data.ingredient.current.value = null;
         data.concentration.current.value = null;
         data.usage.current.value = null;
-        data.existNum.current.value = null;
+        data.existNumber.current.value = null;
         data.cost.current.value = null;
     };
 
-    const submitCreatedData = () => {
-        setRowData((prevRowData) => {
-            return [
-                ...prevRowData,
+    //* Get Medicine List from Firebase Server (FireStore - Medicines Collection)
+    const getMedicineList = async () => {
+        const querySnapshot = await getDocs(collection(db, 'Medicines'));
+        querySnapshot.forEach((doc) => {
+            const medicine = doc.data();
+            setRowData((prevData) => [
+                ...prevData,
                 {
-                    'Tên dược liệu': data.name.current.value,
-                    'Loại bệnh': data.illnessType.current.value,
-                    'Thành phần dược': data.ingredient.current.value,
-                    'Hàm lượng': data.concentration.current.value,
-                    'Liều lượng': data.usage.current.value,
-                    'Số lượng tồn kho': Number(data.existNum.current.value),
-                    'Giá dược liệu/viên': Number(data.cost.current.value),
+                    name: medicine.name,
+                    symptom: medicine.symptom,
+                    ingredient: medicine.ingredient,
+                    concentration: medicine.concentration,
+                    usage: medicine.usage,
+                    existNumber: medicine.existNumber,
+                    cost: medicine.cost,
                 },
-            ];
+            ]);
         });
+    };
+
+    const submitCreatedData = async () => {
+        try {
+            const docRef = await addDoc(collection(db, 'Medicines'), {
+                name: data.name.current.value,
+                symptom: data.symptom.current.value,
+                ingredient: data.ingredient.current.value,
+                concentration: data.concentration.current.value,
+                usage: data.usage.current.value,
+                existNumber: Number(data.existNumber.current.value),
+                cost: Number(data.cost.current.value),
+            });
+            console.log('Document written with ID: ', docRef.id);
+            Alert({ toast: true, icon: 'success', text: 'Thêm mới dữ liệu thành công' });
+
+            setRowData((prevRowData) => {
+                return [
+                    ...prevRowData,
+                    {
+                        name: data.name.current.value,
+                        symptom: data.symptom.current.value,
+                        ingredient: data.ingredient.current.value,
+                        concentration: data.concentration.current.value,
+                        usage: data.usage.current.value,
+                        existNumber: Number(data.existNumber.current.value),
+                        cost: Number(data.cost.current.value),
+                    },
+                ];
+            });
+        } catch (e) {
+            Alert({ icon: 'error', title: 'Oops...', text: e.message });
+        }
     };
 
     useEffect(() => {
@@ -167,6 +162,11 @@ const Medicine = () => {
         //* React will compare after each render the array and will see nothing was changed,
         //* thus calling the callback only after the first render.
     }, [rowData]);
+
+    //* Get Medicine List when component first mounted
+    useEffect(() => {
+        getMedicineList();
+    }, []);
 
     return (
         <div className='grid grid-cols-3 gap-4 md:gap-0'>
@@ -238,13 +238,13 @@ const Medicine = () => {
                         </div>
                         <label className='form-control w-full col-span-2 xl:col-span-1'>
                             <div className='label'>
-                                <span className='label-text'>Loại bệnh</span>
+                                <span className='label-text'>triệu chứng bệnh</span>
                             </div>
                             <input
                                 type='tel'
-                                placeholder='Vui lòng nhập loại bệnh'
+                                placeholder='Vui lòng nhập triệu chứng bệnh'
                                 className='input input-bordered w-full'
-                                ref={data.illnessType}
+                                ref={data.symptom}
                             />
                         </label>
                         <label className='form-control w-full col-span-2 xl:col-span-1'>
@@ -299,7 +299,7 @@ const Medicine = () => {
                                 type='number'
                                 placeholder='Vui lòng nhập số lượng tồn kho'
                                 className='input input-bordered w-full'
-                                ref={data.existNum}
+                                ref={data.existNumber}
                             />
                         </label>
                     </div>

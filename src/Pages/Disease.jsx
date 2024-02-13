@@ -1,10 +1,13 @@
-import { FaPlus, FaSave } from 'react-icons/fa';
+import { FaPlus, FaSave, FaInfoCircle } from 'react-icons/fa';
 import { GrPowerReset } from 'react-icons/gr';
 import { FaEye, FaPencil, FaTrashCan } from 'react-icons/fa6';
+
 import { useState, useEffect, useRef } from 'react';
 import { useTheme } from '../hooks';
 import { AgGridReact } from 'ag-grid-react';
 import { getCurrentDate, generateRandomID } from '../utils/General';
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from '../Configs/firebase';
 
 //* Cell Rendering:Actions column
 const Actions = () => {
@@ -54,28 +57,13 @@ const Disease = () => {
     };
 
     //* Row Data: The data to be displayed.
-    const [rowData, setRowData] = useState([
-        {
-            'Mã đơn thuốc': '911007124616479',
-            'Loại bệnh': 'NASA',
-            'Ngày tạo': '2024-1-14',
-        },
-        {
-            'Mã đơn thuốc': '911007124616479',
-            'Loại bệnh': 'NASA',
-            'Ngày tạo': '2024-1-14',
-        },
-        {
-            'Mã đơn thuốc': '911007124616479',
-            'Loại bệnh': 'NASA',
-            'Ngày tạo': '2024-1-14',
-        },
-    ]);
+    const [rowData, setRowData] = useState([]);
 
     //* Column Definitions: Defines & controls grid columns.
     const [colDefs, setColDefs] = useState([
         {
-            field: 'Mã đơn thuốc',
+            headerName: 'Mã đơn thuốc',
+            field: 'code',
             wrapText: true,
             autoHeight: true,
             pinned: 'left',
@@ -83,8 +71,10 @@ const Disease = () => {
             checkboxSelection: checkboxSelection,
             headerCheckboxSelection: headerCheckboxSelection,
         },
-        { field: 'Loại bệnh', wrapText: true, filter: true },
-        { field: 'Ngày tạo', wrapText: true, filter: true },
+        { headerName: 'Loại bệnh', field: 'name', wrapText: true, filter: true },
+        { headerName: 'Mô tả', field: 'description', wrapText: true, filter: true },
+        { headerName: 'Ngày tạo', field: 'createdDate', wrapText: true, filter: true },
+        { headerName: 'Ngày cập nhật mới nhất', field: 'updatedDate', wrapText: true, filter: true },
         {
             field: '',
             cellRenderer: Actions,
@@ -108,6 +98,25 @@ const Disease = () => {
         ]);
         setPrescriptionRow((prevData) => {
             return [...prevData, prevData.at(-1) + 1];
+        });
+    };
+
+    //* Get Symptom List from Firebase Server (FireStore - Symptoms Collection)
+    const getSymptomList = async () => {
+        const querySnapshot = await getDocs(collection(db, 'Symptoms'));
+        querySnapshot.forEach((doc) => {
+            const disease = doc.data();
+
+            setRowData((prevData) => [
+                ...prevData,
+                {
+                    name: disease.name,
+                    description: disease.description,
+                    code: disease.code,
+                    createdDate: disease.createdDate,
+                    updatedDate: disease.updatedDate,
+                },
+            ]);
         });
     };
 
@@ -185,6 +194,11 @@ const Disease = () => {
         refreshData();
     }, [rowData]);
 
+    //* Get Symptom List when component first mounted
+    useEffect(() => {
+        getSymptomList();
+    }, []);
+
     return (
         <div className='grid grid-cols-1 gap-4 md:gap-0'>
             <section className='col-span-1 mt-4'>
@@ -235,7 +249,7 @@ const Disease = () => {
                     </form>
 
                     <h3 className='font-bold text-2xl text-center mb-4 uppercase text-primary'>
-                        form thêm mới đơn thuốc - <span className='text-red-400 ml-2 normal-case'>{generateID}</span>
+                        form thêm mới đơn thuốc
                     </h3>
 
                     {/* MasterData Input */}
@@ -261,6 +275,23 @@ const Disease = () => {
                                     placeholder='Vui lòng nhập mô tả triệu chứng'
                                     className='input input-bordered w-full'
                                     ref={data.description}
+                                />
+                            </label>
+                            <label className='form-control w-full'>
+                                <div className='label'>
+                                    <span className='label-text'>Mã đơn thuốc</span>
+                                    <div
+                                        className='tooltip tooltip-info tooltip-left'
+                                        data-tip='Mã đơn thuốc được tạo tự động bởi hệ thống'
+                                    >
+                                        <FaInfoCircle className='w-4 h-4 text-sky-600 ' />
+                                    </div>
+                                </div>
+                                <input
+                                    type='text'
+                                    disabled
+                                    className='input input-bordered w-full'
+                                    defaultValue={generateID}
                                 />
                             </label>
                         </section>

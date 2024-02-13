@@ -22,7 +22,7 @@ const HomeData = [
     {
         name: 'Phiếu Khám Bệnh',
         img: Receipt,
-        link: '/masterdata/receipt',
+        link: '/masterdata/medicalCertificate',
     },
 ];
 

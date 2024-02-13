@@ -22,8 +22,8 @@ const Login = () => {
             //* update the auth context
             dispatch({ type: 'LOGIN', payload: userCredential });
 
-            //* Navigate user to receipt page after login successfully
-            navigate('/masterdata/receipt');
+            //* Navigate user to medicalCertificate page after login successfully
+            navigate('/masterdata/medicalCertificate');
         } catch (error) {
             const errorCode = error.code;
             const errorMessage = error.message;

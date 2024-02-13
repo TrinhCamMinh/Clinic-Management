@@ -4,4 +4,4 @@ export { default as Home } from './Home';
 export { default as Patient } from './Patients';
 export { default as Disease } from './Disease';
 export { default as Medicine } from './Medicine';
-export { default as Receipt } from './Receipt';
+export { default as MedicalCertificate } from './MedicalCertificate';
