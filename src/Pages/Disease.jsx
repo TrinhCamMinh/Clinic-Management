@@ -2,18 +2,18 @@ import { FaPlus, FaSave, FaInfoCircle } from 'react-icons/fa';
 import { GrPowerReset } from 'react-icons/gr';
 import { FaEye, FaPencil, FaTrashCan } from 'react-icons/fa6';
 
+import { AgGridReact } from 'ag-grid-react'; //* React Grid Logic
 import { useState, useEffect, useRef } from 'react';
 import { useTheme } from '../hooks';
-import { AgGridReact } from 'ag-grid-react';
 import { getCurrentDate, generateRandomID } from '../utils/General';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs, getDoc, doc } from 'firebase/firestore';
 import { db } from '../Configs/firebase';
 
 //* Cell Rendering:Actions column
 const Actions = () => {
     return (
         <div className='flex items-center justify-between w-full h-full'>
-            <button>
+            <button onClick={() => document.getElementById('detail_modal').showModal()}>
                 <FaEye className='w-5 h-5 text-green-400' />
             </button>
             <button>
@@ -29,8 +29,11 @@ const Actions = () => {
 const Disease = () => {
     const themeValue = useTheme();
     const generateID = generateRandomID().toUpperCase();
-    const [prescriptionRow, setPrescriptionRow] = useState([0]);
-    const [prescriptionDataArray, setPrescriptionDataArray] = useState([]);
+
+    const [prescription, setPrescription] = useState(''); //* Store detail data displayed in Detail Modal
+    const [prescriptionRow, setPrescriptionRow] = useState([0]); //* Append Row when add medicine to prescription
+    const [prescriptionDataArray, setPrescriptionDataArray] = useState([]); //* Save data to Session Storage
+    const [medicines, setMedicines] = useState([]); //* Contain each medicine object after query them from reference in Symptoms Collection
 
     //* Data of Prescription Form in a Single Row
     const prescriptionData = {
@@ -81,6 +84,22 @@ const Disease = () => {
         },
     ]);
 
+    //* Column Definitions: Defines & controls grid columns.
+    const [colDefs2, setColDefs2] = useState([
+        {
+            headerName: 'Tên thuốc',
+            field: 'name',
+            wrapText: true,
+            autoHeight: true,
+            pinned: 'left',
+            filter: true,
+        },
+        { headerName: 'Triệu chứng', field: 'symptom', wrapText: true, filter: true },
+        { headerName: 'Giá', field: 'cost', filter: true },
+        { headerName: 'Liều lượng sử dụng', field: 'usage', wrapText: true, filter: true },
+        { headerName: 'Thành phần dược', field: 'ingredient', wrapText: true, filter: true },
+    ]);
+
     //* Make the AGGrid content automatically resize to fit the grid container size
     const autoSizeStrategy = {
         type: 'fitGridWidth',
@@ -115,6 +134,7 @@ const Disease = () => {
                     code: disease.code,
                     createdDate: disease.createdDate,
                     updatedDate: disease.updatedDate,
+                    prescriptions: disease.prescriptions,
                 },
             ]);
         });
@@ -177,7 +197,40 @@ const Disease = () => {
                 singleDT.price = getPriceOfSingleMedicine(singleDT.name) ?? 0;
             });
         });
-        console.log(rowData);
+    };
+
+    //* If there is no document at the location referenced by docRef,
+    //* the resulting document will be empty and calling exists on it
+    //* will return false.
+    const getMedicineFromReference = async (reference) => {
+        const docRef = doc(db, reference.path);
+        const docSnap = await getDoc(docRef);
+
+        if (!docSnap.exists()) {
+            // docSnap.data() will be undefined in this case
+            console.log('No such document!');
+            return;
+        }
+
+        const medicine = docSnap.data();
+
+        // Result: an Array of Object
+        setMedicines((prevData) => [...prevData, medicine]);
+    };
+
+    const handleRowClicked = (event) => {
+        //* Set medicine data to empty object otherwise
+        //* it will keep the old data
+        setMedicines([]);
+        const { data } = event;
+
+        if (data.prescriptions) {
+            //* Query medicine data from reference object
+            data.prescriptions.forEach((item) => {
+                getMedicineFromReference(item);
+            });
+        }
+        setPrescription(data);
     };
 
     //* Save the data to session storage when user append a new prescription
@@ -236,11 +289,12 @@ const Disease = () => {
                         paginationPageSize={20}
                         paginationPageSizeSelector={[20, 50, 100]}
                         suppressScrollOnNewData={true} //* tells the grid to NOT scroll to the top when the page changes.
+                        onRowClicked={handleRowClicked}
                     />
                 </div>
             </section>
 
-            {/* Dialog Section */}
+            {/* Create Data Modal */}
             <dialog id='masterdata_disease_dialog' className='modal'>
                 <div className='modal-box w-11/12 max-w-5xl'>
                     <form method='dialog'>
@@ -389,6 +443,117 @@ const Disease = () => {
                             Lưu dữ liệu
                             <FaSave className='h-5 w-5' />
                         </button>
+                    </div>
+                </div>
+            </dialog>
+
+            {/* Detail Data Modal  */}
+            <dialog id='detail_modal' className='modal'>
+                <div className='modal-box w-11/12 max-w-5xl'>
+                    <form method='dialog'>
+                        {/* if there is a button in form, it will close the modal */}
+                        <button className='btn btn-sm btn-circle btn-ghost absolute right-2 top-2'>✕</button>
+                    </form>
+
+                    <h3 className='font-extrabold text-2xl text-center mb-4 uppercase text-primary'>
+                        thông tin chi tiết đơn thuốc
+                    </h3>
+
+                    {/* MasterData Input */}
+                    <div className='grid grid-cols-2 gap-4'>
+                        <div className='col-span-2 xl:col-span-1'>
+                            <label className='form-control w-full'>
+                                <div className='label'>
+                                    <span className='label-text'>Mã đơn thốc</span>
+                                </div>
+                                <input
+                                    disabled
+                                    defaultValue={prescription.code}
+                                    type='text'
+                                    placeholder='VD: 520H0659'
+                                    className='input input-bordered w-full'
+                                />
+                            </label>
+                        </div>
+                        <div className='col-span-2 xl:col-span-1'>
+                            <label className='form-control w-full'>
+                                <div className='label'>
+                                    <span className='label-text'>Triệu chứng bệnh</span>
+                                </div>
+                                <input
+                                    type='text'
+                                    disabled
+                                    defaultValue={prescription.name}
+                                    placeholder='VD: Sốt'
+                                    className='input input-bordered w-full'
+                                />
+                            </label>
+                        </div>
+                        <div className='col-span-2 xl:col-span-1'>
+                            <label className='form-control w-full'>
+                                <div className='label'>
+                                    <span className='label-text'>Ngày tạo đơn thuốc</span>
+                                </div>
+                                <input
+                                    type='text'
+                                    disabled
+                                    defaultValue={prescription.createdDate}
+                                    placeholder='VD: 1/1/2024'
+                                    className='input input-bordered w-full'
+                                />
+                            </label>
+                        </div>
+                        <div className='col-span-2 xl:col-span-1'>
+                            <label className='form-control w-full'>
+                                <div className='label'>
+                                    <span className='label-text'>Ngày cập nhật đơn thuốc mới nhất</span>
+                                </div>
+                                <input
+                                    type='text'
+                                    disabled
+                                    defaultValue={prescription.updatedDate}
+                                    placeholder='VD: 1/1/2024'
+                                    className='input input-bordered w-full'
+                                />
+                            </label>
+                        </div>
+                        <div className='col-span-2'>
+                            <textarea
+                                disabled
+                                placeholder='Mô tả triệu chứng bệnh'
+                                defaultValue={prescription.description}
+                                className='textarea textarea-bordered textarea-lg w-full'
+                            ></textarea>
+                        </div>
+                        <div className='col-span-2'>
+                            <div className='collapse collapse-arrow bg-base-200'>
+                                <input type='checkbox' />
+                                <div className='collapse-title text-xl font-medium'>
+                                    Dược liệu được kê trong đơn thuốc
+                                </div>
+                                <div className='collapse-content'>
+                                    <div
+                                        className={`col-span-3 ${
+                                            themeValue === 'light' ? 'ag-theme-quartz' : 'ag-theme-quartz-dark'
+                                        }`}
+                                        style={{ width: '100%', height: 450 }}
+                                    >
+                                        {/* The AG Grid component */}
+                                        <AgGridReact
+                                            rowData={medicines}
+                                            columnDefs={colDefs2}
+                                            autoSizeStrategy={autoSizeStrategy}
+                                            rowSelection={'multiple'}
+                                            rowGroupPanelShow={'always'}
+                                            pagination={true}
+                                            paginationPageSize={20}
+                                            paginationPageSizeSelector={[20, 50, 100]}
+                                            suppressScrollOnNewData={true} //* tells the grid to NOT scroll to the top when the page changes.
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </dialog>
