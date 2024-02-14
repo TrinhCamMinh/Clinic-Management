@@ -1,16 +1,37 @@
-import { FaPlus, FaSave, FaInfoCircle } from 'react-icons/fa';
+import { FaSave, FaInfoCircle } from 'react-icons/fa';
 import { GrPowerReset } from 'react-icons/gr';
 import { FaEye, FaPencil, FaTrashCan } from 'react-icons/fa6';
 
 import { AgGridReact } from 'ag-grid-react'; //* React Grid Logic
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { useTheme } from '../hooks';
 import { getCurrentDate, generateRandomID } from '../utils/General';
-import { collection, getDocs, getDoc, doc } from 'firebase/firestore';
+import { collection, getDocs, getDoc, doc, addDoc, deleteDoc, query, where } from 'firebase/firestore';
 import { db } from '../Configs/firebase';
+import { AlertNew } from '../utils/Alert';
 
 //* Cell Rendering:Actions column
-const Actions = () => {
+const Actions = (params) => {
+    const { data } = params;
+    const symptomsRef = collection(db, 'Symptoms'); //* Create a reference to the Symptoms collection
+
+    const handleRemovePrescription = async () => {
+        try {
+            const { code } = data; // Take the code field in the document
+            console.log(code);
+            // Create a query against the collection.
+            const q = query(symptomsRef, where('code', '==', code));
+            const querySnapshot = await getDocs(q);
+            querySnapshot.forEach((doc) => {
+                const { ref } = doc;
+                deleteDoc(ref);
+            });
+            console.log('remove successfully');
+        } catch (error) {
+            alert(error.message);
+        }
+    };
+
     return (
         <div className='flex items-center justify-between w-full h-full'>
             <button onClick={() => document.getElementById('detail_modal').showModal()}>
@@ -19,7 +40,7 @@ const Actions = () => {
             <button>
                 <FaPencil className='w-5 h-5 text-yellow-400' />
             </button>
-            <button>
+            <button onClick={handleRemovePrescription}>
                 <FaTrashCan className='w-5 h-5 text-red-400' />
             </button>
         </div>
@@ -27,13 +48,17 @@ const Actions = () => {
 };
 
 const Disease = () => {
+    const gridRef = useRef();
     const themeValue = useTheme();
     const generateID = generateRandomID().toUpperCase();
+    const currentDate = getCurrentDate();
 
     const [prescription, setPrescription] = useState(''); //* Store detail data displayed in Detail Modal
+    //! Consider remove line 35
     const [prescriptionRow, setPrescriptionRow] = useState([0]); //* Append Row when add medicine to prescription
     const [prescriptionDataArray, setPrescriptionDataArray] = useState([]); //* Save data to Session Storage
     const [medicines, setMedicines] = useState([]); //* Contain each medicine object after query them from reference in Symptoms Collection
+    const [medicineList, setMedicineList] = useState([]); //* Store all medicines in db to display them in Create Modal
 
     //* Data of Prescription Form in a Single Row
     const prescriptionData = {
@@ -49,6 +74,12 @@ const Disease = () => {
         prescription: [],
     };
 
+    const isFirstColumn = (params) => {
+        const displayedColumns = params.api.getAllDisplayedColumns();
+        const thisIsFirstColumn = displayedColumns[0] === params.column;
+        return thisIsFirstColumn;
+    };
+
     const checkboxSelection = function (params) {
         //* we put checkbox on the name if we are not doing grouping
         return params.api.getRowGroupColumns().length === 0;
@@ -58,6 +89,10 @@ const Disease = () => {
         //* we put checkbox on the name if we are not doing grouping
         return params.api.getRowGroupColumns().length === 0;
     };
+
+    const onQuickFilterChanged = useCallback(() => {
+        gridRef.current.api.setGridOption('quickFilterText', document.getElementById('quickFilter').value);
+    }, []);
 
     //* Row Data: The data to be displayed.
     const [rowData, setRowData] = useState([]);
@@ -100,12 +135,40 @@ const Disease = () => {
         { headerName: 'Thành phần dược', field: 'ingredient', wrapText: true, filter: true },
     ]);
 
+    //* Column Definitions: Defines & controls grid columns.
+    const [colDefsMedicineList, setColDefsMedicineList] = useState([
+        {
+            headerName: 'Tên thuốc',
+            field: 'name',
+            wrapText: true,
+            autoHeight: true,
+            pinned: 'left',
+            filter: true,
+        },
+        { headerName: 'Triệu chứng', field: 'symptom', wrapText: true, minWidth: 180, filter: true },
+        { headerName: 'Giá', field: 'cost', filter: true },
+        { headerName: 'Liều lượng sử dụng', field: 'usage', wrapText: true, filter: true },
+        { headerName: 'Thành phần dược', field: 'ingredient', wrapText: true, filter: true },
+        { headerName: 'Số lượng tồn kho', field: 'existNumber', filter: true },
+    ]);
+
+    const defaultColDef = useMemo(() => {
+        return {
+            flex: 1,
+            minWidth: 100,
+            headerCheckboxSelection: isFirstColumn,
+            checkboxSelection: isFirstColumn,
+            headerCheckboxSelectionFilteredOnly: true,
+        };
+    }, []);
+
     //* Make the AGGrid content automatically resize to fit the grid container size
     const autoSizeStrategy = {
         type: 'fitGridWidth',
         defaultMinWidth: 100,
     };
 
+    //! Consider remove this function
     const AppendPrescriptionRow = () => {
         setPrescriptionDataArray((prevData) => [
             ...prevData,
@@ -140,41 +203,82 @@ const Disease = () => {
         });
     };
 
-    const submitCreatedData = () => {
+    //* Get Medicine List from Firebase Server (FireStore - Medicines Collection)
+    //* Used when user open the Create Modal in Disease Page and selected
+    //* medicine in the table will be consider as medicine for that specific prescription
+    const getMedicineList = async () => {
+        const querySnapshot = await getDocs(collection(db, 'Medicines'));
+        querySnapshot.forEach((doc) => {
+            const medicine = doc.data();
+            medicine.ref = doc.ref; //* Attach the ref property to object pass it as reference datatype to FireStore
+            setMedicineList((prevData) => [...prevData, medicine]);
+        });
+    };
+
+    const filterReferencePath = (selectedRow) => {
+        const refList = []; //* Store reference instance from selected Medicine Row in Table
+        selectedRow.forEach((item) => {
+            const { ref } = item;
+            refList.push(ref);
+        });
+        return refList;
+    };
+
+    const submitCreatedData = async () => {
+        //* Get the selected row from Table using their API
+        const selectedRow = gridRef.current.api.getSelectedRows();
+        const refList = filterReferencePath(selectedRow);
+
+        try {
+            const docRef = await addDoc(collection(db, 'Symptoms'), {
+                name: data.name.current.value,
+                description: data.description.current.value,
+                code: generateID,
+                createdDate: currentDate,
+                updatedDate: currentDate,
+                prescriptions: [...refList],
+            });
+            console.log('Document written with ID: ', docRef.id);
+        } catch (e) {
+            console.error('Error adding document: ', e);
+            alert(e.message);
+        }
+
         //* Use spread operator since when user done append the last item
         //* They won't click append row function so the latest row data is still not
         //* store in the useState but useRef is holding the lates data value
-        data.prescription = [
-            ...prescriptionDataArray,
-            {
-                name: prescriptionData.name.current.value,
-                concentration: prescriptionData.concentration.current.value,
-                usage: prescriptionData.usage.current.value,
-            },
-        ];
+        // data.prescription = [
+        //     ...prescriptionDataArray,
+        //     {
+        //         name: prescriptionData.name.current.value,
+        //         concentration: prescriptionData.concentration.current.value,
+        //         usage: prescriptionData.usage.current.value,
+        //     },
+        // ];
 
-        setRowData((prevData) => [
-            ...prevData,
-            {
-                'Mã đơn thuốc': data.description.current.value,
-                'Loại bệnh': data.name.current.value,
-                'Ngày tạo': getCurrentDate(),
-                'Đơn thuốc': data.prescription, //* we can store the data that do not rendered
-            },
-        ]);
+        // setRowData((prevData) => [
+        //     ...prevData,
+        //     {
+        //         'Mã đơn thuốc': data.description.current.value,
+        //         'Loại bệnh': data.name.current.value,
+        //         'Ngày tạo': getCurrentDate(),
+        //         'Đơn thuốc': data.prescription, //* we can store the data that do not rendered
+        //     },
+        // ]);
     };
 
-    const refreshData = () => {
-        data.description.current.value = '';
-        data.name.current.value = '';
-        data.prescription = [];
+    //TODO: Update logic of this function
+    // const refreshData = () => {
+    //     data.description.current.value = '';
+    //     data.name.current.value = '';
+    //     data.prescription = [];
 
-        prescriptionData.name.current.value = '';
-        prescriptionData.concentration.current.value = '';
-        prescriptionData.usage.current.value = '';
+    //     prescriptionData.name.current.value = '';
+    //     prescriptionData.concentration.current.value = '';
+    //     prescriptionData.usage.current.value = '';
 
-        setPrescriptionRow([0]);
-    };
+    //     setPrescriptionRow([0]);
+    // };
 
     const getPriceOfSingleMedicine = (medicineName) => {
         const medicineData = JSON.parse(sessionStorage.getItem('medicineData'));
@@ -233,6 +337,12 @@ const Disease = () => {
         setPrescription(data);
     };
 
+    const handleRemovePrescription = () => {
+        console.log(prescription);
+        //* Delete documents
+        // await deleteDoc(doc(db, "Symptoms", "DC"));
+    };
+
     //* Save the data to session storage when user append a new prescription
     //* So that we can use this data in the Receipt Page
     //! Note that: This is only temporary solution (later will use Server)
@@ -244,12 +354,15 @@ const Disease = () => {
 
         const dialog = document.querySelector('#masterdata_disease_dialog');
         dialog.close();
-        refreshData();
+        // refreshData();
     }, [rowData]);
 
     //* Get Symptom List when component first mounted
+    //* The same for Medicine list since this will be displayed
+    //* in the table inside Create Modal
     useEffect(() => {
         getSymptomList();
+        getMedicineList();
     }, []);
 
     return (
@@ -354,85 +467,63 @@ const Disease = () => {
                             <div className='divider divider-primary w-full uppercase'>or</div>
                         </section>
 
-                        <section className='col-span-1 overflow-x-auto'>
-                            <table className='table table-sm col-span-1'>
-                                {/* head */}
-                                <thead>
-                                    <tr className='text-center'>
-                                        <th colSpan={5} className='uppercase text-xl italic'>
-                                            ĐƠN THUỐC DÙNG
-                                        </th>
-                                    </tr>
-                                    <tr>
-                                        <th></th>
-                                        <th>Tên thuốc</th>
-                                        <th>Hàm lượng</th>
-                                        <th>Liều dùng</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {prescriptionRow.map((item, index) => {
-                                        return (
-                                            <tr key={item}>
-                                                <th>{item + 1}</th>
-                                                <td>
-                                                    <input
-                                                        type='text'
-                                                        placeholder='Vui lòng nhập tên thốc'
-                                                        className='input input-bordered input-sm w-full max-w-xs'
-                                                        ref={prescriptionData.name}
-                                                    />
-                                                </td>
-                                                <td>
-                                                    <input
-                                                        type='text'
-                                                        placeholder='Vui lòng nhập hàm lượng sử dụng'
-                                                        className='input input-bordered input-sm w-full max-w-xs'
-                                                        ref={prescriptionData.concentration}
-                                                    />
-                                                </td>
-                                                <td>
-                                                    <input
-                                                        type='text'
-                                                        placeholder='Vui lòng nhập liều lượng sử dụng'
-                                                        className='input input-bordered input-sm w-full max-w-xs'
-                                                        ref={prescriptionData.usage}
-                                                    />
-                                                </td>
-                                                <td>
-                                                    <button
-                                                        className='btn btn-ghost tooltip tooltip-error'
-                                                        data-tip='Xóa dữ liệu dòng'
-                                                    >
-                                                        <FaTrashCan className='h-5 w-5 text-red-600' />
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        );
-                                    })}
-                                </tbody>
-                                <tfoot>
-                                    <tr>
-                                        <th colSpan={5} className='text-center'>
-                                            <button
-                                                className='btn btn-outline btn-success btn-sm btn-wide uppercase'
-                                                onClick={AppendPrescriptionRow}
-                                            >
-                                                Thêm dòng
-                                                <FaPlus className='h5 w-5' />
-                                            </button>
-                                        </th>
-                                    </tr>
-                                </tfoot>
-                            </table>
+                        {/* Medicine List Section  */}
+                        <section className='col-span-1'>
+                            <h3 className='font-extrabold text-2xl text-primary text-center uppercase mb-4'>
+                                danh sách dược liệu hiện có
+                            </h3>
+
+                            <div className='my-8'>
+                                <label className='input input-bordered flex items-center gap-2'>
+                                    <input
+                                        type='text'
+                                        className='grow'
+                                        onInput={onQuickFilterChanged}
+                                        id='quickFilter'
+                                        placeholder='Tìm kiếm dược liệu...'
+                                    />
+                                    <svg
+                                        xmlns='http://www.w3.org/2000/svg'
+                                        viewBox='0 0 16 16'
+                                        fill='currentColor'
+                                        className='w-4 h-4 opacity-70'
+                                    >
+                                        <path
+                                            fillRule='evenodd'
+                                            d='M9.965 11.026a5 5 0 1 1 1.06-1.06l2.755 2.754a.75.75 0 1 1-1.06 1.06l-2.755-2.754ZM10.5 7a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0Z'
+                                            clipRule='evenodd'
+                                        />
+                                    </svg>
+                                </label>
+                            </div>
+
+                            <div
+                                className={`col-span-3 overflow-x-auto ${
+                                    themeValue === 'light' ? 'ag-theme-quartz' : 'ag-theme-quartz-dark'
+                                }`}
+                                style={{ width: '100%', height: 450 }}
+                            >
+                                {/* The AG Grid component */}
+                                <AgGridReact
+                                    ref={gridRef}
+                                    rowData={medicineList}
+                                    columnDefs={colDefsMedicineList}
+                                    defaultColDef={defaultColDef}
+                                    autoSizeStrategy={autoSizeStrategy}
+                                    rowSelection={'multiple'}
+                                    rowMultiSelectWithClick={true}
+                                    rowGroupPanelShow={'always'}
+                                    pagination={true}
+                                    paginationPageSize={20}
+                                    paginationPageSizeSelector={[20, 50, 100]}
+                                    suppressScrollOnNewData={true} //* tells the grid to NOT scroll to the top when the page changes.
+                                />
+                            </div>
                         </section>
                     </div>
 
                     <div className='grid grid-cols-6 mt-8 gap-4 md:gap-8'>
-                        <button
-                            className='btn btn-error col-span-6 md:col-span-2 order-2 md:order-1 uppercase'
-                            onClick={refreshData}
-                        >
+                        <button className='btn btn-error col-span-6 md:col-span-2 order-2 md:order-1 uppercase'>
                             Làm mới dữ liệu
                             <GrPowerReset className='h-5 w-5' />
                         </button>
