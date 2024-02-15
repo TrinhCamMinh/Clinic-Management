@@ -6,19 +6,25 @@ import { AgGridReact } from 'ag-grid-react'; //* React Grid Logic
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { useTheme } from '../hooks';
 import { getCurrentDate, generateRandomID } from '../utils/General';
-import { collection, getDocs, getDoc, doc, addDoc, deleteDoc, query, where } from 'firebase/firestore';
+import { collection, getDocs, getDoc, doc, addDoc, deleteDoc, query, where, updateDoc } from 'firebase/firestore';
 import { db } from '../Configs/firebase';
-import { AlertNew } from '../utils/Alert';
+import { AlertNew, Alert } from '../utils/Alert';
 
 //* Cell Rendering:Actions column
 const Actions = (params) => {
-    const { data } = params;
+    const { data, gridPrescriptionListRef } = params;
     const symptomsRef = collection(db, 'Symptoms'); //* Create a reference to the Symptoms collection
 
     const handleRemovePrescription = async () => {
         try {
+            const isConfirm = await AlertNew.Confirm()
+
+            // User rejected case
+            if(!isConfirm) return ;
+
+            const selectedRow = gridPrescriptionListRef.current.api.getSelectedRows();
             const { code } = data; // Take the code field in the document
-            console.log(code);
+            
             // Create a query against the collection.
             const q = query(symptomsRef, where('code', '==', code));
             const querySnapshot = await getDocs(q);
@@ -26,9 +32,14 @@ const Actions = (params) => {
                 const { ref } = doc;
                 deleteDoc(ref);
             });
-            console.log('remove successfully');
+
+            // Remove the selected row in UI
+            // This code is served for updating UI instantly
+            gridPrescriptionListRef.current.api.applyTransaction({ remove: selectedRow });
+
+            Alert({ toast: true, icon: 'success', text: 'Xóa dữ liệu thành công' });
         } catch (error) {
-            alert(error.message);
+            Alert({icon: 'error', title: 'Xóa dữ liệu thất bại', text: error.message });
         }
     };
 
@@ -48,7 +59,8 @@ const Actions = (params) => {
 };
 
 const Disease = () => {
-    const gridRef = useRef();
+    const gridRef = useRef(); // Medicine Instance in Create Modal
+    const gridPrescriptionListRef = useRef() // Prescription List instance
     const themeValue = useTheme();
     const generateID = generateRandomID().toUpperCase();
     const currentDate = getCurrentDate();
@@ -111,11 +123,14 @@ const Disease = () => {
         },
         { headerName: 'Loại bệnh', field: 'name', wrapText: true, filter: true },
         { headerName: 'Mô tả', field: 'description', wrapText: true, filter: true },
-        { headerName: 'Ngày tạo', field: 'createdDate', wrapText: true, filter: true },
+        { headerName: 'Ngày tạo', field: 'createdDate', wrapText: true, filter: true, sort: 'desc', sortingOrder: ['desc', 'asc'] },
         { headerName: 'Ngày cập nhật mới nhất', field: 'updatedDate', wrapText: true, filter: true },
         {
             field: '',
             cellRenderer: Actions,
+            cellRendererParams: {
+                gridPrescriptionListRef
+            }
         },
     ]);
 
@@ -168,21 +183,6 @@ const Disease = () => {
         defaultMinWidth: 100,
     };
 
-    //! Consider remove this function
-    const AppendPrescriptionRow = () => {
-        setPrescriptionDataArray((prevData) => [
-            ...prevData,
-            {
-                name: prescriptionData.name.current.value,
-                concentration: prescriptionData.concentration.current.value,
-                usage: prescriptionData.usage.current.value,
-            },
-        ]);
-        setPrescriptionRow((prevData) => {
-            return [...prevData, prevData.at(-1) + 1];
-        });
-    };
-
     //* Get Symptom List from Firebase Server (FireStore - Symptoms Collection)
     const getSymptomList = async () => {
         const querySnapshot = await getDocs(collection(db, 'Symptoms'));
@@ -224,13 +224,32 @@ const Disease = () => {
         return refList;
     };
 
+    const updateMedicineExistNumber = (refList) => {
+        refList.forEach(async (item) => {
+            const docRef = doc(db, item.path);
+            const docSnap = await getDoc(docRef);
+
+            if (!docSnap.exists()) {
+                // docSnap.data() will be undefined in this case
+                console.log('No such document!');
+                return;
+            }
+
+            const medicine = docSnap.data();
+            // Update the existNumber field in Medicine Document
+            // when user choose this medicine for a prescription (minus 1)
+            await updateDoc(docRef, {
+                existNumber: medicine.existNumber - 1
+            });
+        })
+    }
+
     const submitCreatedData = async () => {
         //* Get the selected row from Table using their API
         const selectedRow = gridRef.current.api.getSelectedRows();
         const refList = filterReferencePath(selectedRow);
-
-        try {
-            const docRef = await addDoc(collection(db, 'Symptoms'), {
+        
+            await addDoc(collection(db, 'Symptoms'), {
                 name: data.name.current.value,
                 description: data.description.current.value,
                 code: generateID,
@@ -238,33 +257,23 @@ const Disease = () => {
                 updatedDate: currentDate,
                 prescriptions: [...refList],
             });
-            console.log('Document written with ID: ', docRef.id);
-        } catch (e) {
-            console.error('Error adding document: ', e);
-            alert(e.message);
-        }
 
-        //* Use spread operator since when user done append the last item
-        //* They won't click append row function so the latest row data is still not
-        //* store in the useState but useRef is holding the lates data value
-        // data.prescription = [
-        //     ...prescriptionDataArray,
-        //     {
-        //         name: prescriptionData.name.current.value,
-        //         concentration: prescriptionData.concentration.current.value,
-        //         usage: prescriptionData.usage.current.value,
-        //     },
-        // ];
+            updateMedicineExistNumber(refList)
 
-        // setRowData((prevData) => [
-        //     ...prevData,
-        //     {
-        //         'Mã đơn thuốc': data.description.current.value,
-        //         'Loại bệnh': data.name.current.value,
-        //         'Ngày tạo': getCurrentDate(),
-        //         'Đơn thuốc': data.prescription, //* we can store the data that do not rendered
-        //     },
-        // ]);
+            setRowData((prevData) => [
+                ...prevData,
+                {
+                    name: data.name.current.value,
+                    description: data.description.current.value,
+                    code: generateID,
+                    createdDate: currentDate,
+                    updatedDate: currentDate,
+                },
+            ]);
+
+            // Close the modal after created
+            document.getElementById('masterdata_disease_dialog').close()
+            Alert({ toast: true, icon: 'success', text: 'Tạo dữ liệu thành công' });
     };
 
     //TODO: Update logic of this function
@@ -393,6 +402,7 @@ const Disease = () => {
 
                     {/* The AG Grid component */}
                     <AgGridReact
+                        ref={gridPrescriptionListRef}
                         rowData={rowData}
                         columnDefs={colDefs}
                         autoSizeStrategy={autoSizeStrategy}
@@ -555,7 +565,7 @@ const Disease = () => {
                         <div className='col-span-2 xl:col-span-1'>
                             <label className='form-control w-full'>
                                 <div className='label'>
-                                    <span className='label-text'>Mã đơn thốc</span>
+                                    <span className='label-text'>Mã đơn thuốc</span>
                                 </div>
                                 <input
                                     disabled

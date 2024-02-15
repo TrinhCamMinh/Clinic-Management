@@ -6,12 +6,43 @@ import { AgGridReact } from 'ag-grid-react'; //* React Grid Logic
 import { useState, useRef, useEffect } from 'react';
 import { useTheme } from '../hooks';
 import { generateRandomID, getCurrentDate } from '../utils/General';
-import { collection, getDocs, addDoc } from 'firebase/firestore';
+import { collection, getDocs, addDoc, deleteDoc, query, where } from 'firebase/firestore';
 import { db } from '../Configs/firebase';
-import { Alert } from '../utils/Alert';
+import { Alert, AlertNew } from '../utils/Alert';
 
 //* Cell Rendering:Actions column
-const Actions = () => {
+const Actions = (params) => {
+    const {data, gridPatientsRef} = params //* The first desctructed param is Row Data
+    const patientsRef = collection(db, 'Patients'); //* Create a reference to the Patients collection
+
+    const handleRemovePatient = async () => {
+        try {
+            const isConfirm = await AlertNew.Confirm()
+
+            // User rejected case
+            if(!isConfirm) return ;
+
+            const selectedRow = gridPatientsRef.current.api.getSelectedRows();
+            const { email } = data; // Take the code field in the document
+            
+            // Create a query against the collection.
+            const q = query(patientsRef, where('email', '==', email));
+            const querySnapshot = await getDocs(q);
+            querySnapshot.forEach((doc) => {
+                const { ref } = doc;
+                deleteDoc(ref);
+            });
+
+            // Remove the selected row in UI
+            // This code is served for updating UI instantly
+            gridPatientsRef.current.api.applyTransaction({ remove: selectedRow });
+
+            Alert({ toast: true, icon: 'success', text: 'Xóa dữ liệu thành công' });
+        } catch (error) {
+            Alert({icon: 'error', title: 'Xóa dữ liệu thất bại', text: error.message });
+        }
+    }
+
     return (
         <div className='flex items-center justify-between w-full h-full'>
             <button onClick={() => document.getElementById('detail_modal').showModal()}>
@@ -23,7 +54,7 @@ const Actions = () => {
             <button onClick={() => document.getElementById('history_modal').showModal()}>
                 <FaHistory className='w-5 h-5 text-blue-400' />
             </button>
-            <button>
+            <button onClick={handleRemovePatient}>
                 <FaTrashCan className='w-5 h-5 text-red-400' />
             </button>
         </div>
@@ -31,6 +62,7 @@ const Actions = () => {
 };
 
 const Patients = () => {
+    const gridPatientsRef = useRef()
     const currentDate = getCurrentDate(); //* get current Date for inserting new patients
     const themeValue = useTheme();
     const generateID = generateRandomID().toUpperCase();
@@ -78,9 +110,16 @@ const Patients = () => {
         { headerName: 'Tuổi', field: 'age', filter: true },
         { headerName: 'Địa chỉ', field: 'address', wrapText: true, filter: true },
         { headerName: 'Mã sổ khám bệnh', field: 'medicalCode', wrapText: true, filter: true },
+        { headerName: 'Ngày tạo', field: 'createdDate', filter: true, sort: 'desc', },
+        { headerName: 'Ngày cập nhật mới nhất', field: 'updatedDate', filter: true },
         {
             field: '',
             cellRenderer: Actions,
+
+            //* Pass data to Actions Component
+            cellRendererParams: {
+                gridPatientsRef //* Patinent List Table Instance
+            }
         },
     ]);
 
@@ -123,10 +162,12 @@ const Patients = () => {
     const getPatientList = async () => {
         const querySnapshot = await getDocs(collection(db, 'Patients'));
         querySnapshot.forEach((doc) => {
+            const {id} = doc
             const patient = doc.data();
             setRowData((prevData) => [
                 ...prevData,
                 {
+                    id, // ID auto generated from FireStore
                     name: patient.name,
                     phoneNumber: `0${patient.phoneNumber}`,
                     age: patient.age,
@@ -153,11 +194,9 @@ const Patients = () => {
                 createdDate: currentDate,
                 updatedDate: currentDate,
             });
-
-            console.log('Document written with ID: ', docRef.id);
             Alert({ toast: true, icon: 'success', text: 'Thêm mới dữ liệu thành công' });
 
-            //* Update Patient List after creating data successfully
+            //* Update Patient List UI instantly after creating data successfully
             setRowData((prevRowData) => {
                 return [
                     ...prevRowData,
@@ -171,7 +210,7 @@ const Patients = () => {
                 ];
             });
         } catch (e) {
-            Alert({ icon: 'error', title: 'Oops...', text: e.message });
+            Alert({ icon: 'error', title: 'Tạo dữ liệu thất bại', text: e.message });
         }
     };
 
@@ -230,6 +269,7 @@ const Patients = () => {
 
                 {/* The AG Grid component */}
                 <AgGridReact
+                    ref={gridPatientsRef}
                     rowData={rowData}
                     columnDefs={colDefs}
                     autoSizeStrategy={autoSizeStrategy}
@@ -424,15 +464,15 @@ const Patients = () => {
                             <div className='label'>
                                 <span className='label-text'>ID</span>
                             </div>
-                            <input disabled type='text' placeholder='520H659' className='input input-bordered w-full' />
+                            <input disabled type='text' defaultValue={patient.id} className='input input-bordered w-full' />
                         </label>
                         <label className='form-control w-full'>
                             <div className='label'>
                                 <span className='label-text'>Mã Sổ Khám Bệnh</span>
                             </div>
                             <input
-                                value={patient.medicalCode}
                                 disabled
+                                defaultValue={patient.medicalCode}
                                 type='text'
                                 className='input input-bordered w-full'
                             />
@@ -441,19 +481,19 @@ const Patients = () => {
                             <div className='label'>
                                 <span className='label-text'>Họ và Tên</span>
                             </div>
-                            <input disabled type='text' value={patient.name} className='input input-bordered w-full' />
+                            <input disabled type='text' defaultValue={patient.name} className='input input-bordered w-full' />
                         </label>
                         <label className='form-control w-full '>
                             <div className='label'>
                                 <span className='label-text'>Email</span>
                             </div>
-                            <input disabled type='text' value={patient.email} className='input input-bordered w-full' />
+                            <input disabled type='text' defaultValue={patient.email} className='input input-bordered w-full' />
                         </label>
                         <label className='form-control w-full '>
                             <div className='label'>
                                 <span className='label-text'>Tuổi</span>
                             </div>
-                            <input disabled type='text' value={patient.age} className='input input-bordered w-full' />
+                            <input disabled type='text' defaultValue={patient.age} className='input input-bordered w-full' />
                         </label>
                         <label className='form-control w-full '>
                             <div className='label'>
@@ -462,7 +502,7 @@ const Patients = () => {
                             <input
                                 disabled
                                 type='text'
-                                value={patient.address}
+                                defaultValue={patient.address}
                                 className='input input-bordered w-full'
                             />
                         </label>
@@ -473,7 +513,7 @@ const Patients = () => {
                             <input
                                 disabled
                                 type='text'
-                                value={patient.createdDate}
+                                defaultValue={patient.createdDate}
                                 className='input input-bordered w-full'
                             />
                         </label>
@@ -484,7 +524,7 @@ const Patients = () => {
                             <input
                                 disabled
                                 type='text'
-                                value={patient.updatedDate}
+                                defaultValue={patient.updatedDate}
                                 className='input input-bordered w-full'
                             />
                         </label>

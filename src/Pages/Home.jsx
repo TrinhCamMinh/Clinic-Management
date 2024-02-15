@@ -22,7 +22,7 @@ const Home = () => {
                             repeat={Infinity}
                         />
                     </h2>
-                    <div className='text-4xl ml-2 hidden lg:block'>😘</div>
+                    <div className='text-4xl ml-2 hidden lg:block'>🙋‍♂️</div>
                 </header>
 
                 <div className='grid grid-cols-4 gap-8 mt-8 xl:mt-0'>
@@ -39,7 +39,7 @@ const Home = () => {
             </main>
             <footer className='mt-auto footer footer-center p-4 bg-base-300 text-base-content'>
                 <aside>
-                    <p className='font-bold'>Copyright © 2024 - All right reserved by MINHCT / KHOALD</p>
+                    <p className='font-bold'>Copyright © 2024 - All right reserved by MK Team</p>
                 </aside>
             </footer>
         </div>

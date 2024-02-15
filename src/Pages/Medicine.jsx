@@ -2,31 +2,62 @@ import { FaEye, FaPencil, FaTrashCan } from 'react-icons/fa6';
 import { GrPowerReset } from 'react-icons/gr';
 import { FaSave } from 'react-icons/fa';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { useTheme } from '../hooks';
 import { AgGridReact } from 'ag-grid-react'; //* React Grid Logic
 import { db } from '../Configs/firebase';
-import { collection, getDocs, addDoc } from 'firebase/firestore';
-import { Alert } from '../utils/Alert';
+import { collection, getDocs, addDoc, deleteDoc, query, where } from 'firebase/firestore';
+import { Alert, AlertNew } from '../utils/Alert';
+import {formatCurrency, getCurrentDate} from '../utils/General'
 
 //* Cell Rendering:Actions column
-const Actions = () => {
+const Actions = (params) => {
+    const {data, gridMedicineRef}  = params
+    const medicinesRef = collection(db, 'Medicines'); //* Create a reference to the Medicines collection
+
+    const handleRemoveMedicine = async () => {
+        try {
+            const isConfirm = await AlertNew.Confirm();
+            // User rejected case
+            if(!isConfirm) return ;
+
+            const selectedRow = gridMedicineRef.current.api.getSelectedRows();
+            const { symptom } = data; // Take the symptom field in the document
+            // Create a query against the collection.
+            const q = query(medicinesRef, where('symptom', '==', symptom));
+            const querySnapshot = await getDocs(q);
+            querySnapshot.forEach((doc) => {
+                const { ref } = doc;
+                deleteDoc(ref);
+            });
+
+            // Remove the selected row in UI
+            // This code is served for updating UI instantly
+            gridMedicineRef.current.api.applyTransaction({ remove: selectedRow });
+            Alert({ toast: true, icon: 'success', text: 'Xóa dữ liệu thành công' });
+        } catch (error) {
+            Alert({icon: 'error', title: 'Xóa dữ liệu thất bại', text: error.message });
+        }
+    }
+
     return (
-        <div className='flex items-center justify-between w-full h-full'>
+        <div className={`flex items-center justify-between w-full h-full`}>
             <button>
                 <FaEye className='w-5 h-5 text-green-400' />
             </button>
             <button>
                 <FaPencil className='w-5 h-5 text-yellow-400' />
             </button>
-            <button>
-                <FaTrashCan className='w-5 h-5 text-red-400' />
+            <button onClick={handleRemoveMedicine}>
+                <FaTrashCan className={`w-5 h-5 ${data.existNumber === 0 ? 'text-red-600': 'text-red-400'} `} />
             </button>
         </div>
     );
 };
 
 const Medicine = () => {
+    const currentDate = getCurrentDate()
+    const gridMedicineRef = useRef()
     const themeValue = useTheme();
     const data = {
         name: useRef(null), //* tên thuốc
@@ -60,6 +91,7 @@ const Medicine = () => {
             autoHeight: true,
             pinned: 'left',
             filter: true,
+            showDisabledCheckboxes: true,
             checkboxSelection: checkboxSelection,
             headerCheckboxSelection: headerCheckboxSelection,
         },
@@ -67,11 +99,29 @@ const Medicine = () => {
         { headerName: 'Thành phần dược', field: 'ingredient', wrapText: true, filter: true },
         { headerName: 'Hàm lượng', field: 'concentration', wrapText: true, filter: true },
         { headerName: 'Liều lượng', field: 'usage', wrapText: true, filter: true },
-        { headerName: 'Số lượng tồn kho', field: 'existNumber', filter: true },
+        { 
+            headerName: 'Số lượng tồn kho', 
+            field: 'existNumber', 
+            filter: true, 
+            cellStyle: params => {
+                const {data} = params
+                if (data.existNumber === 0) {
+                    //mark police cells as red
+                    return {color: '#FFF', backgroundColor: '#cc222244', fontWeight: 600};
+                }
+                return null;
+            }
+        },
         { headerName: 'Giá dược liệu/viên', field: 'cost', filter: true },
+        { headerName: 'Ngày tạo', field: 'createdDate', sort: 'desc', filter: true },
+        { headerName: 'Ngày cập nhật mới nhất', field: 'updatedDate', filter: true },
         {
             field: '',
             cellRenderer: Actions,
+            //* Pass data to Actions Component
+            cellRendererParams: {
+                gridMedicineRef //* Medicine List Table Instance
+            }
         },
     ]);
 
@@ -105,7 +155,9 @@ const Medicine = () => {
                     concentration: medicine.concentration,
                     usage: medicine.usage,
                     existNumber: medicine.existNumber,
-                    cost: medicine.cost,
+                    cost: formatCurrency(Number(medicine.cost)),
+                    createdDate: medicine.createdDate,
+                    updatedDate: medicine.updatedDate
                 },
             ]);
         });
@@ -121,8 +173,9 @@ const Medicine = () => {
                 usage: data.usage.current.value,
                 existNumber: Number(data.existNumber.current.value),
                 cost: Number(data.cost.current.value),
+                createdDate: currentDate,
+                updatedDate: currentDate
             });
-            console.log('Document written with ID: ', docRef.id);
             Alert({ toast: true, icon: 'success', text: 'Thêm mới dữ liệu thành công' });
 
             setRowData((prevRowData) => {
@@ -136,11 +189,29 @@ const Medicine = () => {
                         usage: data.usage.current.value,
                         existNumber: Number(data.existNumber.current.value),
                         cost: Number(data.cost.current.value),
+                        createdDate: currentDate,
+                        updatedDate: currentDate
                     },
                 ];
             });
         } catch (e) {
             Alert({ icon: 'error', title: 'Oops...', text: e.message });
+        }
+    };
+
+    // User can only select row that has medicine whose existNumber is greater than 0
+    // Thoese with the opposite case will be disabled (non selectable)
+    const isRowSelectable = useMemo(() => {
+        return (params) => {
+            return !!params.data && params.data.existNumber !== 0;
+        };
+    }, []);
+
+    // Highlight row that has medicine number equal to 0
+    const getRowClass = params => {
+        const {data} = params
+        if (data.existNumber === 0) {
+            return 'bg-rose-200'; // Tailwind CSS class
         }
     };
 
@@ -196,11 +267,14 @@ const Medicine = () => {
 
                     {/* The AG Grid component */}
                     <AgGridReact
+                        ref={gridMedicineRef}
                         rowData={rowData}
                         columnDefs={colDefs}
                         autoSizeStrategy={autoSizeStrategy}
                         rowSelection={'multiple'}
                         rowGroupPanelShow={'always'}
+                        isRowSelectable={isRowSelectable}
+                        getRowClass={getRowClass} // Highlight row that has existNumber equal to 0
                         pagination={true}
                         paginationPageSize={20}
                         paginationPageSizeSelector={[20, 50, 100]}
@@ -238,7 +312,7 @@ const Medicine = () => {
                         </div>
                         <label className='form-control w-full col-span-2 xl:col-span-1'>
                             <div className='label'>
-                                <span className='label-text'>triệu chứng bệnh</span>
+                                <span className='label-text'>Triệu chứng bệnh</span>
                             </div>
                             <input
                                 type='tel'
