@@ -265,7 +265,7 @@ const MedicalCertificate = () => {
             )}
 
             <section className='w-full mt-8'>
-                <div className='overflow-x-auto'>
+                <div>
                     {medicines.length > 0 && (
                         <div className={`col-span-3`} style={{ width: '100%', height: 450 }}>
                             <header>
@@ -273,7 +273,7 @@ const MedicalCertificate = () => {
                                     danh sách đơn thuốc
                                 </h2>
                             </header>
-                            <div className='ag-theme-quartz mt-8' style={{ height: 500 }}>
+                            <div className='ag-theme-quartz overflow-x-auto mt-8' style={{ height: 500 }}>
                                 {/* The AG Grid component */}
                                 <AgGridReact
                                     rowData={medicines}

@@ -12,19 +12,48 @@ import { Alert, AlertNew } from '../utils/Alert';
 
 //* Cell Rendering:Actions column
 const Actions = (params) => {
-    const {data, gridPatientsRef} = params //* The first desctructed param is Row Data
-    const patientsRef = collection(db, 'Patients'); //* Create a reference to the Patients collection
+    const { data, gridPatientsRef } = params; //* The first destructed param is Row Data
+    const patientsRef = collection(db, 'Patients'); //* Create a reference to the Patients collection in FireStore (Firebase V9)
+
+    //* Mock history data
+    const [history, setHistory] = useState([
+        {
+            'Ngày Khám': '25/11/2002',
+            'Triệu Chứng': 'Corona Virus',
+            'Phiếu Khám': '2023110001_0001',
+            'Thành Tiền': '25.000 VNĐ',
+        },
+        {
+            'Ngày Khám': '6/9/2024',
+            'Triệu Chứng': 'Viêm Xoan',
+            'Phiếu Khám': '2023110001_0002',
+            'Thành Tiền': '22.000 VNĐ',
+        },
+        {
+            'Ngày Khám': '18/11/2020',
+            'Triệu Chứng': 'Cảm',
+            'Phiếu Khám': '2023110001_0003',
+            'Thành Tiền': '69.000 VNĐ',
+        },
+    ]);
+
+    const [historyColDefs, setHistoryColDefs] = useState([
+        { field: 'Ngày Khám' },
+        { field: 'Triệu Chứng' },
+        { field: 'Phiếu Khám' },
+        { field: 'Thành Tiền' },
+    ]);
 
     const handleRemovePatient = async () => {
         try {
-            const isConfirm = await AlertNew.Confirm()
+            const isConfirm = await AlertNew.Confirm();
 
             // User rejected case
-            if(!isConfirm) return ;
+            if (!isConfirm) return;
 
             const selectedRow = gridPatientsRef.current.api.getSelectedRows();
             const { email } = data; // Take the code field in the document
-            
+
             // Create a query against the collection.
             const q = query(patientsRef, where('email', '==', email));
             const querySnapshot = await getDocs(q);
@@ -39,34 +68,178 @@ const Actions = (params) => {
 
             Alert({ toast: true, icon: 'success', text: 'Xóa dữ liệu thành công' });
         } catch (error) {
-            Alert({icon: 'error', title: 'Xóa dữ liệu thất bại', text: error.message });
+            Alert({ icon: 'error', title: 'Xóa dữ liệu thất bại', text: error.message });
         }
-    }
+    };
 
     return (
-        <div className='flex items-center justify-between w-full h-full'>
-            <button onClick={() => document.getElementById('detail_modal').showModal()}>
-                <FaEye className='w-5 h-5 text-green-400' />
-            </button>
-            <button>
-                <FaPencil className='w-5 h-5 text-yellow-400' />
-            </button>
-            <button onClick={() => document.getElementById('history_modal').showModal()}>
-                <FaHistory className='w-5 h-5 text-blue-400' />
-            </button>
-            <button onClick={handleRemovePatient}>
-                <FaTrashCan className='w-5 h-5 text-red-400' />
-            </button>
-        </div>
+        <>
+            <div className='flex items-center justify-between w-full h-full'>
+                <button onClick={() => document.getElementById(`detail_modal_${data.name}`).showModal()}>
+                    <FaEye className='w-5 h-5 text-green-400' />
+                </button>
+                <button>
+                    <FaPencil className='w-5 h-5 text-yellow-400' />
+                </button>
+                <button onClick={() => document.getElementById(`history_modal_${data.name}`).showModal()}>
+                    <FaHistory className='w-5 h-5 text-blue-400' />
+                </button>
+                <button onClick={handleRemovePatient}>
+                    <FaTrashCan className='w-5 h-5 text-red-400' />
+                </button>
+            </div>
+
+            {/* Detail Modal  */}
+            <dialog id={`detail_modal_${data.name}`} className='modal'>
+                <div className='modal-box w-11/12 max-w-5xl'>
+                    <header>
+                        <h3 className='font-bold text-2xl text-center'>Thông tin chi tiết người khám</h3>
+
+                        <div className='avatar w-full mt-8'>
+                            <div className='w-24 rounded my-0 mx-auto'>
+                                <img
+                                    src='https://daisyui.com/images/stock/photo-1534528741775-53994a69daeb.jpg'
+                                    alt={`${data.name}-avatar`}
+                                />
+                            </div>
+                        </div>
+                    </header>
+
+                    <form method='dialog'>
+                        {/* if there is a button in form, it will close the modal */}
+                        <button className='btn btn-sm btn-circle btn-ghost absolute right-2 top-2'>✕</button>
+                    </form>
+
+                    <div className='grid grid-col-1 md:grid-cols-2 gap-4'>
+                        <label className='form-control w-full'>
+                            <div className='label'>
+                                <span className='label-text'>ID</span>
+                            </div>
+                            <input
+                                disabled
+                                type='text'
+                                defaultValue={data.id}
+                                className='input input-bordered w-full'
+                            />
+                        </label>
+                        <label className='form-control w-full'>
+                            <div className='label'>
+                                <span className='label-text'>Mã Sổ Khám Bệnh</span>
+                            </div>
+                            <input
+                                disabled
+                                defaultValue={data.medicalCode}
+                                type='text'
+                                className='input input-bordered w-full'
+                            />
+                        </label>
+                        <label className='form-control w-full '>
+                            <div className='label'>
+                                <span className='label-text'>Họ và Tên</span>
+                            </div>
+                            <input
+                                disabled
+                                type='text'
+                                defaultValue={data.name}
+                                className='input input-bordered w-full'
+                            />
+                        </label>
+                        <label className='form-control w-full '>
+                            <div className='label'>
+                                <span className='label-text'>Email</span>
+                            </div>
+                            <input
+                                disabled
+                                type='text'
+                                defaultValue={data.email}
+                                className='input input-bordered w-full'
+                            />
+                        </label>
+                        <label className='form-control w-full '>
+                            <div className='label'>
+                                <span className='label-text'>Tuổi</span>
+                            </div>
+                            <input
+                                disabled
+                                type='text'
+                                defaultValue={data.age}
+                                className='input input-bordered w-full'
+                            />
+                        </label>
+                        <label className='form-control w-full '>
+                            <div className='label'>
+                                <span className='label-text'>Địa chỉ</span>
+                            </div>
+                            <input
+                                disabled
+                                type='text'
+                                defaultValue={data.address}
+                                className='input input-bordered w-full'
+                            />
+                        </label>
+                        <label className='form-control w-full '>
+                            <div className='label'>
+                                <span className='label-text'>Ngày Tạo</span>
+                            </div>
+                            <input
+                                disabled
+                                type='text'
+                                defaultValue={data.createdDate}
+                                className='input input-bordered w-full'
+                            />
+                        </label>
+                        <label className='form-control w-full '>
+                            <div className='label'>
+                                <span className='label-text'>Ngày cập nhật mới nhất</span>
+                            </div>
+                            <input
+                                disabled
+                                type='text'
+                                defaultValue={data.updatedDate}
+                                className='input input-bordered w-full'
+                            />
+                        </label>
+                    </div>
+                    <button className='btn btn-success btn-xs sm:btn-sm md:btn-md mt-8 w-full'>Cập nhật</button>
+                </div>
+            </dialog>
+
+            {/* History Modal  */}
+            <dialog id={`history_modal_${data.name}`} className='modal'>
+                <div className='modal-box w-11/12 max-w-5xl'>
+                    <h3 className='font-bold text-2xl text-center'>
+                        Lịch sử khám - <span className='text-primary capitalize'>{data.name}</span>
+                    </h3>
+
+                    <div className={`mt-8 ag-theme-quartz`} style={{ height: 500 }}>
+                        {/* The AG Grid component */}
+                        <AgGridReact
+                            rowData={history}
+                            columnDefs={historyColDefs}
+                            rowSelection={'multiple'}
+                            rowGroupPanelShow={'always'}
+                            pagination={true}
+                            paginationPageSize={20}
+                            paginationPageSizeSelector={[20, 50, 100]}
+                            suppressScrollOnNewData={true} //* tells the grid to NOT scroll to the top when the page changes
+                        />
+                    </div>
+
+                    <form method='dialog'>
+                        {/* if there is a button in form, it will close the modal */}
+                        <button className='btn btn-sm btn-circle btn-ghost absolute right-2 top-2'>✕</button>
+                    </form>
+                </div>
+            </dialog>
+        </>
     );
 };
 
 const Patients = () => {
-    const gridPatientsRef = useRef()
+    const gridPatientsRef = useRef();
     const currentDate = getCurrentDate(); //* get current Date for inserting new patients
     const themeValue = useTheme();
     const generateID = generateRandomID().toUpperCase();
-    const [patient, setPatient] = useState('');
 
     const data = {
         name: useRef(null),
@@ -74,11 +247,6 @@ const Patients = () => {
         age: useRef(null),
         address: useRef(null),
         email: useRef(null),
-    };
-
-    const handleRowClicked = (event) => {
-        const { data } = event;
-        setPatient(data);
     };
 
     const checkboxSelection = function (params) {
@@ -110,7 +278,7 @@ const Patients = () => {
         { headerName: 'Tuổi', field: 'age', filter: true },
         { headerName: 'Địa chỉ', field: 'address', wrapText: true, filter: true },
         { headerName: 'Mã sổ khám bệnh', field: 'medicalCode', wrapText: true, filter: true },
-        { headerName: 'Ngày tạo', field: 'createdDate', filter: true, sort: 'desc', },
+        { headerName: 'Ngày tạo', field: 'createdDate', filter: true, sort: 'desc' },
         { headerName: 'Ngày cập nhật mới nhất', field: 'updatedDate', filter: true },
         {
             field: '',
@@ -118,8 +286,8 @@ const Patients = () => {
 
             //* Pass data to Actions Component
             cellRendererParams: {
-                gridPatientsRef //* Patinent List Table Instance
-            }
+                gridPatientsRef, //* Patinent List Table Instance
+            },
         },
     ]);
 
@@ -129,45 +297,16 @@ const Patients = () => {
         defaultMinWidth: 100,
     };
 
-    //* Mock history data
-    const [history, setHistory] = useState([
-        {
-            'Ngày Khám': '25/11/2002',
-            'Triệu Chứng': 'Corona Virus',
-            'Phiếu Khám': '2023110001_0001',
-            'Thành Tiền': '25.000 VNĐ',
-        },
-        {
-            'Ngày Khám': '6/9/2024',
-            'Triệu Chứng': 'Viêm Xoan',
-            'Phiếu Khám': '2023110001_0002',
-            'Thành Tiền': '22.000 VNĐ',
-        },
-        {
-            'Ngày Khám': '18/11/2020',
-            'Triệu Chứng': 'Cảm',
-            'Phiếu Khám': '2023110001_0003',
-            'Thành Tiền': '69.000 VNĐ',
-        },
-    ]);
-
-    const [historyColDefs, setHistoryColDefs] = useState([
-        { field: 'Ngày Khám' },
-        { field: 'Triệu Chứng' },
-        { field: 'Phiếu Khám' },
-        { field: 'Thành Tiền' },
-    ]);
-
     //* Get Patient List from Firebase Server (FireStore - Patients Collection)
     const getPatientList = async () => {
         const querySnapshot = await getDocs(collection(db, 'Patients'));
         querySnapshot.forEach((doc) => {
-            const {id} = doc
+            const { id } = doc;
             const patient = doc.data();
             setRowData((prevData) => [
                 ...prevData,
                 {
-                    id, // ID auto generated from FireStore
+                    id, // ID auto generated by FireStore
                     name: patient.name,
                     phoneNumber: `0${patient.phoneNumber}`,
                     age: patient.age,
@@ -209,8 +348,9 @@ const Patients = () => {
                     },
                 ];
             });
-        } catch (e) {
-            Alert({ icon: 'error', title: 'Tạo dữ liệu thất bại', text: e.message });
+        } catch (error) {
+            closeModal('#masterdata_patient_dialog');
+            Alert({ icon: 'error', title: 'Tạo dữ liệu thất bại', text: error.message });
         }
     };
 
@@ -221,11 +361,15 @@ const Patients = () => {
         data.address.current.value = null;
     };
 
+    const closeModal = (modalID) => {
+        const dialog = document.querySelector(modalID);
+        dialog.close();
+    };
+
     useEffect(() => {
         //* Close modal after save data successfully
         //* And clear the data in the form
-        const dialog = document.querySelector('#masterdata_patient_dialog');
-        dialog.close();
+        closeModal('#masterdata_patient_dialog');
         refreshData();
 
         //* Save the data to SS so we can load the data into Medical Certificate Input Page
@@ -282,7 +426,6 @@ const Patients = () => {
                     reactiveCustomComponents
                     tooltipShowDelay={0}
                     tooltipHideDelay={2000}
-                    onRowClicked={handleRowClicked}
                 />
             </div>
 
@@ -403,133 +546,6 @@ const Patients = () => {
                             <FaSave className='h-5 w-5' />
                         </button>
                     </div>
-                </div>
-            </dialog>
-
-            <dialog id='history_modal' className='modal'>
-                <div className='modal-box w-11/12 max-w-5xl'>
-                    <h3 className='font-bold text-2xl text-center'>
-                        Lịch sử khám - <span className='text-primary capitalize'>{patient.name}</span>
-                    </h3>
-
-                    <div
-                        className={`mt-8 ${themeValue === 'light' ? 'ag-theme-quartz' : 'ag-theme-quartz-dark'}`}
-                        style={{ height: 500 }}
-                    >
-                        {/* The AG Grid component */}
-                        <AgGridReact
-                            rowData={history}
-                            columnDefs={historyColDefs}
-                            autoSizeStrategy={autoSizeStrategy}
-                            rowSelection={'multiple'}
-                            rowGroupPanelShow={'always'}
-                            pagination={true}
-                            paginationPageSize={20}
-                            paginationPageSizeSelector={[20, 50, 100]}
-                            suppressScrollOnNewData={true} //* tells the grid to NOT scroll to the top when the page changes
-                        />
-                    </div>
-
-                    <form method='dialog'>
-                        {/* if there is a button in form, it will close the modal */}
-                        <button className='btn btn-sm btn-circle btn-ghost absolute right-2 top-2'>✕</button>
-                    </form>
-                </div>
-            </dialog>
-
-            <dialog id='detail_modal' className='modal'>
-                <div className='modal-box w-11/12 max-w-5xl'>
-                    <header>
-                        <h3 className='font-bold text-2xl text-center'>
-                            Thông tin chi tiết - <span className='text-primary capitalize'>{patient.name}</span>
-                        </h3>
-
-                        <div className='avatar w-full mt-8'>
-                            <div className='w-24 rounded my-0 mx-auto'>
-                                <img
-                                    src='https://daisyui.com/images/stock/photo-1534528741775-53994a69daeb.jpg'
-                                    alt={`${patient.name}-avatar`}
-                                />
-                            </div>
-                        </div>
-                    </header>
-
-                    <form method='dialog'>
-                        {/* if there is a button in form, it will close the modal */}
-                        <button className='btn btn-sm btn-circle btn-ghost absolute right-2 top-2'>✕</button>
-                    </form>
-
-                    <div className='grid grid-col-1 md:grid-cols-2 gap-4'>
-                        <label className='form-control w-full'>
-                            <div className='label'>
-                                <span className='label-text'>ID</span>
-                            </div>
-                            <input disabled type='text' defaultValue={patient.id} className='input input-bordered w-full' />
-                        </label>
-                        <label className='form-control w-full'>
-                            <div className='label'>
-                                <span className='label-text'>Mã Sổ Khám Bệnh</span>
-                            </div>
-                            <input
-                                disabled
-                                defaultValue={patient.medicalCode}
-                                type='text'
-                                className='input input-bordered w-full'
-                            />
-                        </label>
-                        <label className='form-control w-full '>
-                            <div className='label'>
-                                <span className='label-text'>Họ và Tên</span>
-                            </div>
-                            <input disabled type='text' defaultValue={patient.name} className='input input-bordered w-full' />
-                        </label>
-                        <label className='form-control w-full '>
-                            <div className='label'>
-                                <span className='label-text'>Email</span>
-                            </div>
-                            <input disabled type='text' defaultValue={patient.email} className='input input-bordered w-full' />
-                        </label>
-                        <label className='form-control w-full '>
-                            <div className='label'>
-                                <span className='label-text'>Tuổi</span>
-                            </div>
-                            <input disabled type='text' defaultValue={patient.age} className='input input-bordered w-full' />
-                        </label>
-                        <label className='form-control w-full '>
-                            <div className='label'>
-                                <span className='label-text'>Địa chỉ</span>
-                            </div>
-                            <input
-                                disabled
-                                type='text'
-                                defaultValue={patient.address}
-                                className='input input-bordered w-full'
-                            />
-                        </label>
-                        <label className='form-control w-full '>
-                            <div className='label'>
-                                <span className='label-text'>Ngày Tạo</span>
-                            </div>
-                            <input
-                                disabled
-                                type='text'
-                                defaultValue={patient.createdDate}
-                                className='input input-bordered w-full'
-                            />
-                        </label>
-                        <label className='form-control w-full '>
-                            <div className='label'>
-                                <span className='label-text'>Ngày cập nhật mới nhất</span>
-                            </div>
-                            <input
-                                disabled
-                                type='text'
-                                defaultValue={patient.updatedDate}
-                                className='input input-bordered w-full'
-                            />
-                        </label>
-                    </div>
-                    <button className='btn btn-success btn-xs sm:btn-sm md:btn-md mt-8 w-full'>Cập nhật</button>
                 </div>
             </dialog>
         </div>

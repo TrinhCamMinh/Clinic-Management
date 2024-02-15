@@ -41,15 +41,11 @@ Start the server
 + [TailwindCSS](https://tailwindcss.com/docs/installation)
 + [React Router Dom](https://blog.webdevsimplified.com/2022-07/react-router/)
 + [SWR](https://www.freecodecamp.org/news/swr-library-for-data-fetching-in-react/)
++ [Firebase V9](https://firebase.google.com/docs?hl=en&authuser=0&_gl=1*1j2oa06*_ga*MTE3NzcwODM2LjE3MDU5MzMzNDk*_ga_CW55HF8NVT*MTcwODAwMzEwMC4xNy4xLjE3MDgwMDMyNTEuNDguMC4w)
 + Sweetalert2
 
-**Server:** 
-+ Node 
-+ Express
-
 **Database:** 
-+ MongoDB
-
++ FireBase V9
 
 ## Feedback
 

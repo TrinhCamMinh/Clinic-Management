@@ -8,18 +8,18 @@ import { AgGridReact } from 'ag-grid-react'; //* React Grid Logic
 import { db } from '../Configs/firebase';
 import { collection, getDocs, addDoc, deleteDoc, query, where } from 'firebase/firestore';
 import { Alert, AlertNew } from '../utils/Alert';
-import {formatCurrency, getCurrentDate} from '../utils/General'
+import { formatCurrency, getCurrentDate } from '../utils/General';
 
 //* Cell Rendering:Actions column
 const Actions = (params) => {
-    const {data, gridMedicineRef}  = params
+    const { data, gridMedicineRef } = params;
     const medicinesRef = collection(db, 'Medicines'); //* Create a reference to the Medicines collection
 
     const handleRemoveMedicine = async () => {
         try {
             const isConfirm = await AlertNew.Confirm();
             // User rejected case
-            if(!isConfirm) return ;
+            if (!isConfirm) return;
 
             const selectedRow = gridMedicineRef.current.api.getSelectedRows();
             const { symptom } = data; // Take the symptom field in the document
@@ -36,28 +36,140 @@ const Actions = (params) => {
             gridMedicineRef.current.api.applyTransaction({ remove: selectedRow });
             Alert({ toast: true, icon: 'success', text: 'Xóa dữ liệu thành công' });
         } catch (error) {
-            Alert({icon: 'error', title: 'Xóa dữ liệu thất bại', text: error.message });
+            Alert({ icon: 'error', title: 'Xóa dữ liệu thất bại', text: error.message });
         }
-    }
+    };
 
     return (
-        <div className={`flex items-center justify-between w-full h-full`}>
-            <button>
-                <FaEye className='w-5 h-5 text-green-400' />
-            </button>
-            <button>
-                <FaPencil className='w-5 h-5 text-yellow-400' />
-            </button>
-            <button onClick={handleRemoveMedicine}>
-                <FaTrashCan className={`w-5 h-5 ${data.existNumber === 0 ? 'text-red-600': 'text-red-400'} `} />
-            </button>
-        </div>
+        <>
+            <div className={`flex items-center justify-between w-full h-full`}>
+                <button onClick={() => document.getElementById(`detail_modal_${data.name}`).showModal()}>
+                    <FaEye className='w-5 h-5 text-green-400' />
+                </button>
+                <button>
+                    <FaPencil className='w-5 h-5 text-yellow-400' />
+                </button>
+                <button onClick={handleRemoveMedicine}>
+                    <FaTrashCan className={`w-5 h-5 ${data.existNumber === 0 ? 'text-red-600' : 'text-red-400'} `} />
+                </button>
+            </div>
+
+            {/* Detail Modal */}
+            <dialog id={`detail_modal_${data.name}`} className='modal'>
+                <div className='modal-box w-11/12 max-w-5xl'>
+                    <form method='dialog'>
+                        {/* if there is a button in form, it will close the modal */}
+                        <button className='btn btn-sm btn-circle btn-ghost absolute right-2 top-2'>✕</button>
+                    </form>
+
+                    <h3 className='font-bold text-2xl text-center mb-4 uppercase text-primary'>
+                        thông tin chi tiết dược liệu
+                    </h3>
+
+                    <div className='grid grid-cols-2 gap-4'>
+                        <label className='form-control col-span-2 lg:col-span-1'>
+                            <div className='label'>
+                                <span className='label-text'>Tên dược liệu</span>
+                            </div>
+                            <input disabled type='text' value={data.name} className='input input-bordered w-full' />
+                        </label>
+                        <label className='form-control col-span-2 lg:col-span-1'>
+                            <div className='label'>
+                                <span className='label-text'>Hàm lượng</span>
+                            </div>
+                            <input
+                                disabled
+                                type='text'
+                                defaultValue={data.concentration}
+                                className='input input-bordered w-full'
+                            />
+                        </label>
+                        <label className='form-control col-span-2 lg:col-span-1'>
+                            <div className='label'>
+                                <span className='label-text'>Liều lượng</span>
+                            </div>
+                            <input
+                                disabled
+                                type='text'
+                                defaultValue={data.usage}
+                                className='input input-bordered w-full'
+                            />
+                        </label>
+                        <label className='form-control col-span-2 lg:col-span-1'>
+                            <div className='label'>
+                                <span className='label-text'>Số lượng tồn kho</span>
+                            </div>
+                            <input
+                                disabled
+                                type='text'
+                                defaultValue={data.existNumber}
+                                className='input input-bordered w-full'
+                            />
+                        </label>
+                        <label className='form-control col-span-2 lg:col-span-1'>
+                            <div className='label'>
+                                <span className='label-text'>Thành phần</span>
+                            </div>
+                            <input
+                                disabled
+                                type='text'
+                                defaultValue={data.ingredient}
+                                className='input input-bordered w-full'
+                            />
+                        </label>
+                        <label className='form-control col-span-2 lg:col-span-1'>
+                            <div className='label'>
+                                <span className='label-text'>Giá</span>
+                            </div>
+                            <input
+                                disabled
+                                type='text'
+                                defaultValue={data.cost}
+                                className='input input-bordered w-full'
+                            />
+                        </label>
+                        <label className='form-control col-span-2 lg:col-span-1'>
+                            <div className='label'>
+                                <span className='label-text'>Ngày tạo dữ liệu</span>
+                            </div>
+                            <input
+                                disabled
+                                type='text'
+                                defaultValue={data.createdDate}
+                                className='input input-bordered w-full'
+                            />
+                        </label>
+                        <label className='form-control col-span-2 lg:col-span-1'>
+                            <div className='label'>
+                                <span className='label-text'>Ngày cập nhật dữ liệu</span>
+                            </div>
+                            <input
+                                disabled
+                                type='text'
+                                defaultValue={data.updatedDate}
+                                className='input input-bordered w-full'
+                            />
+                        </label>
+                        <label className='form-control col-span-2'>
+                            <div className='label'>
+                                <span className='label-text'>Mô tả triệu chứng bệnh</span>
+                            </div>
+                            <textarea
+                                disabled
+                                className='textarea textarea-bordered textarea-lg w-full'
+                                defaultValue={data.symptom}
+                            ></textarea>
+                        </label>
+                    </div>
+                </div>
+            </dialog>
+        </>
     );
 };
 
 const Medicine = () => {
-    const currentDate = getCurrentDate()
-    const gridMedicineRef = useRef()
+    const currentDate = getCurrentDate();
+    const gridMedicineRef = useRef();
     const themeValue = useTheme();
     const data = {
         name: useRef(null), //* tên thuốc
@@ -86,6 +198,7 @@ const Medicine = () => {
     const [colDefs, setColDefs] = useState([
         {
             headerName: 'Tên dược liệu',
+            width: 500,
             field: 'name',
             wrapText: true,
             autoHeight: true,
@@ -99,18 +212,18 @@ const Medicine = () => {
         { headerName: 'Thành phần dược', field: 'ingredient', wrapText: true, filter: true },
         { headerName: 'Hàm lượng', field: 'concentration', wrapText: true, filter: true },
         { headerName: 'Liều lượng', field: 'usage', wrapText: true, filter: true },
-        { 
-            headerName: 'Số lượng tồn kho', 
-            field: 'existNumber', 
-            filter: true, 
-            cellStyle: params => {
-                const {data} = params
+        {
+            headerName: 'Số lượng tồn kho',
+            field: 'existNumber',
+            filter: true,
+            cellStyle: (params) => {
+                const { data } = params;
                 if (data.existNumber === 0) {
-                    //mark police cells as red
-                    return {color: '#FFF', backgroundColor: '#cc222244', fontWeight: 600};
+                    //* mark exist number = 0 cells as red
+                    return { color: '#FFFF', backgroundColor: '#cc222244', fontWeight: 600 };
                 }
                 return null;
-            }
+            },
         },
         { headerName: 'Giá dược liệu/viên', field: 'cost', filter: true },
         { headerName: 'Ngày tạo', field: 'createdDate', sort: 'desc', filter: true },
@@ -120,8 +233,8 @@ const Medicine = () => {
             cellRenderer: Actions,
             //* Pass data to Actions Component
             cellRendererParams: {
-                gridMedicineRef //* Medicine List Table Instance
-            }
+                gridMedicineRef, //* Medicine List Table Instance
+            },
         },
     ]);
 
@@ -157,7 +270,7 @@ const Medicine = () => {
                     existNumber: medicine.existNumber,
                     cost: formatCurrency(Number(medicine.cost)),
                     createdDate: medicine.createdDate,
-                    updatedDate: medicine.updatedDate
+                    updatedDate: medicine.updatedDate,
                 },
             ]);
         });
@@ -174,7 +287,7 @@ const Medicine = () => {
                 existNumber: Number(data.existNumber.current.value),
                 cost: Number(data.cost.current.value),
                 createdDate: currentDate,
-                updatedDate: currentDate
+                updatedDate: currentDate,
             });
             Alert({ toast: true, icon: 'success', text: 'Thêm mới dữ liệu thành công' });
 
@@ -190,7 +303,7 @@ const Medicine = () => {
                         existNumber: Number(data.existNumber.current.value),
                         cost: Number(data.cost.current.value),
                         createdDate: currentDate,
-                        updatedDate: currentDate
+                        updatedDate: currentDate,
                     },
                 ];
             });
@@ -200,7 +313,7 @@ const Medicine = () => {
     };
 
     // User can only select row that has medicine whose existNumber is greater than 0
-    // Thoese with the opposite case will be disabled (non selectable)
+    // Those with the opposite case will be disabled (non selectable)
     const isRowSelectable = useMemo(() => {
         return (params) => {
             return !!params.data && params.data.existNumber !== 0;
@@ -208,10 +321,10 @@ const Medicine = () => {
     }, []);
 
     // Highlight row that has medicine number equal to 0
-    const getRowClass = params => {
-        const {data} = params
+    const getRowClass = (params) => {
+        const { data } = params;
         if (data.existNumber === 0) {
-            return 'bg-rose-200'; // Tailwind CSS class
+            return 'bg-red-100'; // Tailwind CSS class
         }
     };
 
@@ -258,7 +371,9 @@ const Medicine = () => {
             <section className='col-span-3'>
                 {/* Container with theme & dimensions */}
                 <div
-                    className={`col-span-3 ${themeValue === 'light' ? 'ag-theme-quartz' : 'ag-theme-quartz-dark'}`}
+                    className={`col-span-3 overflow-x-scroll ${
+                        themeValue === 'light' ? 'ag-theme-quartz' : 'ag-theme-quartz-dark'
+                    }`}
                     style={{ width: '100%', height: 450 }}
                 >
                     <h3 className='font-extrabold text-3xl text-primary text-center uppercase mb-4'>

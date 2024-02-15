@@ -17,14 +17,14 @@ const Actions = (params) => {
 
     const handleRemovePrescription = async () => {
         try {
-            const isConfirm = await AlertNew.Confirm()
+            const isConfirm = await AlertNew.Confirm();
 
             // User rejected case
-            if(!isConfirm) return ;
+            if (!isConfirm) return;
 
             const selectedRow = gridPrescriptionListRef.current.api.getSelectedRows();
             const { code } = data; // Take the code field in the document
-            
+
             // Create a query against the collection.
             const q = query(symptomsRef, where('code', '==', code));
             const querySnapshot = await getDocs(q);
@@ -39,7 +39,7 @@ const Actions = (params) => {
 
             Alert({ toast: true, icon: 'success', text: 'Xóa dữ liệu thành công' });
         } catch (error) {
-            Alert({icon: 'error', title: 'Xóa dữ liệu thất bại', text: error.message });
+            Alert({ icon: 'error', title: 'Xóa dữ liệu thất bại', text: error.message });
         }
     };
 
@@ -60,7 +60,7 @@ const Actions = (params) => {
 
 const Disease = () => {
     const gridRef = useRef(); // Medicine Instance in Create Modal
-    const gridPrescriptionListRef = useRef() // Prescription List instance
+    const gridPrescriptionListRef = useRef(); // Prescription List instance
     const themeValue = useTheme();
     const generateID = generateRandomID().toUpperCase();
     const currentDate = getCurrentDate();
@@ -123,14 +123,21 @@ const Disease = () => {
         },
         { headerName: 'Loại bệnh', field: 'name', wrapText: true, filter: true },
         { headerName: 'Mô tả', field: 'description', wrapText: true, filter: true },
-        { headerName: 'Ngày tạo', field: 'createdDate', wrapText: true, filter: true, sort: 'desc', sortingOrder: ['desc', 'asc'] },
+        {
+            headerName: 'Ngày tạo',
+            field: 'createdDate',
+            wrapText: true,
+            filter: true,
+            sort: 'desc',
+            sortingOrder: ['desc', 'asc'],
+        },
         { headerName: 'Ngày cập nhật mới nhất', field: 'updatedDate', wrapText: true, filter: true },
         {
             field: '',
             cellRenderer: Actions,
             cellRendererParams: {
-                gridPrescriptionListRef
-            }
+                gridPrescriptionListRef,
+            },
         },
     ]);
 
@@ -154,23 +161,21 @@ const Disease = () => {
     const [colDefsMedicineList, setColDefsMedicineList] = useState([
         {
             headerName: 'Tên thuốc',
+            width: 350,
             field: 'name',
-            wrapText: true,
             autoHeight: true,
             pinned: 'left',
             filter: true,
         },
-        { headerName: 'Triệu chứng', field: 'symptom', wrapText: true, minWidth: 180, filter: true },
+        { headerName: 'Triệu chứng', width: 350, field: 'symptom', filter: true },
         { headerName: 'Giá', field: 'cost', filter: true },
-        { headerName: 'Liều lượng sử dụng', field: 'usage', wrapText: true, filter: true },
-        { headerName: 'Thành phần dược', field: 'ingredient', wrapText: true, filter: true },
+        { headerName: 'Liều lượng sử dụng', field: 'usage', filter: true },
+        { headerName: 'Thành phần dược', field: 'ingredient', filter: true },
         { headerName: 'Số lượng tồn kho', field: 'existNumber', filter: true },
     ]);
 
     const defaultColDef = useMemo(() => {
         return {
-            flex: 1,
-            minWidth: 100,
             headerCheckboxSelection: isFirstColumn,
             checkboxSelection: isFirstColumn,
             headerCheckboxSelectionFilteredOnly: true,
@@ -239,41 +244,40 @@ const Disease = () => {
             // Update the existNumber field in Medicine Document
             // when user choose this medicine for a prescription (minus 1)
             await updateDoc(docRef, {
-                existNumber: medicine.existNumber - 1
+                existNumber: medicine.existNumber - 1,
             });
-        })
-    }
+        });
+    };
 
     const submitCreatedData = async () => {
         //* Get the selected row from Table using their API
         const selectedRow = gridRef.current.api.getSelectedRows();
         const refList = filterReferencePath(selectedRow);
-        
-            await addDoc(collection(db, 'Symptoms'), {
+        await addDoc(collection(db, 'Symptoms'), {
+            name: data.name.current.value,
+            description: data.description.current.value,
+            code: generateID,
+            createdDate: currentDate,
+            updatedDate: currentDate,
+            prescriptions: [...refList],
+        });
+
+        updateMedicineExistNumber(refList);
+
+        setRowData((prevData) => [
+            ...prevData,
+            {
                 name: data.name.current.value,
                 description: data.description.current.value,
                 code: generateID,
                 createdDate: currentDate,
                 updatedDate: currentDate,
-                prescriptions: [...refList],
-            });
+            },
+        ]);
 
-            updateMedicineExistNumber(refList)
-
-            setRowData((prevData) => [
-                ...prevData,
-                {
-                    name: data.name.current.value,
-                    description: data.description.current.value,
-                    code: generateID,
-                    createdDate: currentDate,
-                    updatedDate: currentDate,
-                },
-            ]);
-
-            // Close the modal after created
-            document.getElementById('masterdata_disease_dialog').close()
-            Alert({ toast: true, icon: 'success', text: 'Tạo dữ liệu thành công' });
+        // Close the modal after created
+        document.getElementById('masterdata_disease_dialog').close();
+        Alert({ toast: true, icon: 'success', text: 'Tạo dữ liệu thành công' });
     };
 
     //TODO: Update logic of this function
@@ -288,29 +292,6 @@ const Disease = () => {
 
     //     setPrescriptionRow([0]);
     // };
-
-    const getPriceOfSingleMedicine = (medicineName) => {
-        const medicineData = JSON.parse(sessionStorage.getItem('medicineData'));
-        if (!medicineData) return;
-
-        const result = medicineData.find((item) => {
-            return item['Tên dược liệu'] === medicineName;
-        });
-
-        if (!result) return;
-
-        return result['Giá dược liệu/viên'];
-    };
-
-    const mappingPriceForReceipt = () => {
-        rowData.forEach((item) => {
-            if (!item['Đơn thuốc']) return;
-
-            item['Đơn thuốc'].forEach((singleDT) => {
-                singleDT.price = getPriceOfSingleMedicine(singleDT.name) ?? 0;
-            });
-        });
-    };
 
     //* If there is no document at the location referenced by docRef,
     //* the resulting document will be empty and calling exists on it
@@ -346,25 +327,21 @@ const Disease = () => {
         setPrescription(data);
     };
 
-    const handleRemovePrescription = () => {
-        console.log(prescription);
-        //* Delete documents
-        // await deleteDoc(doc(db, "Symptoms", "DC"));
+    // User can only select row that has medicine whose existNumber is greater than 0
+    // Those with the opposite case will be disabled (non selectable)
+    const isRowSelectable = useMemo(() => {
+        return (params) => {
+            return !!params.data && params.data.existNumber !== 0;
+        };
+    }, []);
+
+    // Highlight row that has medicine number equal to 0
+    const getRowClass = (params) => {
+        const { data } = params;
+        if (data.existNumber === 0) {
+            return 'bg-red-100'; // Tailwind CSS class
+        }
     };
-
-    //* Save the data to session storage when user append a new prescription
-    //* So that we can use this data in the Receipt Page
-    //! Note that: This is only temporary solution (later will use Server)
-    useEffect(() => {
-        mappingPriceForReceipt();
-
-        const savedDiseaseData = JSON.stringify(rowData);
-        sessionStorage.setItem('diseaseData', savedDiseaseData);
-
-        const dialog = document.querySelector('#masterdata_disease_dialog');
-        dialog.close();
-        // refreshData();
-    }, [rowData]);
 
     //* Get Symptom List when component first mounted
     //* The same for Medicine list since this will be displayed
@@ -386,7 +363,7 @@ const Disease = () => {
             </section>
 
             <section className='col-span-1'>
-                <div className='divider divider-primary w-full uppercase'>or</div>
+                <div className='divider divider-primary w-full uppercase'></div>
             </section>
 
             {/* Table Section  */}
@@ -520,6 +497,8 @@ const Disease = () => {
                                     columnDefs={colDefsMedicineList}
                                     defaultColDef={defaultColDef}
                                     autoSizeStrategy={autoSizeStrategy}
+                                    isRowSelectable={isRowSelectable}
+                                    getRowClass={getRowClass} // Highlight row that has existNumber equal to 0
                                     rowSelection={'multiple'}
                                     rowMultiSelectWithClick={true}
                                     rowGroupPanelShow={'always'}
