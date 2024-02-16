@@ -5,19 +5,63 @@ import { FaEye, FaPencil, FaTrashCan } from 'react-icons/fa6';
 import { AgGridReact } from 'ag-grid-react'; //* React Grid Logic
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { useTheme } from '../hooks';
-import { getCurrentDate, generateRandomID } from '../utils/General';
+import { getCurrentDate, generateRandomID, formatCurrency } from '../utils/General';
 import { collection, getDocs, getDoc, doc, addDoc, deleteDoc, query, where, updateDoc } from 'firebase/firestore';
 import { db } from '../Configs/firebase';
-import { AlertNew, Alert } from '../utils/Alert';
+import { SweetAlert } from '../utils/Alert';
 
 //* Cell Rendering:Actions column
 const Actions = (params) => {
-    const { data, gridPrescriptionListRef } = params;
+    const themeValue = useTheme();
+    const { data, rowIndex, gridPrescriptionListRef } = params;
     const symptomsRef = collection(db, 'Symptoms'); //* Create a reference to the Symptoms collection
+    const [medicineList, setMedicineList] = useState([])
+
+    //* Column Definitions: Defines & controls grid columns.
+    const [colDefs, setColDefs] = useState([
+        {
+            headerName: 'Tên thuốc',
+            field: 'name',
+            wrapText: true,
+            autoHeight: true,
+            pinned: 'left',
+            filter: true,
+        },
+        { headerName: 'Triệu chứng', field: 'symptom', filter: true },
+        { 
+            headerName: 'Giá',
+            valueGetter: params => {
+                return formatCurrency(params.data.cost);
+            },
+            filter: true 
+        },
+        { headerName: 'Liều lượng sử dụng', field: 'usage', filter: true },
+        { headerName: 'Thành phần dược', field: 'ingredient', filter: true },
+    ]);
+
+    const getMedidineInfoFromReferenceDocument = () => {
+        data.prescriptions.forEach(async (reference) => {
+            const docRef = doc(db, reference.path);
+            const docSnap = await getDoc(docRef);
+
+            if(!docSnap.exists()) {
+                // docSnap.data() will be undefined in this case
+                console.log('No such medicine document');
+                return;
+            }
+
+            const medicine = docSnap.data()
+
+            setMedicineList(prevData => [
+                ...prevData,
+                medicine
+            ])
+        })
+    }
 
     const handleRemovePrescription = async () => {
         try {
-            const isConfirm = await AlertNew.Confirm();
+            const isConfirm = await SweetAlert.Toast.Confirm();
 
             // User rejected case
             if (!isConfirm) return;
@@ -37,24 +81,139 @@ const Actions = (params) => {
             // This code is served for updating UI instantly
             gridPrescriptionListRef.current.api.applyTransaction({ remove: selectedRow });
 
-            Alert({ toast: true, icon: 'success', text: 'Xóa dữ liệu thành công' });
+            SweetAlert.Toast.Success({ text: 'Xóa dữ liệu thành công' });
         } catch (error) {
-            Alert({ icon: 'error', title: 'Xóa dữ liệu thất bại', text: error.message });
+            SweetAlert.Message.Error({ title: 'Xóa dữ liệu thất bại', text: error.message });
         }
     };
 
+    useEffect(() => {
+        // Grab the Medicine Information from the Ref Document when the component first mounted
+        getMedidineInfoFromReferenceDocument()
+    }, [])
+
     return (
-        <div className='flex items-center justify-between w-full h-full'>
-            <button onClick={() => document.getElementById('detail_modal').showModal()}>
-                <FaEye className='w-5 h-5 text-green-400' />
-            </button>
-            <button>
-                <FaPencil className='w-5 h-5 text-yellow-400' />
-            </button>
-            <button onClick={handleRemovePrescription}>
-                <FaTrashCan className='w-5 h-5 text-red-400' />
-            </button>
-        </div>
+        <>
+            <div className='flex items-center justify-between w-full h-full'>
+                <button onClick={() => document.getElementById(`detail_modal_${rowIndex}`).showModal()}>
+                    <FaEye className='w-5 h-5 text-green-400' />
+                </button>
+                <button>
+                    <FaPencil className='w-5 h-5 text-yellow-400' />
+                </button>
+                <button onClick={handleRemovePrescription}>
+                    <FaTrashCan className='w-5 h-5 text-red-400' />
+                </button>
+            </div>
+
+            {/* Detail Data Modal  */}
+            <dialog id={`detail_modal_${rowIndex}`} className='modal'>
+                <div className='modal-box w-11/12 max-w-5xl'>
+                    <form method='dialog'>
+                        {/* if there is a button in form, it will close the modal */}
+                        <button className='btn btn-sm btn-circle btn-ghost absolute right-2 top-2'>✕</button>
+                    </form>
+
+                    <h3 className='font-extrabold text-2xl text-center mb-4 uppercase text-primary'>
+                        thông tin chi tiết đơn thuốc
+                    </h3>
+
+                    {/* MasterData Input */}
+                    <div className='grid grid-cols-2 gap-4'>
+                        <div className='col-span-2 xl:col-span-1'>
+                            <label className='form-control w-full'>
+                                <div className='label'>
+                                    <span className='label-text'>Mã đơn thuốc</span>
+                                </div>
+                                <input
+                                    disabled
+                                    defaultValue={data.code}
+                                    type='text'
+                                    placeholder='VD: 520H0659'
+                                    className='input input-bordered w-full'
+                                />
+                            </label>
+                        </div>
+                        <div className='col-span-2 xl:col-span-1'>
+                            <label className='form-control w-full'>
+                                <div className='label'>
+                                    <span className='label-text'>Triệu chứng bệnh</span>
+                                </div>
+                                <input
+                                    type='text'
+                                    disabled
+                                    defaultValue={data.name}
+                                    placeholder='VD: Sốt'
+                                    className='input input-bordered w-full'
+                                />
+                            </label>
+                        </div>
+                        <div className='col-span-2 xl:col-span-1'>
+                            <label className='form-control w-full'>
+                                <div className='label'>
+                                    <span className='label-text'>Ngày tạo đơn thuốc</span>
+                                </div>
+                                <input
+                                    type='text'
+                                    disabled
+                                    defaultValue={data.createdDate}
+                                    placeholder='VD: 1/1/2024'
+                                    className='input input-bordered w-full'
+                                />
+                            </label>
+                        </div>
+                        <div className='col-span-2 xl:col-span-1'>
+                            <label className='form-control w-full'>
+                                <div className='label'>
+                                    <span className='label-text'>Ngày cập nhật đơn thuốc mới nhất</span>
+                                </div>
+                                <input
+                                    type='text'
+                                    disabled
+                                    defaultValue={data.updatedDate}
+                                    placeholder='VD: 1/1/2024'
+                                    className='input input-bordered w-full'
+                                />
+                            </label>
+                        </div>
+                        <div className='col-span-2'>
+                            <textarea
+                                disabled
+                                placeholder='Mô tả triệu chứng bệnh'
+                                defaultValue={data.description}
+                                className='textarea textarea-bordered textarea-lg w-full'
+                            ></textarea>
+                        </div>
+                        <div className='col-span-2'>
+                            <div className='collapse collapse-arrow bg-base-200'>
+                                <input type='checkbox' />
+                                <div className='collapse-title text-xl font-medium'>
+                                    Dược liệu được kê trong đơn thuốc
+                                </div>
+                                <div className='collapse-content'>
+                                    <div
+                                        className={`col-span-3 ${themeValue === 'dark' ? 'ag-theme-quartz-dark' : 'ag-theme-quartz'}`}
+                                        style={{ width: '100%', height: 450 }}
+                                    >
+                                        {/* The AG Grid component */}
+                                        <AgGridReact
+                                            rowData={medicineList}
+                                            columnDefs={colDefs}
+                                            rowSelection={'multiple'}
+                                            rowGroupPanelShow={'always'}
+                                            pagination={true}
+                                            paginationPageSize={20}
+                                            paginationPageSizeSelector={[20, 50, 100]}
+                                            suppressScrollOnNewData={true} //* tells the grid to NOT scroll to the top when the page changes.
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </dialog>
+        </>
     );
 };
 
@@ -64,26 +223,12 @@ const Disease = () => {
     const themeValue = useTheme();
     const generateID = generateRandomID().toUpperCase();
     const currentDate = getCurrentDate();
-
-    const [prescription, setPrescription] = useState(''); //* Store detail data displayed in Detail Modal
-    //! Consider remove line 35
-    const [prescriptionRow, setPrescriptionRow] = useState([0]); //* Append Row when add medicine to prescription
-    const [prescriptionDataArray, setPrescriptionDataArray] = useState([]); //* Save data to Session Storage
-    const [medicines, setMedicines] = useState([]); //* Contain each medicine object after query them from reference in Symptoms Collection
     const [medicineList, setMedicineList] = useState([]); //* Store all medicines in db to display them in Create Modal
-
-    //* Data of Prescription Form in a Single Row
-    const prescriptionData = {
-        name: useRef(null),
-        concentration: useRef(null),
-        usage: useRef(null),
-    };
 
     //* Big Data Object (Entire Form)
     const data = {
         name: useRef(null),
-        description: useRef(null),
-        prescription: [],
+        description: useRef(null)
     };
 
     const isFirstColumn = (params) => {
@@ -139,22 +284,6 @@ const Disease = () => {
                 gridPrescriptionListRef,
             },
         },
-    ]);
-
-    //* Column Definitions: Defines & controls grid columns.
-    const [colDefs2, setColDefs2] = useState([
-        {
-            headerName: 'Tên thuốc',
-            field: 'name',
-            wrapText: true,
-            autoHeight: true,
-            pinned: 'left',
-            filter: true,
-        },
-        { headerName: 'Triệu chứng', field: 'symptom', wrapText: true, filter: true },
-        { headerName: 'Giá', field: 'cost', filter: true },
-        { headerName: 'Liều lượng sử dụng', field: 'usage', wrapText: true, filter: true },
-        { headerName: 'Thành phần dược', field: 'ingredient', wrapText: true, filter: true },
     ]);
 
     //* Column Definitions: Defines & controls grid columns.
@@ -215,13 +344,14 @@ const Disease = () => {
         const querySnapshot = await getDocs(collection(db, 'Medicines'));
         querySnapshot.forEach((doc) => {
             const medicine = doc.data();
+            medicine.cost = formatCurrency(Number(medicine.cost)) // Format the currency property in VND format
             medicine.ref = doc.ref; //* Attach the ref property to object pass it as reference datatype to FireStore
             setMedicineList((prevData) => [...prevData, medicine]);
         });
     };
 
     const filterReferencePath = (selectedRow) => {
-        const refList = []; //* Store reference instance from selected Medicine Row in Table
+        const refList = []; //* Store reference instance from the selected Medicine Row in Table
         selectedRow.forEach((item) => {
             const { ref } = item;
             refList.push(ref);
@@ -236,7 +366,7 @@ const Disease = () => {
 
             if (!docSnap.exists()) {
                 // docSnap.data() will be undefined in this case
-                console.log('No such document!');
+                console.log('No such medicine document!');
                 return;
             }
 
@@ -254,7 +384,7 @@ const Disease = () => {
         const selectedRow = gridRef.current.api.getSelectedRows();
         const refList = filterReferencePath(selectedRow);
         await addDoc(collection(db, 'Symptoms'), {
-            name: data.name.current.value,
+            name: data.name.current.value.toLowerCase(),
             description: data.description.current.value,
             code: generateID,
             createdDate: currentDate,
@@ -272,59 +402,15 @@ const Disease = () => {
                 code: generateID,
                 createdDate: currentDate,
                 updatedDate: currentDate,
+                prescriptions: [...refList],
             },
         ]);
-
-        // Close the modal after created
-        document.getElementById('masterdata_disease_dialog').close();
-        Alert({ toast: true, icon: 'success', text: 'Tạo dữ liệu thành công' });
+        SweetAlert.Toast.Success({ text: 'Tạo dữ liệu thành công' });
     };
 
-    //TODO: Update logic of this function
-    // const refreshData = () => {
-    //     data.description.current.value = '';
-    //     data.name.current.value = '';
-    //     data.prescription = [];
-
-    //     prescriptionData.name.current.value = '';
-    //     prescriptionData.concentration.current.value = '';
-    //     prescriptionData.usage.current.value = '';
-
-    //     setPrescriptionRow([0]);
-    // };
-
-    //* If there is no document at the location referenced by docRef,
-    //* the resulting document will be empty and calling exists on it
-    //* will return false.
-    const getMedicineFromReference = async (reference) => {
-        const docRef = doc(db, reference.path);
-        const docSnap = await getDoc(docRef);
-
-        if (!docSnap.exists()) {
-            // docSnap.data() will be undefined in this case
-            console.log('No such document!');
-            return;
-        }
-
-        const medicine = docSnap.data();
-
-        // Result: an Array of Object
-        setMedicines((prevData) => [...prevData, medicine]);
-    };
-
-    const handleRowClicked = (event) => {
-        //* Set medicine data to empty object otherwise
-        //* it will keep the old data
-        setMedicines([]);
-        const { data } = event;
-
-        if (data.prescriptions) {
-            //* Query medicine data from reference object
-            data.prescriptions.forEach((item) => {
-                getMedicineFromReference(item);
-            });
-        }
-        setPrescription(data);
+    const refreshData = () => {
+        data.description.current.value = '';
+        data.name.current.value = '';
     };
 
     // User can only select row that has medicine whose existNumber is greater than 0
@@ -339,9 +425,20 @@ const Disease = () => {
     const getRowClass = (params) => {
         const { data } = params;
         if (data.existNumber === 0) {
-            return 'bg-red-100'; // Tailwind CSS class
+            return 'bg-red-100 text-black'; // Tailwind CSS class
         }
     };
+
+    const closeModal = (modalID) =>  {
+        const dialog = document.querySelector(modalID);
+        dialog.close();
+    }
+
+    useEffect(() => {
+        // Close the modal after created and reset its values
+        closeModal('#masterdata_disease_dialog')
+        refreshData()
+    }, [rowData])
 
     //* Get Symptom List when component first mounted
     //* The same for Medicine list since this will be displayed
@@ -368,7 +465,6 @@ const Disease = () => {
 
             {/* Table Section  */}
             <section className='col-span-1'>
-                {/* Container with theme & dimensions */}
                 <div
                     className={`col-span-3 ${themeValue === 'light' ? 'ag-theme-quartz' : 'ag-theme-quartz-dark'}`}
                     style={{ width: '100%', height: 450 }}
@@ -389,7 +485,6 @@ const Disease = () => {
                         paginationPageSize={20}
                         paginationPageSizeSelector={[20, 50, 100]}
                         suppressScrollOnNewData={true} //* tells the grid to NOT scroll to the top when the page changes.
-                        onRowClicked={handleRowClicked}
                     />
                 </div>
             </section>
@@ -485,12 +580,9 @@ const Disease = () => {
                             </div>
 
                             <div
-                                className={`col-span-3 overflow-x-auto ${
-                                    themeValue === 'light' ? 'ag-theme-quartz' : 'ag-theme-quartz-dark'
-                                }`}
+                                className={`col-span-3 overflow-x-auto ${themeValue === 'dark' ? 'ag-theme-quartz-dark' : 'ag-theme-quartz'}`}
                                 style={{ width: '100%', height: 450 }}
                             >
-                                {/* The AG Grid component */}
                                 <AgGridReact
                                     ref={gridRef}
                                     rowData={medicineList}
@@ -512,7 +604,10 @@ const Disease = () => {
                     </div>
 
                     <div className='grid grid-cols-6 mt-8 gap-4 md:gap-8'>
-                        <button className='btn btn-error col-span-6 md:col-span-2 order-2 md:order-1 uppercase'>
+                        <button
+                            className='btn btn-error col-span-6 md:col-span-2 order-2 md:order-1 uppercase'
+                            onClick={refreshData}
+                        >
                             Làm mới dữ liệu
                             <GrPowerReset className='h-5 w-5' />
                         </button>
@@ -523,117 +618,6 @@ const Disease = () => {
                             Lưu dữ liệu
                             <FaSave className='h-5 w-5' />
                         </button>
-                    </div>
-                </div>
-            </dialog>
-
-            {/* Detail Data Modal  */}
-            <dialog id='detail_modal' className='modal'>
-                <div className='modal-box w-11/12 max-w-5xl'>
-                    <form method='dialog'>
-                        {/* if there is a button in form, it will close the modal */}
-                        <button className='btn btn-sm btn-circle btn-ghost absolute right-2 top-2'>✕</button>
-                    </form>
-
-                    <h3 className='font-extrabold text-2xl text-center mb-4 uppercase text-primary'>
-                        thông tin chi tiết đơn thuốc
-                    </h3>
-
-                    {/* MasterData Input */}
-                    <div className='grid grid-cols-2 gap-4'>
-                        <div className='col-span-2 xl:col-span-1'>
-                            <label className='form-control w-full'>
-                                <div className='label'>
-                                    <span className='label-text'>Mã đơn thuốc</span>
-                                </div>
-                                <input
-                                    disabled
-                                    defaultValue={prescription.code}
-                                    type='text'
-                                    placeholder='VD: 520H0659'
-                                    className='input input-bordered w-full'
-                                />
-                            </label>
-                        </div>
-                        <div className='col-span-2 xl:col-span-1'>
-                            <label className='form-control w-full'>
-                                <div className='label'>
-                                    <span className='label-text'>Triệu chứng bệnh</span>
-                                </div>
-                                <input
-                                    type='text'
-                                    disabled
-                                    defaultValue={prescription.name}
-                                    placeholder='VD: Sốt'
-                                    className='input input-bordered w-full'
-                                />
-                            </label>
-                        </div>
-                        <div className='col-span-2 xl:col-span-1'>
-                            <label className='form-control w-full'>
-                                <div className='label'>
-                                    <span className='label-text'>Ngày tạo đơn thuốc</span>
-                                </div>
-                                <input
-                                    type='text'
-                                    disabled
-                                    defaultValue={prescription.createdDate}
-                                    placeholder='VD: 1/1/2024'
-                                    className='input input-bordered w-full'
-                                />
-                            </label>
-                        </div>
-                        <div className='col-span-2 xl:col-span-1'>
-                            <label className='form-control w-full'>
-                                <div className='label'>
-                                    <span className='label-text'>Ngày cập nhật đơn thuốc mới nhất</span>
-                                </div>
-                                <input
-                                    type='text'
-                                    disabled
-                                    defaultValue={prescription.updatedDate}
-                                    placeholder='VD: 1/1/2024'
-                                    className='input input-bordered w-full'
-                                />
-                            </label>
-                        </div>
-                        <div className='col-span-2'>
-                            <textarea
-                                disabled
-                                placeholder='Mô tả triệu chứng bệnh'
-                                defaultValue={prescription.description}
-                                className='textarea textarea-bordered textarea-lg w-full'
-                            ></textarea>
-                        </div>
-                        <div className='col-span-2'>
-                            <div className='collapse collapse-arrow bg-base-200'>
-                                <input type='checkbox' />
-                                <div className='collapse-title text-xl font-medium'>
-                                    Dược liệu được kê trong đơn thuốc
-                                </div>
-                                <div className='collapse-content'>
-                                    <div
-                                        className={`col-span-3 ${
-                                            themeValue === 'light' ? 'ag-theme-quartz' : 'ag-theme-quartz-dark'
-                                        }`}
-                                        style={{ width: '100%', height: 450 }}
-                                    >
-                                        {/* The AG Grid component */}
-                                        <AgGridReact
-                                            rowData={medicines}
-                                            columnDefs={colDefs2}
-                                            autoSizeStrategy={autoSizeStrategy}
-                                            rowSelection={'multiple'}
-                                            rowGroupPanelShow={'always'}
-                                            pagination={true}
-                                            paginationPageSize={20}
-                                            paginationPageSizeSelector={[20, 50, 100]}
-                                            suppressScrollOnNewData={true} //* tells the grid to NOT scroll to the top when the page changes.
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </dialog>

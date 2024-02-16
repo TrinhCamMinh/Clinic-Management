@@ -2,7 +2,7 @@ import { useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../Configs/firebase';
-import { Alert } from '../utils/Alert';
+import { SweetAlert } from '../utils/Alert';
 import { useAuth } from '../hooks';
 
 const Login = () => {
@@ -25,9 +25,7 @@ const Login = () => {
             //* Navigate user to medicalCertificate page after login successfully
             navigate('/masterdata/medicalCertificate');
         } catch (error) {
-            const errorCode = error.code;
-            const errorMessage = error.message;
-            Alert({ toast: true, icon: 'error', title: errorCode, text: errorMessage });
+            SweetAlert.Toast.Error({ title: 'Đăng nhập thất bại', text: error.message });
         }
     };
 

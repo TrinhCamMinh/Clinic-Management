@@ -5,10 +5,7 @@ const getCurrentDate = (configs, locales = 'vi-vn') => {
     return new Date().toLocaleDateString(locales, { ...configs });
 };
 
-const CURRENCY_FORMATTER = new Intl.NumberFormat(undefined, {
-    currency: 'VND',
-});
-
+const CURRENCY_FORMATTER = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' });
 const formatCurrency = (number) => {
     return CURRENCY_FORMATTER.format(number);
 };

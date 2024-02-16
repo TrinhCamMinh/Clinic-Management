@@ -1,5 +1,5 @@
 import 'ag-grid-community/styles/ag-grid.css'; //* Core AGGrid CSS
-import 'ag-grid-community/styles/ag-theme-quartz.css'; //* AGGrid Theme
+import 'ag-grid-community/styles/ag-theme-quartz.css'; //* AGGrid Theme - quartz
 
 import { Home, NotFound, Disease, Medicine, Patient, MedicalCertificate, Login } from './Pages';
 import { Route, Routes } from 'react-router-dom';

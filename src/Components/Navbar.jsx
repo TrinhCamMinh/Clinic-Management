@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { Themes } from '../Mocks/data';
+import { useEffect } from 'react';
 
 const Navbar = () => {
     const handleChangeTheme = (event) => {
@@ -8,13 +9,13 @@ const Navbar = () => {
         const themeValue = event.target.dataset.theme;
 
         const htmlElement = document.documentElement;
-        htmlElement.dataset.theme = selectedTheme;
+        htmlElement.dataset.theme = selectedTheme; // This is theme for all DaisyUI Components
 
         //* Clear all the current class and assign the new theme value in HTML class
         //* To make normal TailwindCSS component change color
         //* And save the value to session storage
         htmlElement.classList.remove(...htmlElement.classList);
-        htmlElement.classList.add(themeValue);
+        htmlElement.classList.add(themeValue); // This is theme for TailwdindCSS classes
 
         //* Save the data to local storage
         localStorage.setItem('themeInfo', JSON.stringify({ selectedTheme, themeValue }));
@@ -32,9 +33,19 @@ const Navbar = () => {
     const handleToggleSidebar = () => {
         const sideBar = document.getElementById('separator-sidebar');
         sideBar.classList.toggle('translate-x-0');
-
-        console.log('button clicked', sideBar);
     };
+
+    //* Make theme exactly the same theme that user has set previously (theme value persistence)
+    useEffect(() => {
+        const themeData = JSON.parse(localStorage.getItem('themeInfo'));
+        if(!themeData) return ;
+
+        const htmlElement = document.documentElement;
+
+        htmlElement.dataset.theme = themeData.selectedTheme // This is theme for all DaisyUI Components
+        htmlElement.classList.remove(...htmlElement.classList);
+        htmlElement.classList.add(themeData.themeValue); // This is theme for TailwdindCSS classes
+    }, [])
 
     return (
         <div className='navbar bg-base-300'>

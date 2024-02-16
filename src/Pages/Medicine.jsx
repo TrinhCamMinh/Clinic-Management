@@ -7,7 +7,7 @@ import { useTheme } from '../hooks';
 import { AgGridReact } from 'ag-grid-react'; //* React Grid Logic
 import { db } from '../Configs/firebase';
 import { collection, getDocs, addDoc, deleteDoc, query, where } from 'firebase/firestore';
-import { Alert, AlertNew } from '../utils/Alert';
+import { SweetAlert } from '../utils/Alert';
 import { formatCurrency, getCurrentDate } from '../utils/General';
 
 //* Cell Rendering:Actions column
@@ -17,7 +17,7 @@ const Actions = (params) => {
 
     const handleRemoveMedicine = async () => {
         try {
-            const isConfirm = await AlertNew.Confirm();
+            const isConfirm = await SweetAlert.Toast.Confirm();
             // User rejected case
             if (!isConfirm) return;
 
@@ -34,9 +34,9 @@ const Actions = (params) => {
             // Remove the selected row in UI
             // This code is served for updating UI instantly
             gridMedicineRef.current.api.applyTransaction({ remove: selectedRow });
-            Alert({ toast: true, icon: 'success', text: 'Xóa dữ liệu thành công' });
+            SweetAlert.Toast.Success({title: 'Tạo mới dữ liệu thành công'})
         } catch (error) {
-            Alert({ icon: 'error', title: 'Xóa dữ liệu thất bại', text: error.message });
+            SweetAlert.Message.Error({ title: 'Xóa dữ liệu thất bại', text: error.message });
         }
     };
 
@@ -101,7 +101,7 @@ const Actions = (params) => {
                             </div>
                             <input
                                 disabled
-                                type='text'
+                                type='number'
                                 defaultValue={data.existNumber}
                                 className='input input-bordered w-full'
                             />
@@ -172,13 +172,13 @@ const Medicine = () => {
     const gridMedicineRef = useRef();
     const themeValue = useTheme();
     const data = {
-        name: useRef(null), //* tên thuốc
-        symptom: useRef(null), //* triệu chứng bệnh
-        ingredient: useRef(null), //* thành phần dược
-        cost: useRef(null), //* giá
-        concentration: useRef(null), //* hàm lượng
-        usage: useRef(null), //* liều thuốc
-        existNumber: useRef(null), //* số lượng tồn kho
+        name: useRef(''), //* tên thuốc
+        symptom: useRef(''), //* triệu chứng bệnh
+        ingredient: useRef(''), //* thành phần dược
+        cost: useRef(''), //* giá
+        concentration: useRef(''), //* hàm lượng
+        usage: useRef(''), //* liều thuốc
+        existNumber: useRef(''), //* số lượng tồn kho
     };
 
     const checkboxSelection = function (params) {
@@ -245,13 +245,13 @@ const Medicine = () => {
     };
 
     const refreshData = () => {
-        data.name.current.value = null;
-        data.symptom.current.value = null;
-        data.ingredient.current.value = null;
-        data.concentration.current.value = null;
-        data.usage.current.value = null;
-        data.existNumber.current.value = null;
-        data.cost.current.value = null;
+        data.name.current.value = '';
+        data.symptom.current.value = '';
+        data.ingredient.current.value = '';
+        data.concentration.current.value = '';
+        data.usage.current.value = '';
+        data.existNumber.current.value = '';
+        data.cost.current.value = '';
     };
 
     //* Get Medicine List from Firebase Server (FireStore - Medicines Collection)
@@ -289,7 +289,7 @@ const Medicine = () => {
                 createdDate: currentDate,
                 updatedDate: currentDate,
             });
-            Alert({ toast: true, icon: 'success', text: 'Thêm mới dữ liệu thành công' });
+            SweetAlert.Toast.Success({ title: 'Thêm mới dữ liệu thành công' });
 
             setRowData((prevRowData) => {
                 return [
@@ -307,8 +307,8 @@ const Medicine = () => {
                     },
                 ];
             });
-        } catch (e) {
-            Alert({ icon: 'error', title: 'Oops...', text: e.message });
+        } catch (error) {
+            SweetAlert.Message.Error({ title: 'Tạo dữ liệu thất bại', text: error.message });
         }
     };
 
@@ -324,27 +324,20 @@ const Medicine = () => {
     const getRowClass = (params) => {
         const { data } = params;
         if (data.existNumber === 0) {
-            return 'bg-red-100'; // Tailwind CSS class
+            return 'bg-red-100 text-black'; // Tailwind CSS class
         }
     };
+
+    const closeModal = (modalID) =>  {
+        const dialog = document.querySelector(modalID);
+        dialog.close();
+    }
 
     useEffect(() => {
         //* Close modal after save data successfully
         //* And clear the data
-        const dialog = document.querySelector('#masterdata_medicine_dialog');
-        dialog.close();
+        closeModal('#masterdata_medicine_dialog')
         refreshData();
-
-        //* Save the data to session storage
-        //* So we can import the price automatically in Disease Page
-        //! Note that: This is only temporary solution (later use Server)
-        const savedMedicineData = JSON.stringify(rowData);
-        sessionStorage.setItem('medicineData', savedMedicineData);
-
-        //* If we leave empty dependency useEffect will only run once in the initial render
-        //* By passing the second argument an empty array,
-        //* React will compare after each render the array and will see nothing was changed,
-        //* thus calling the callback only after the first render.
     }, [rowData]);
 
     //* Get Medicine List when component first mounted
@@ -371,9 +364,7 @@ const Medicine = () => {
             <section className='col-span-3'>
                 {/* Container with theme & dimensions */}
                 <div
-                    className={`col-span-3 overflow-x-scroll ${
-                        themeValue === 'light' ? 'ag-theme-quartz' : 'ag-theme-quartz-dark'
-                    }`}
+                    className={`col-span-3 overflow-x-scroll ${themeValue === 'dark' ? 'ag-theme-quartz-dark' : 'ag-theme-quartz'}`}
                     style={{ width: '100%', height: 450 }}
                 >
                     <h3 className='font-extrabold text-3xl text-primary text-center uppercase mb-4'>
@@ -487,6 +478,7 @@ const Medicine = () => {
                             <input
                                 type='number'
                                 placeholder='Vui lòng nhập số lượng tồn kho'
+                                min={0}
                                 className='input input-bordered w-full'
                                 ref={data.existNumber}
                             />

@@ -21,6 +21,12 @@ const useTheme = () => {
         };
     }, []);
 
+    useEffect(() => {
+        const themeData = JSON.parse(localStorage.getItem('themeInfo'));
+        if(!themeData) return ;
+        setThemeValue(themeData.themeValue)
+    }, [themeValue])
+
     return themeValue;
 };
 

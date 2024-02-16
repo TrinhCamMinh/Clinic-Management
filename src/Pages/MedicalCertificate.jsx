@@ -1,14 +1,17 @@
 import { FaInfoCircle } from 'react-icons/fa';
 
 import { getCurrentDate, formatCurrency } from '../utils/General';
-import { useRef, useState, useEffect } from 'react';
+import { SweetAlert } from '../utils/Alert'
+import { useState, useEffect } from 'react';
 import { useDebounce } from '../hooks/index';
 import { AgGridReact } from 'ag-grid-react'; //* React Grid Logic
 import { collection, query, where, getDocs, getDoc, doc } from 'firebase/firestore';
 import { db } from '../Configs/firebase';
+import { useTheme } from '../hooks/index'
 
 const MedicalCertificate = () => {
-    const [queryByIllnessName, setQueryByIllnessName] = useState(null);
+    const themeValue = useTheme();
+    const [queryByIllnessName, setQueryByIllnessName] = useState('');
     const [prescriptionData, setPrescriptionData] = useState(null); //! Consider Remove
     const [symptom, setSymptom] = useState('');
     const [medicines, setMedicines] = useState([]); //* Contain each medicine object after query them from reference in Symptoms Collection
@@ -16,12 +19,6 @@ const MedicalCertificate = () => {
     const [queryUserInfo, setQueryUserInfo] = useState('');
     const [userData, setUserData] = useState('');
     const [totalPrice, setTotalPrice] = useState(0);
-
-    const data = {
-        phoneNumber: useRef(null),
-        comebackDay: useRef(null),
-        illnessName: queryByIllnessName, //* tên triệu chứng
-    };
 
     //* If there is no document at the location referenced by docRef,
     //* the resulting document will be empty and calling exists on it
@@ -42,58 +39,71 @@ const MedicalCertificate = () => {
         setMedicines((prevData) => [...prevData, medicine]);
     };
 
+    //* Gab prescription detail information from FireStore
     const receivePrescriptionData = async () => {
-        const symptomsRef = collection(db, 'Symptoms');
-
-        // Create a query against the collection.
-        const q = query(symptomsRef, where('name', '==', queryByIllnessName));
-
-        // After creating a query object, use the get() function to retrieve the results
-        const querySnapshot = await getDocs(q);
-
-        //* Not Found Case
-        if (querySnapshot.size === 0) {
+        if(!queryByIllnessName) {
             setSymptom('');
-            return;
+            return ;   
         }
+        try {
+            const symptomsRef = collection(db, 'Symptoms');
+            // Create a query against the collection.
+            // Transform both name in FireStore and User typed to lowercase so that they don't
+            // have to type exactly the name with some Uppercase character
+            const q = query(symptomsRef, where('name', '==', queryByIllnessName.toLowerCase()));
+            // After creating a query object, use the get() function to retrieve the results
+            const querySnapshot = await getDocs(q);
 
-        querySnapshot.forEach((doc) => {
-            // doc.data() is never undefined for query doc snapshots
-            setSymptom(doc.data());
-        });
+            //* Not Found Case
+            if (querySnapshot.size === 0) {
+                setSymptom('');
+                SweetAlert.Toast.Error({title: 'Không tìm thấy thông tin đơn thuốc tương ứng'});
+                return;
+            }
+            querySnapshot.forEach((doc) => {
+                // doc.data() is never undefined for query doc snapshots
+                setSymptom(doc.data());
+            });
+
+            SweetAlert.Toast.Success({title: 'Tìm kiếm thông tin đơn thuốc thành công'})
+        } catch (error) {
+            SweetAlert.Message.Error({title: 'Đã xảy ra lỗi', text: 'Không thể tìm thấy thông tin đơn thuốc tương ứng'})
+        }
     };
 
-    useEffect(() => {
-        setMedicines([]);
-        const { prescriptions } = symptom;
-        if (!prescriptions) return;
-        prescriptions.forEach((item) => {
-            getMedicineFromReference(item);
-        });
-    }, [symptom]);
-
+    //* Gab user detail information from FireStore
     const receiveUserData = async () => {
-        //* Convert the query user type to Number Data Type
-        //* Ex: '0907722143' --> 907722143
-        const queryPhoneNumber = Number(queryUserInfo);
-
-        const patientsRef = collection(db, 'Patients');
-        // Create a query against the collection.
-        const q = query(patientsRef, where('phoneNumber', '==', queryPhoneNumber));
-
-        // After creating a query object, use the get() function to retrieve the results
-        const querySnapshot = await getDocs(q);
-
-        //* Not Found Case
-        if (querySnapshot.size === 0) {
+        if(!queryUserInfo) {
             setUserData('');
-            return;
+            return ;
         }
+        try {
+            //* Convert the query user type to Number Data Type
+            //* Ex: '0907722143' --> 907722143
+            const queryPhoneNumber = Number(queryUserInfo);
 
-        querySnapshot.forEach((doc) => {
-            //* doc.data() is never undefined for query doc snapshots
-            setUserData(doc.data());
-        });
+            const patientsRef = collection(db, 'Patients');
+            // Create a query against the collection.
+            const q = query(patientsRef, where('phoneNumber', '==', queryPhoneNumber));
+
+            // After creating a query object, use the get() function to retrieve the results
+            const querySnapshot = await getDocs(q);
+
+            //* Not Found Case
+            if (querySnapshot.size === 0) {
+                setUserData('');
+                SweetAlert.Toast.Error({title: 'Không tìm thấy thông tin bệnh nhân'});
+                return;
+            }
+
+            querySnapshot.forEach((doc) => {
+                //* doc.data() is never undefined for query doc snapshots
+                setUserData(doc.data());
+            });
+            SweetAlert.Toast.Success({title: 'Tìm kiếm thông tin bệnh nhân thành công'})
+        } catch (error) {
+            SweetAlert.Toast.Error({title: 'Đã xảy ra lỗi', text: 'Không thể tìm thấy thông tin bệnh nhân tương ứng'})
+        }
     };
 
     const sumTotalPrice = () => {
@@ -104,9 +114,6 @@ const MedicalCertificate = () => {
 
         setTotalPrice(sumPrice);
     };
-
-    useDebounce(receivePrescriptionData, [queryByIllnessName], 1000);
-    useDebounce(receiveUserData, [queryUserInfo], 1000);
 
     //* Column Definitions: Defines & controls grid columns.
     const [colDefs, setColDefs] = useState([
@@ -119,7 +126,13 @@ const MedicalCertificate = () => {
             filter: true,
         },
         { headerName: 'Triệu chứng', field: 'symptom', wrapText: true, filter: true },
-        { headerName: 'Giá', field: 'cost', filter: true },
+        { 
+            headerName: 'Giá', 
+            valueGetter: params => {
+                return formatCurrency(params.data.cost);
+            }, 
+            filter: true 
+        },
         { headerName: 'Liều lượng sử dụng', field: 'usage', wrapText: true, filter: true },
         { headerName: 'Thành phần dược', field: 'ingredient', wrapText: true, filter: true },
     ]);
@@ -130,11 +143,18 @@ const MedicalCertificate = () => {
         defaultMinWidth: 100,
     };
 
-    useEffect(() => {
-        if (!prescriptionData || prescriptionData.length === 0) return;
+    useDebounce(receivePrescriptionData, [queryByIllnessName], 1000);
+    useDebounce(receiveUserData, [queryUserInfo], 1000);
 
-        sumTotalPrice();
-    }, [prescriptionData]);
+    //* Display Medicine List Table from FireStore whenever the symptom name changed (applied debounce)
+    useEffect(() => {
+        setMedicines([]);
+        const { prescriptions } = symptom;
+        if (!prescriptions) return;
+        prescriptions.forEach((item) => {
+            getMedicineFromReference(item);
+        });
+    }, [symptom]);
 
     return (
         <div>
@@ -223,7 +243,6 @@ const MedicalCertificate = () => {
                         type='date'
                         placeholder='vui lòng nhập ngày tái khám'
                         className='input input-bordered w-full'
-                        ref={data.comebackDay}
                     />
                 </label>
                 <label className='form-control col-span-4 xl:col-span-2'>
@@ -273,7 +292,7 @@ const MedicalCertificate = () => {
                                     danh sách đơn thuốc
                                 </h2>
                             </header>
-                            <div className='ag-theme-quartz overflow-x-auto mt-8' style={{ height: 500 }}>
+                            <div className={`overflow-x-auto mt-8 ${themeValue === 'dark' ? 'ag-theme-quartz-dark' : 'ag-theme-quartz'}`} style={{ height: 500 }}>
                                 {/* The AG Grid component */}
                                 <AgGridReact
                                     rowData={medicines}

@@ -2,20 +2,22 @@ import { GrPowerReset } from 'react-icons/gr';
 import { FaSave, FaInfoCircle, FaHistory } from 'react-icons/fa';
 import { FaEye, FaPencil, FaTrashCan } from 'react-icons/fa6';
 
+import '../index.css'
 import { AgGridReact } from 'ag-grid-react'; //* React Grid Logic
 import { useState, useRef, useEffect } from 'react';
 import { useTheme } from '../hooks';
 import { generateRandomID, getCurrentDate } from '../utils/General';
 import { collection, getDocs, addDoc, deleteDoc, query, where } from 'firebase/firestore';
 import { db } from '../Configs/firebase';
-import { Alert, AlertNew } from '../utils/Alert';
+import { SweetAlert } from '../utils/Alert';
 
 //* Cell Rendering:Actions column
 const Actions = (params) => {
-    const { data, gridPatientsRef } = params; //* The first destructed param is Row Data
+    const themeValue = useTheme();
+    const { data, rowIndex, gridPatientsRef } = params; //* The first destructed param is Row Data
     const patientsRef = collection(db, 'Patients'); //* Create a reference to the Patients collection in FireStore (Firebase V9)
 
-    //* Mock history data
+    //* Mock history data (History Collection Not Available in FireStore yet)
     const [history, setHistory] = useState([
         {
             'Ngày Khám': '25/11/2002',
@@ -46,7 +48,7 @@ const Actions = (params) => {
 
     const handleRemovePatient = async () => {
         try {
-            const isConfirm = await AlertNew.Confirm();
+            const isConfirm = await SweetAlert.Toast.Confirm();
 
             // User rejected case
             if (!isConfirm) return;
@@ -66,22 +68,22 @@ const Actions = (params) => {
             // This code is served for updating UI instantly
             gridPatientsRef.current.api.applyTransaction({ remove: selectedRow });
 
-            Alert({ toast: true, icon: 'success', text: 'Xóa dữ liệu thành công' });
+            SweetAlert.Toast.Success({ text: 'Xóa dữ liệu thành công' });
         } catch (error) {
-            Alert({ icon: 'error', title: 'Xóa dữ liệu thất bại', text: error.message });
+            SweetAlert.Message.Error({ title: 'Xóa dữ liệu thất bại', text: error.message });
         }
     };
 
     return (
         <>
             <div className='flex items-center justify-between w-full h-full'>
-                <button onClick={() => document.getElementById(`detail_modal_${data.name}`).showModal()}>
+                <button onClick={() => document.getElementById(`detail_modal_${rowIndex}`).showModal()}>
                     <FaEye className='w-5 h-5 text-green-400' />
                 </button>
                 <button>
                     <FaPencil className='w-5 h-5 text-yellow-400' />
                 </button>
-                <button onClick={() => document.getElementById(`history_modal_${data.name}`).showModal()}>
+                <button onClick={() => document.getElementById(`history_modal_${rowIndex}`).showModal()}>
                     <FaHistory className='w-5 h-5 text-blue-400' />
                 </button>
                 <button onClick={handleRemovePatient}>
@@ -90,7 +92,7 @@ const Actions = (params) => {
             </div>
 
             {/* Detail Modal  */}
-            <dialog id={`detail_modal_${data.name}`} className='modal'>
+            <dialog id={`detail_modal_${rowIndex}`} className='modal'>
                 <div className='modal-box w-11/12 max-w-5xl'>
                     <header>
                         <h3 className='font-bold text-2xl text-center'>Thông tin chi tiết người khám</h3>
@@ -205,18 +207,22 @@ const Actions = (params) => {
             </dialog>
 
             {/* History Modal  */}
-            <dialog id={`history_modal_${data.name}`} className='modal'>
+            <dialog id={`history_modal_${rowIndex}`} className='modal'>
                 <div className='modal-box w-11/12 max-w-5xl'>
                     <h3 className='font-bold text-2xl text-center'>
                         Lịch sử khám - <span className='text-primary capitalize'>{data.name}</span>
                     </h3>
 
-                    <div className={`mt-8 ag-theme-quartz`} style={{ height: 500 }}>
+                    <div className={`mt-8 ${themeValue === 'dark' ? 'ag-theme-quartz-dark' : ''}`} style={{ height: 500 }}>
                         {/* The AG Grid component */}
                         <AgGridReact
                             rowData={history}
                             columnDefs={historyColDefs}
                             rowSelection={'multiple'}
+                            autoSizeStrategy={{
+                                type: 'fitGridWidth',
+                                defaultMinWidth: 100,
+                            }}
                             rowGroupPanelShow={'always'}
                             pagination={true}
                             paginationPageSize={20}
@@ -239,7 +245,7 @@ const Patients = () => {
     const gridPatientsRef = useRef();
     const currentDate = getCurrentDate(); //* get current Date for inserting new patients
     const themeValue = useTheme();
-    const generateID = generateRandomID().toUpperCase();
+    const generateID = generateRandomID().toUpperCase(); //* ID generated by System will be all uppercased
 
     const data = {
         name: useRef(null),
@@ -274,10 +280,10 @@ const Patients = () => {
             checkboxSelection: checkboxSelection,
             headerCheckboxSelection: headerCheckboxSelection,
         },
-        { headerName: 'SĐT', field: 'phoneNumber', wrapText: false },
+        { headerName: 'SĐT', field: 'phoneNumber'},
         { headerName: 'Tuổi', field: 'age', filter: true },
-        { headerName: 'Địa chỉ', field: 'address', wrapText: true, filter: true },
-        { headerName: 'Mã sổ khám bệnh', field: 'medicalCode', wrapText: true, filter: true },
+        { headerName: 'Địa chỉ', field: 'address', filter: true },
+        { headerName: 'Mã sổ khám bệnh', field: 'medicalCode', filter: true },
         { headerName: 'Ngày tạo', field: 'createdDate', filter: true, sort: 'desc' },
         { headerName: 'Ngày cập nhật mới nhất', field: 'updatedDate', filter: true },
         {
@@ -333,7 +339,7 @@ const Patients = () => {
                 createdDate: currentDate,
                 updatedDate: currentDate,
             });
-            Alert({ toast: true, icon: 'success', text: 'Thêm mới dữ liệu thành công' });
+            SweetAlert.Toast.Success({ text: 'Thêm mới dữ liệu thành công' });
 
             //* Update Patient List UI instantly after creating data successfully
             setRowData((prevRowData) => {
@@ -345,20 +351,23 @@ const Patients = () => {
                         age: Number(data.age.current.value),
                         address: data.address.current.value,
                         medicalCode: generateID,
+                        createdDate: currentDate,
+                        updatedDate: currentDate,
                     },
                 ];
             });
         } catch (error) {
             closeModal('#masterdata_patient_dialog');
-            Alert({ icon: 'error', title: 'Tạo dữ liệu thất bại', text: error.message });
+            SweetAlert.Message.Error({ title: 'Tạo dữ liệu thất bại', text: error.message });
         }
     };
 
     const refreshData = () => {
-        data.name.current.value = null;
-        data.phoneNumber.current.value = null;
-        data.age.current.value = null;
-        data.address.current.value = null;
+        data.name.current.value = '';
+        data.phoneNumber.current.value = '';
+        data.age.current.value = '';
+        data.address.current.value = '';
+        data.email.current.value = '';
     };
 
     const closeModal = (modalID) => {
@@ -371,16 +380,6 @@ const Patients = () => {
         //* And clear the data in the form
         closeModal('#masterdata_patient_dialog');
         refreshData();
-
-        //* Save the data to SS so we can load the data into Medical Certificate Input Page
-        //! Note that: this is only temporary solution (later will use Server)
-        const savePatientData = JSON.stringify(rowData);
-        sessionStorage.setItem('patientsData', savePatientData);
-
-        //* If we leave empty dependency useEffect will only run once in the initial render
-        //* By passing the second argument an empty array,
-        //* React will compare after each render the array and will see nothing was changed,
-        //* thus calling the callback only after the first render.
     }, [rowData]);
 
     //* Get Patient List when component first mounted
@@ -406,7 +405,7 @@ const Patients = () => {
             {/* Table Section  */}
             {/* Container with theme & dimensions */}
             <div
-                className={`col-span-3 ${themeValue === 'light' ? 'ag-theme-quartz' : 'ag-theme-quartz-dark'}`}
+                className={`col-span-3 font-sans ${themeValue === 'dark' ? 'ag-theme-quartz-dark' : 'ag-theme-quartz'}`}
                 style={{ width: '100%', height: 450 }}
             >
                 <h3 className='font-extrabold text-3xl text-primary text-center uppercase mb-4'>danh sách bệnh nhân</h3>
