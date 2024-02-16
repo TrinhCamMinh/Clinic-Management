@@ -2,7 +2,7 @@ import { GrPowerReset } from 'react-icons/gr';
 import { FaSave, FaInfoCircle, FaHistory } from 'react-icons/fa';
 import { FaEye, FaPencil, FaTrashCan } from 'react-icons/fa6';
 
-import '../index.css'
+import '../index.css';
 import { AgGridReact } from 'ag-grid-react'; //* React Grid Logic
 import { useState, useRef, useEffect } from 'react';
 import { useTheme } from '../hooks';
@@ -213,7 +213,10 @@ const Actions = (params) => {
                         Lịch sử khám - <span className='text-primary capitalize'>{data.name}</span>
                     </h3>
 
-                    <div className={`mt-8 ${themeValue === 'dark' ? 'ag-theme-quartz-dark' : ''}`} style={{ height: 500 }}>
+                    <div
+                        className={`mt-8 ${themeValue === 'dark' ? 'ag-theme-quartz-dark' : ''}`}
+                        style={{ height: 500 }}
+                    >
                         {/* The AG Grid component */}
                         <AgGridReact
                             rowData={history}
@@ -221,7 +224,6 @@ const Actions = (params) => {
                             rowSelection={'multiple'}
                             autoSizeStrategy={{
                                 type: 'fitGridWidth',
-                                defaultMinWidth: 100,
                             }}
                             rowGroupPanelShow={'always'}
                             pagination={true}
@@ -273,14 +275,15 @@ const Patients = () => {
         {
             headerName: 'Họ và Tên',
             field: 'name',
-            wrapText: true,
+            width: 300,
+            wrapText: false,
             autoHeight: true,
             pinned: 'left',
             filter: true,
             checkboxSelection: checkboxSelection,
             headerCheckboxSelection: headerCheckboxSelection,
         },
-        { headerName: 'SĐT', field: 'phoneNumber'},
+        { headerName: 'SĐT', field: 'phoneNumber' },
         { headerName: 'Tuổi', field: 'age', filter: true },
         { headerName: 'Địa chỉ', field: 'address', filter: true },
         { headerName: 'Mã sổ khám bệnh', field: 'medicalCode', filter: true },
@@ -289,6 +292,7 @@ const Patients = () => {
         {
             field: '',
             cellRenderer: Actions,
+            width: 250,
 
             //* Pass data to Actions Component
             cellRendererParams: {

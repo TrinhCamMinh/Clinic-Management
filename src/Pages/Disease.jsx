@@ -15,7 +15,7 @@ const Actions = (params) => {
     const themeValue = useTheme();
     const { data, rowIndex, gridPrescriptionListRef } = params;
     const symptomsRef = collection(db, 'Symptoms'); //* Create a reference to the Symptoms collection
-    const [medicineList, setMedicineList] = useState([])
+    const [medicineList, setMedicineList] = useState([]);
 
     //* Column Definitions: Defines & controls grid columns.
     const [colDefs, setColDefs] = useState([
@@ -28,12 +28,12 @@ const Actions = (params) => {
             filter: true,
         },
         { headerName: 'Triệu chứng', field: 'symptom', filter: true },
-        { 
+        {
             headerName: 'Giá',
-            valueGetter: params => {
+            valueGetter: (params) => {
                 return formatCurrency(params.data.cost);
             },
-            filter: true 
+            filter: true,
         },
         { headerName: 'Liều lượng sử dụng', field: 'usage', filter: true },
         { headerName: 'Thành phần dược', field: 'ingredient', filter: true },
@@ -44,20 +44,17 @@ const Actions = (params) => {
             const docRef = doc(db, reference.path);
             const docSnap = await getDoc(docRef);
 
-            if(!docSnap.exists()) {
+            if (!docSnap.exists()) {
                 // docSnap.data() will be undefined in this case
                 console.log('No such medicine document');
                 return;
             }
 
-            const medicine = docSnap.data()
+            const medicine = docSnap.data();
 
-            setMedicineList(prevData => [
-                ...prevData,
-                medicine
-            ])
-        })
-    }
+            setMedicineList((prevData) => [...prevData, medicine]);
+        });
+    };
 
     const handleRemovePrescription = async () => {
         try {
@@ -89,8 +86,8 @@ const Actions = (params) => {
 
     useEffect(() => {
         // Grab the Medicine Information from the Ref Document when the component first mounted
-        getMedidineInfoFromReferenceDocument()
-    }, [])
+        getMedidineInfoFromReferenceDocument();
+    }, []);
 
     return (
         <>
@@ -192,7 +189,9 @@ const Actions = (params) => {
                                 </div>
                                 <div className='collapse-content'>
                                     <div
-                                        className={`col-span-3 ${themeValue === 'dark' ? 'ag-theme-quartz-dark' : 'ag-theme-quartz'}`}
+                                        className={`col-span-3 ${
+                                            themeValue === 'dark' ? 'ag-theme-quartz-dark' : 'ag-theme-quartz'
+                                        }`}
                                         style={{ width: '100%', height: 450 }}
                                     >
                                         {/* The AG Grid component */}
@@ -228,7 +227,7 @@ const Disease = () => {
     //* Big Data Object (Entire Form)
     const data = {
         name: useRef(null),
-        description: useRef(null)
+        description: useRef(null),
     };
 
     const isFirstColumn = (params) => {
@@ -280,6 +279,7 @@ const Disease = () => {
         {
             field: '',
             cellRenderer: Actions,
+            width: 150,
             cellRendererParams: {
                 gridPrescriptionListRef,
             },
@@ -344,7 +344,7 @@ const Disease = () => {
         const querySnapshot = await getDocs(collection(db, 'Medicines'));
         querySnapshot.forEach((doc) => {
             const medicine = doc.data();
-            medicine.cost = formatCurrency(Number(medicine.cost)) // Format the currency property in VND format
+            medicine.cost = formatCurrency(Number(medicine.cost)); // Format the currency property in VND format
             medicine.ref = doc.ref; //* Attach the ref property to object pass it as reference datatype to FireStore
             setMedicineList((prevData) => [...prevData, medicine]);
         });
@@ -429,16 +429,16 @@ const Disease = () => {
         }
     };
 
-    const closeModal = (modalID) =>  {
+    const closeModal = (modalID) => {
         const dialog = document.querySelector(modalID);
         dialog.close();
-    }
+    };
 
     useEffect(() => {
         // Close the modal after created and reset its values
-        closeModal('#masterdata_disease_dialog')
-        refreshData()
-    }, [rowData])
+        closeModal('#masterdata_disease_dialog');
+        refreshData();
+    }, [rowData]);
 
     //* Get Symptom List when component first mounted
     //* The same for Medicine list since this will be displayed
@@ -580,7 +580,9 @@ const Disease = () => {
                             </div>
 
                             <div
-                                className={`col-span-3 overflow-x-auto ${themeValue === 'dark' ? 'ag-theme-quartz-dark' : 'ag-theme-quartz'}`}
+                                className={`col-span-3 overflow-x-auto ${
+                                    themeValue === 'dark' ? 'ag-theme-quartz-dark' : 'ag-theme-quartz'
+                                }`}
                                 style={{ width: '100%', height: 450 }}
                             >
                                 <AgGridReact
