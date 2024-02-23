@@ -75,7 +75,7 @@ const Navbar = () => {
                     </svg>
                 </button>
                 <Link to='/' className='btn btn-ghost text-xl'>
-                    Sổ Khám Điện Tử <span className='invisible md:visible'>- Clinic Management</span>
+                    Sổ Khám Điện Tử
                 </Link>
             </div>
 

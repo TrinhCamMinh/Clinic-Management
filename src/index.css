@@ -1,3 +1,8 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+input:disabled{
+    color: oklch(var(--p)); /* DaisyUI: text primary color  */
+    font-weight: 600;
+}
