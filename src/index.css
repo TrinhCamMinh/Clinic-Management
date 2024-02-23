@@ -2,7 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
-input:disabled{
-    color: oklch(var(--p)); /* DaisyUI: text primary color  */
-    font-weight: 600;
+@layer base {
+    input:disabled {
+        color: oklch(var(--p)) !important; /* DaisyUI: text primary color  */
+        font-weight: 600;
+    }
 }

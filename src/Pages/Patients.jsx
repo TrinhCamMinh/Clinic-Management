@@ -97,12 +97,9 @@ const Actions = (params) => {
                     <header>
                         <h3 className='font-bold text-2xl text-center'>Thông tin chi tiết người khám</h3>
 
-                        <div className='avatar w-full mt-8'>
-                            <div className='w-24 rounded my-0 mx-auto'>
-                                <img
-                                    src='https://daisyui.com/images/stock/photo-1534528741775-53994a69daeb.jpg'
-                                    alt={`${data.name}-avatar`}
-                                />
+                        <div className='avatar placeholder w-full mt-4'>
+                            <div className='bg-neutral text-neutral-content w-24 rounded my-0 mx-auto'>
+                                <span className='text-3xl'>M</span>
                             </div>
                         </div>
                     </header>
